@@ -1,5 +1,6 @@
 package hue.captains.singapura.js.homing.findash.studio;
 
+import hue.captains.singapura.js.homing.findash.studio.docs.DemoDataRequirementsDoc;
 import hue.captains.singapura.js.homing.findash.studio.docs.EngineArchitectureDoc;
 import hue.captains.singapura.js.homing.findash.studio.docs.UiStudyDoc;
 import hue.captains.singapura.js.homing.findash.studio.docs.UserGuideDoc;
@@ -34,12 +35,14 @@ public record FinDashDocCatalogue()
         return List.of(
                 Entry.of(this, UserGuideDoc.INSTANCE),
                 Entry.of(this, UiStudyDoc.INSTANCE),
-                Entry.of(this, EngineArchitectureDoc.INSTANCE)
+                Entry.of(this, EngineArchitectureDoc.INSTANCE),
+                Entry.of(this, DemoDataRequirementsDoc.INSTANCE)
         );
     }
 
     @Override
     public List<Doc> docs() {
-        return List.of(UserGuideDoc.INSTANCE, UiStudyDoc.INSTANCE, EngineArchitectureDoc.INSTANCE);
+        return List.of(UserGuideDoc.INSTANCE, UiStudyDoc.INSTANCE,
+                EngineArchitectureDoc.INSTANCE, DemoDataRequirementsDoc.INSTANCE);
     }
 }

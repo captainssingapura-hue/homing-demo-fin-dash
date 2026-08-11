@@ -18,9 +18,10 @@ import java.nio.charset.StandardCharsets;
  * doc-reader — clicking the catalogue tile opens the page as authored.</p>
  *
  * <p>The canonical sources live in the repo's {@code docs/} folder (the
- * handover location README and KT.md point at); the classpath copies under
- * {@code findash-docs/} exist so the studio can serve them from the jar.
- * Update both together.</p>
+ * handover location README and KT.md point at) and are copied into the jar
+ * under {@code findash-docs/} at build time by the {@code copy-design-docs}
+ * execution in this module's pom — there is no second committed copy to keep
+ * in sync. See {@link MarkdownResourceDoc} for the markdown sibling.</p>
  */
 public interface HtmlResourceDoc extends Doc {
 

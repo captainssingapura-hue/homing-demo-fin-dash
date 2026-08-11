@@ -110,6 +110,34 @@
 
     <build>
         <plugins>
+            <!-- The repo's docs/ folder is the SINGLE SOURCE for the design docs
+                 (README + KT.md point there). Copy them into the jar at build time
+                 rather than committing a second copy under src/main/resources —
+                 the served doc can then never drift from the canonical file. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-design-docs</id>
+                        <phase>generate-resources</phase>
+                        <goals><goal>copy-resources</goal></goals>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}/findash-docs</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/../docs</directory>
+                                    <includes>
+                                        <include>*.html</include>
+                                        <include>*.md</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>

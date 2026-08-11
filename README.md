@@ -5,10 +5,14 @@ Demo project for building financial dashboards with the homing workspace — an
 structured as **one Maven module (one Crate, one workspace kind) per human actor**
 in the UI Requirements Study.
 
-> Build from **[KT.md](KT.md)** (knowledge-transfer guide) and the design docs in
+> Build from **[KT.md](KT.md)** (knowledge-transfer guide) and the docs in
 > [`docs/`](docs/):
 > - [`docs/fx-options-ui-study.html`](docs/fx-options-ui-study.html) — the UI Requirements Study (**the build target**: personas, screens, wireframes W1–W6, principles P1–P5).
 > - [`docs/fx-options-engine-architecture.html`](docs/fx-options-engine-architecture.html) — the pricing & risk engine architecture (domain context).
+> - [`docs/demo-data-requirements.md`](docs/demo-data-requirements.md) — requirements for the consolidated, UI-agnostic demo dataset (the substrate for cross-workspace widget connection).
+>
+> `docs/` is the single source: the studio serves these files from the jar via a
+> build-time copy (no second committed copy), under **Documentation** on the landing.
 
 ## Modules
 
