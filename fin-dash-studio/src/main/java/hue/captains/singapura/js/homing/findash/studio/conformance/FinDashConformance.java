@@ -13,6 +13,7 @@ import hue.captains.singapura.js.homing.conformance.rules.RuleSetId;
 import hue.captains.singapura.js.homing.core.Crate;
 import hue.captains.singapura.js.homing.core.JsModuleType;
 import hue.captains.singapura.js.homing.findash.audit.AuditCrate;
+import hue.captains.singapura.js.homing.findash.book.BookCrate;
 import hue.captains.singapura.js.homing.findash.core.FinDashCoreCrate;
 import hue.captains.singapura.js.homing.findash.core.conformance.DeterministicRiskRule;
 import hue.captains.singapura.js.homing.findash.core.conformance.RiskModuleType;
@@ -56,6 +57,7 @@ public final class FinDashConformance {
      */
     public static final List<Crate> TOP_LEVEL = List.of(
             FinDashCoreCrate.INSTANCE,
+            BookCrate.INSTANCE,
             TraderCrate.INSTANCE,
             ETradingCrate.INSTANCE,
             SalesCrate.INSTANCE,

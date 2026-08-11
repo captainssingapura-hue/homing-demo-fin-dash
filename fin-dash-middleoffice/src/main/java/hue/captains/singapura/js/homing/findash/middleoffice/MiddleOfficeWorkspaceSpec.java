@@ -1,5 +1,7 @@
 package hue.captains.singapura.js.homing.findash.middleoffice;
 
+import hue.captains.singapura.js.homing.findash.book.TradeBlotterWidget;
+import hue.captains.singapura.js.homing.findash.core.bus.DeskSecretaryModule;
 import hue.captains.singapura.js.homing.studio.workspace.NavigatorSecretaryModule;
 import hue.captains.singapura.js.homing.workspace.WidgetEntry;
 import hue.captains.singapura.js.homing.workspace.WidgetGroup;
@@ -32,6 +34,9 @@ public final class MiddleOfficeWorkspaceSpec implements WorkspaceSpec {
     public List<WidgetEntry> widgetEntries() {
         WidgetGroup overview = WidgetGroup.of("Overview");
         return List.of(
+            WidgetEntry.of(TradeBlotterWidget.class, WidgetLabel.of("Trade Blotter"))
+                    .withIcon(new WidgetIcon.Emoji("🧾"))
+                    .withGroup(WidgetGroup.of("Console")),
             WidgetEntry.of(LifecycleWidget.class, WidgetLabel.of("Lifecycle"))
                     .withIcon(new WidgetIcon.Emoji("🗂"))
                     .withGroup(WidgetGroup.of("Console")),
@@ -46,6 +51,9 @@ public final class MiddleOfficeWorkspaceSpec implements WorkspaceSpec {
         return List.of(
             PartyDecl.of("navigation", NavigatorSecretaryModule.INSTANCE, "NavigatorSecretary")
                      .exposedAs("navParty")
+                     .build(),
+            PartyDecl.of("desk", DeskSecretaryModule.INSTANCE, "DeskSecretary")
+                     .exposedAs("deskParty")
                      .build()
         );
     }

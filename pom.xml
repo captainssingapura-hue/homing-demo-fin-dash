@@ -27,6 +27,7 @@
 
     <modules>
         <module>fin-dash-core</module>
+        <module>fin-dash-book</module>
         <module>fin-dash-trader</module>
         <module>fin-dash-etrading</module>
         <module>fin-dash-sales</module>

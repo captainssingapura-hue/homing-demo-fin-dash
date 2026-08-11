@@ -1,5 +1,8 @@
 package hue.captains.singapura.js.homing.findash.ipv;
 
+import hue.captains.singapura.js.homing.findash.book.PortfolioWidget;
+import hue.captains.singapura.js.homing.findash.book.TradeBlotterWidget;
+import hue.captains.singapura.js.homing.findash.core.bus.DeskSecretaryModule;
 import hue.captains.singapura.js.homing.studio.workspace.NavigatorSecretaryModule;
 import hue.captains.singapura.js.homing.workspace.WidgetEntry;
 import hue.captains.singapura.js.homing.workspace.WidgetGroup;
@@ -32,6 +35,12 @@ public final class IpvWorkspaceSpec implements WorkspaceSpec {
     public List<WidgetEntry> widgetEntries() {
         WidgetGroup overview = WidgetGroup.of("Overview");
         return List.of(
+            WidgetEntry.of(PortfolioWidget.class, WidgetLabel.of("Portfolio"))
+                    .withIcon(new WidgetIcon.Emoji("📁"))
+                    .withGroup(WidgetGroup.of("Console")),
+            WidgetEntry.of(TradeBlotterWidget.class, WidgetLabel.of("Trade Blotter"))
+                    .withIcon(new WidgetIcon.Emoji("🧾"))
+                    .withGroup(WidgetGroup.of("Console")),
             WidgetEntry.of(PnlExplainWidget.class, WidgetLabel.of("P&L Explain / IPV"))
                     .withIcon(new WidgetIcon.Emoji("🧾"))
                     .withGroup(WidgetGroup.of("Console")),
@@ -46,6 +55,9 @@ public final class IpvWorkspaceSpec implements WorkspaceSpec {
         return List.of(
             PartyDecl.of("navigation", NavigatorSecretaryModule.INSTANCE, "NavigatorSecretary")
                      .exposedAs("navParty")
+                     .build(),
+            PartyDecl.of("desk", DeskSecretaryModule.INSTANCE, "DeskSecretary")
+                     .exposedAs("deskParty")
                      .build()
         );
     }

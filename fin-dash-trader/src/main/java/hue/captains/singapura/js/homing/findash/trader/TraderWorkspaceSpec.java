@@ -1,5 +1,7 @@
 package hue.captains.singapura.js.homing.findash.trader;
 
+import hue.captains.singapura.js.homing.findash.book.PortfolioWidget;
+import hue.captains.singapura.js.homing.findash.book.TradeBlotterWidget;
 import hue.captains.singapura.js.homing.findash.core.bus.DeskSecretaryModule;
 import hue.captains.singapura.js.homing.studio.workspace.NavigatorSecretaryModule;
 import hue.captains.singapura.js.homing.workspace.WidgetEntry;
@@ -45,6 +47,12 @@ public final class TraderWorkspaceSpec implements WorkspaceSpec {
             WidgetEntry.of(RiskBlotterWidget.class, WidgetLabel.of("Risk Blotter"))
                     .withIcon(new WidgetIcon.Emoji("📋"))
                     .withGroup(risk),
+            WidgetEntry.of(PortfolioWidget.class, WidgetLabel.of("Portfolio"))
+                    .withIcon(new WidgetIcon.Emoji("📁"))
+                    .withGroup(risk),
+            WidgetEntry.of(TradeBlotterWidget.class, WidgetLabel.of("Trade Blotter"))
+                    .withIcon(new WidgetIcon.Emoji("🧾"))
+                    .withGroup(trading),
             WidgetEntry.of(BarrierWatchWidget.class, WidgetLabel.of("Barrier Watch"))
                     .withIcon(new WidgetIcon.Emoji("🚨"))
                     .withGroup(risk),

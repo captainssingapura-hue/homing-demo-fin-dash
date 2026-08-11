@@ -26,6 +26,11 @@
             <artifactId>fin-dash-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.github.captainssingapura-hue.homing.findash</groupId>
+            <artifactId>fin-dash-book</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

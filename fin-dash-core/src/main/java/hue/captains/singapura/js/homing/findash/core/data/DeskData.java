@@ -566,6 +566,78 @@ public final class DeskData {
                     "5 → 6 → 5 iterations (stable)", "fast vs slow 0.2bp ✓",
                     "stream vs official 0.1 vol pt", "good"));
 
+    // ------------------------------------------------------------------ book
+
+    /**
+     * One position — the middle rung of the universal drill chain (aggregate →
+     * position → trade → explain). Positions decompose the blotter's
+     * pair▸tenor buckets; {@code tradeId} is the door to the trade journal.
+     */
+    public record Position(String id, String pair, String tenor, String instrument,
+                           String notional, String pv, String delta, String vega,
+                           String barrierDist, double freshSecs, double budgetFrac,
+                           String tradeId) {}
+
+    public static final List<Position> POSITIONS = List.of(
+            new Position("P-1101", "EURUSD", "1W", "Vanilla Call 1.0900 · 15-Aug NY",
+                    "€30M", "+€48k",  "+1.1M", "18k",  null,      2, 0.22, "T-4452"),
+            new Position("P-1102", "EURUSD", "1M", "Vanilla Put 1.0800 · 10-Sep NY",
+                    "€45M", "−€61k",  "+1.9M", "51k",  null,      2, 0.28, "T-4430"),
+            new Position("P-1103", "EURUSD", "1M", "Risk reversal 1.0750/1.1050 · 12-Sep",
+                    "€25M", "+€22k",  "+1.5M", "41k",  null,      2, 0.28, "T-4438"),
+            new Position("P-1104", "EURUSD", "3M", "Barrier KO Call 1.0850 KO 1.1200 · 10-Nov",
+                    "€10M", "+€142k", "+3.4M", "12.4k", "38 pips", 2, 0.35, "T-4471"),
+            new Position("P-1105", "EURUSD", "3M", "Vanilla Straddle 1.0850 · 12-Nov",
+                    "€20M", "+€96k",  "+0.3M", "89.6k", null,      2, 0.35, "T-4419"),
+            new Position("P-1201", "USDJPY", "1M", "Digital 151.50 · 05-Sep TK",
+                    "$45M", "−€12k",  "−0.5M", "22k",  "162 pips", 45, 0.92, "T-4444"),
+            new Position("P-1202", "USDJPY", "1M", "Vanilla Call 148.00 · 08-Sep",
+                    "$30M", "+€31k",  "−0.3M", "39k",  null,      45, 0.92, "T-4427"),
+            new Position("P-1203", "USDJPY", "6M", "No-touch 152.00 · 20-Jan",
+                    "$40M", "+€88k",  "−0.9M", "58k",  "12 pips", 45, 0.90, "T-4402"),
+            new Position("P-1204", "USDJPY", "6M", "Vanilla Put 145.00 · 12-Feb",
+                    "$25M", "−€19k",  "−0.4M", "29k",  null,      45, 0.90, "T-4391"),
+            new Position("P-1301", "EURJPY", "3M", "Vanilla Call 162.00 · 14-Nov (delivery)",
+                    "€15M", "+€27k",  "+0.4M", "41k",  null,       3, 0.41, "T-4415"),
+            new Position("P-1401", "GBPUSD", "1M", "Vanilla Call 1.3600 · 09-Sep",
+                    "€18M", "+€24k",  "+1.9M", "21k",  null,       2, 0.24, "T-4462"),
+            new Position("P-1402", "GBPUSD", "3M", "One-touch 1.3550 · 11-Nov",
+                    "€8M",  "+€41k",  "+2.6M", "31k",  "96 pips",  2, 0.27, "T-4409"),
+            new Position("P-1501", "AUDUSD", "3M", "Vanilla Put 0.6400 · 18-Nov",
+                    "€12M", "−€8k",   "+1.4M", "33k",  null,       4, 0.33, "T-4433"));
+
+    /** One journaled amendment on a trade (MO §10: journaled, four-eyes by materiality). */
+    public record Amendment(String when, String who, String what, String pnlImpact,
+                            String approval) {}
+
+    /** One trade-journal entry — every trade carries the slice it was priced on (P1). */
+    public record Trade(String id, String time, String trader, String ticket, String pair,
+                        String notional, String pvAtBooking, String stamp, String status,
+                        List<Amendment> amendments) {}
+
+    public static final List<Trade> TRADES = List.of(
+            new Trade("T-4471", "14:28:44", "trader A", "eurusd 3m 1.0850 ko 1.1200 10",
+                    "EURUSD", "€10M", "+€142,399", "C204 · S513/87 · VV-2.3", "booked",
+                    List.of()),
+            new Trade("T-4462", "13:52:10", "trader B", "gbpusd 1m 1.3600 18",
+                    "GBPUSD", "€18M", "+€61,200", "C203 · S470/12 · GK-1.8", "booked",
+                    List.of()),
+            new Trade("T-4452", "11:20:05", "trader A", "eurusd 1w 1.0900 30",
+                    "EURUSD", "€30M", "+€44,800", "C201 · S509/44 · GK-1.8", "booked",
+                    List.of()),
+            new Trade("T-4444", "10:44:31", "sales D (RFQ)", "usdjpy 1m digital 151.50 45",
+                    "USDJPY", "$45M", "−€9,100", "C200 · S492/07 · VV-2.3", "booked",
+                    List.of()),
+            new Trade("T-4409", "08-Aug", "trader B", "gbpusd 3m ot 1.3550 8",
+                    "GBPUSD", "€8M", "+€38,500", "C198 · S465/31 · VV-2.3", "amended (1)",
+                    List.of(new Amendment("09-Aug 09:12", "MO A",
+                            "barrier level 1.3500 → 1.3550 (confirm mismatch — see breaks)",
+                            "+€2.6k re-priced + re-explained automatically",
+                            "four-eyes: MO B ✓ (above materiality)"))),
+            new Trade("T-4391", "05-Aug", "trader A", "usdjpy 6m 145.00 put 25",
+                    "USDJPY", "$25M", "−€16,900", "C195 · S441/18 · VV-2.3", "booked",
+                    List.of()));
+
     // ---------------------------------------------------------------- pricer
 
     public record Ticket(String pair, String tenor, double strike, String barrierType,

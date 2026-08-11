@@ -10,10 +10,13 @@
         <version>LOCAL-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fin-dash-middleoffice</artifactId>
+    <artifactId>fin-dash-book</artifactId>
 
-    <name>fin-dash-middleoffice</name>
-    <description>Middle office workspace (kind "middle-office"): trade blotter, lifecycle events, breaks. One crate: MiddleOfficeCrate.</description>
+    <name>fin-dash-book</name>
+    <description>The shared book widgets — the two anchor "driving" widgets used across
+        workspaces: the Portfolio view (position level) and the Trade Blotter (trade
+        journal with amendment history). The middle rungs of the universal drill chain
+        (aggregate → position → trade → explain). One crate: BookCrate.</description>
 
     <dependencies>
         <dependency>
@@ -23,11 +26,6 @@
         <dependency>
             <groupId>io.github.captainssingapura-hue.homing.findash</groupId>
             <artifactId>fin-dash-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.github.captainssingapura-hue.homing.findash</groupId>
-            <artifactId>fin-dash-book</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

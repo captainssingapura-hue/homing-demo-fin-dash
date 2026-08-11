@@ -15,6 +15,7 @@ in the UI Requirements Study.
 | Module | Persona / role | Workspace kind | Screens |
 |---|---|---|---|
 | `fin-dash-core` | shared substrate: UI kit, grid, smile chart, desk secretary, headless models, demo data, RFC 0044 policy extension | — | — |
+| `fin-dash-book` | shared anchors: Portfolio view + Trade Blotter, listed in five workspaces | — | Portfolio, Trade Blotter |
 | `fin-dash-trader` | Trader / market-maker | `trader` | Pricer (W1), Surface Manager (W2), Risk Blotter (W4), Barrier Watch, Expiry/Pins |
 | `fin-dash-etrading` | e-Trading supervisor | `etrading` | Quoting Console (W3), RFQ Tape |
 | `fin-dash-sales` | Sales & structuring | `sales` | Client Pricer (margin on top, indicative/firm) |
