@@ -165,6 +165,49 @@ public final class DeskData {
             new PinCandidate("EURUSD", 1.0900, "€45M", "0.4 figs away · theta magnet into the cut", "warn"),
             new PinCandidate("GBPUSD", 1.3500, "€12M", "1.1 figs away", "good"));
 
+    // -------------------------------------------------------------- quoting
+
+    /** One auto-quoting pair row (W3): state + reason when automatic. */
+    public record QuotePair(String pair, String state, String stateNote, String spread,
+                            String skew, String age, String hitPct, String volume) {}
+
+    public static final List<QuotePair> QUOTING = List.of(
+            new QuotePair("EURUSD", "streaming",    null,
+                    "0.05", "+0.2Δ", "0.3s", "23%", "€340M"),
+            new QuotePair("USDJPY", "auto-widened", "surface degraded (1M BF quarantined) → ×2.0 · rule QW-3",
+                    "0.06→0.12", "−0.4Δ", "0.4s", "9%", "€185M"),
+            new QuotePair("EURJPY", "pulled",       "manual — cross vol mismatch",
+                    "—", "—", "412s", "—", "€22M"),
+            new QuotePair("GBPUSD", "streaming",    null,
+                    "0.07", "0", "0.5s", "18%", "€96M"),
+            new QuotePair("AUDUSD", "streaming",    null,
+                    "0.08", "+0.1Δ", "0.7s", "21%", "€41M"));
+
+    /** The quoting event stream — automatic state changes and manual actions in
+     *  the SAME stream (study §4: "why were we wide for 40 minutes" must have a
+     *  scrollable answer). */
+    public record QuoteEvent(String time, String kind, String text) {}
+
+    public static final List<QuoteEvent> QUOTE_EVENTS = List.of(
+            new QuoteEvent("14:31:07", "auto",   "USDJPY surface degraded (1M BF quarantined) → auto-widened ×2.0 · rule QW-3"),
+            new QuoteEvent("14:12:40", "manual", "EURJPY pulled by supervisor · reason: cross vol mismatch · four-eyes pending (>30 min)"),
+            new QuoteEvent("13:58:22", "auto",   "GBPUSD spread restored ×1.0 — surface healthy again"),
+            new QuoteEvent("13:41:05", "auto",   "AUDUSD quote age breach (1.9s) → size cap ×0.5 · rule QA-1, expired 13:52"));
+
+    /** One RFQ tape entry — every quote stamped with its slice (P1). */
+    public record Rfq(String time, String source, String desc, String quote,
+                      String outcome, String stamp) {}
+
+    public static final List<Rfq> RFQS = List.of(
+            new Rfq("14:32:07", "bank client A", "EURUSD 1M 25ΔP €25M",
+                    "7.91 / 8.03", "WON",    "S513/87"),
+            new Rfq("14:31:44", "platform RFQ",  "USDJPY 3M ATM $40M",
+                    "wide (degraded)", "LOST", "S498"),
+            new Rfq("14:30:12", "bank client B", "EURUSD 2W KO RKO €15M",
+                    "quoted manual (desk)", "WON", "S513/86"),
+            new Rfq("14:27:58", "bank client A", "GBPUSD 6M ATM €30M",
+                    "8.49 / 8.61", "PENDING", "S471"));
+
     // ---------------------------------------------------------------- pricer
 
     public record Ticket(String pair, String tenor, double strike, String barrierType,

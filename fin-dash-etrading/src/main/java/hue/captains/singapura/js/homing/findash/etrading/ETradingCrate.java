@@ -29,6 +29,8 @@ public final class ETradingCrate implements Crate {
     @Override
     public List<CrateEntry> entries() {
         return List.of(
-                CrateEntry.of(ETradingHomeWidget.INSTANCE));
+                CrateEntry.of(ETradingHomeWidget.INSTANCE),
+                CrateEntry.of(QuotingConsoleWidget.INSTANCE),
+                CrateEntry.of(RfqTapeWidget.INSTANCE));
     }
 }
