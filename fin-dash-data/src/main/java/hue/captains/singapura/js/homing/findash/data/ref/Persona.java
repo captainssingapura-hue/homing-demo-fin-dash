@@ -10,5 +10,9 @@ public enum Persona {
     /** Era 1 — runs the book: prices, marks, hedges. */
     TRADER,
     /** Era 1 — an automation, not a human: rules that act carry an actor too. */
-    AUTOMATION
+    AUTOMATION,
+    /** Era 2 — owns calibration quality and model methodology; owns Models. */
+    QUANT,
+    /** Era 3 — decides what may price and mark, with evidence. Owns ValidationRecords. */
+    MODEL_VALIDATION
 }

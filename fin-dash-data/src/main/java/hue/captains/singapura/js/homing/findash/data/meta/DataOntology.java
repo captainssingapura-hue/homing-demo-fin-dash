@@ -281,6 +281,96 @@ public final class DataOntology implements StatelessFunctionalObject {
                         OntologyMarker.ENUM, 1,
                         "A node's level in the book tree — named rather than positional, so a "
                                 + "fourth level could be inserted without renumbering anything.",
+                        List.of(), List.of()),
+
+                // --- Era 2: the quant arrives, and models become objects the desk does not own.
+                new DataType(id("Model"), "ref.Model", Stratum.REFERENCE,
+                        OntologyMarker.VALUE_OBJECT, 2,
+                        "A named pricing model as an entity — status, owner — distinct from the "
+                                + "ModelRef stamped on figures. The split is load-bearing: a retired "
+                                + "model must stay nameable because old trades carry its stamp, so "
+                                + "lineage points at the ref and never at this record. Ring 1: the "
+                                + "trader selects from what the matrix allows and cannot change any "
+                                + "of it — structurally, because there is no write path here.",
+                        List.of(rel("Model", "ref", "ModelRef", Cardinality.ONE,
+                                        "the identity historical figures carry"),
+                                rel("Model", "status", "ModelStatus", Cardinality.ONE,
+                                        "may it publish at all"),
+                                rel("Model", "owner", "ActorId", Cardinality.ONE,
+                                        "the quant accountable for the methodology")),
+                        List.of(use("model-inventory", "Model Inventory", "governance", UsageRole.RENDERS,
+                                        "every named strategy, version, status"),
+                                use("calibration-lab", "Calibration Lab", "quant", UsageRole.RENDERS,
+                                        "model basis: stream vs official"),
+                                use("change-console", "Change Console", "governance", UsageRole.RENDERS,
+                                        "the subject of a promotion package"))),
+                new DataType(id("ModelStatus"), "ref.ModelStatus", Stratum.REFERENCE,
+                        OntologyMarker.ENUM, 2,
+                        "Where a model stands. CANDIDATE is the value that matters: a model that "
+                                + "exists, runs in shadow, and whose numbers may not be published.",
+                        List.of(),
+                        List.of(use("model-inventory", "Model Inventory", "governance", UsageRole.RENDERS,
+                                "the status chip"))),
+                new DataType(id("InstrumentClass"), "ref.InstrumentClass", Stratum.REFERENCE,
+                        OntologyMarker.ENUM, 2,
+                        "The granularity the selection matrix works at — coarser than OptionType, "
+                                + "because methodology is chosen per class of payoff, not per contract "
+                                + "shape.",
+                        List.of(), List.of()),
+                new DataType(id("PricingPurpose"), "ref.PricingPurpose", Stratum.REFERENCE,
+                        OntologyMarker.ENUM, 2,
+                        "What a price is for — the other axis of the matrix. The same class may "
+                                + "use a fast model to stream and a richer one to mark officially; "
+                                + "change package #412 turns on exactly this.",
+                        List.of(), List.of()),
+                new DataType(id("SelectionMatrixRow"), "ref.SelectionMatrixRow", Stratum.REFERENCE,
+                        OntologyMarker.VALUE_OBJECT, 2,
+                        "Which model prices which instrument class, for which purpose, on which "
+                                + "pairs. This is why a trader's model badge is a consequence rather "
+                                + "than a choice: the pricer resolves through this row and stamps what "
+                                + "it finds. Ring 2 — Era 2 lets the quant set it directly; Era 3 "
+                                + "routes every edit through a change package with four-eyes and "
+                                + "epoch-staged activation. The type does not change; only who may "
+                                + "produce a new one.",
+                        List.of(rel("SelectionMatrixRow", "model", "ModelRef", Cardinality.ONE,
+                                        "what will actually be used"),
+                                rel("SelectionMatrixRow", "instrumentClass", "InstrumentClass",
+                                        Cardinality.ONE, "which payoffs"),
+                                rel("SelectionMatrixRow", "purpose", "PricingPurpose", Cardinality.ONE,
+                                        "stream / RFQ / official / risk"),
+                                rel("SelectionMatrixRow", "pairs", "PairId", Cardinality.ONE_OR_MANY,
+                                        "the scope it governs")),
+                        List.of(use("change-console", "Change Console", "governance", UsageRole.RENDERS,
+                                        "the semantic diff is expressed in these rows"),
+                                use("model-inventory", "Model Inventory", "governance", UsageRole.RENDERS,
+                                        "where the matrix uses each model"),
+                                use("pricer", "Pricer", "trader", UsageRole.DERIVES_FROM,
+                                        "resolves the model badge it stamps"))),
+
+                // --- Era 3: validation arrives, and approval becomes evidence.
+                new DataType(id("ValidationRecord"), "ref.ValidationRecord", Stratum.REFERENCE,
+                        OntologyMarker.VALUE_OBJECT, 3,
+                        "An independent validation of a model VERSION: who decided, when, with what "
+                                + "outcome, against which document, until when. This is what makes "
+                                + "APPROVED mean something — without it, approval is an adjective "
+                                + "somebody typed. Keyed on ModelRef, so shipping v2.4 inherits "
+                                + "nothing from v2.3.",
+                        List.of(rel("ValidationRecord", "model", "ModelRef", Cardinality.ONE,
+                                        "the version approved — never the entity"),
+                                rel("ValidationRecord", "validator", "ActorId", Cardinality.ONE,
+                                        "independent of the owner, by construction"),
+                                rel("ValidationRecord", "outcome", "ValidationOutcome", Cardinality.ONE,
+                                        "yes, no, or yes-within-bounds")),
+                        List.of(use("model-inventory", "Model Inventory", "governance", UsageRole.RENDERS,
+                                        "validation doc + the revalidation worklist ageing"),
+                                use("change-console", "Change Console", "governance", UsageRole.RENDERS,
+                                        "the evidence attached to a package"))),
+                new DataType(id("ValidationOutcome"), "ref.ValidationOutcome", Stratum.REFERENCE,
+                        OntologyMarker.ENUM, 3,
+                        "PENDING / APPROVED / APPROVED_WITH_CONDITIONS / REJECTED. Real validation "
+                                + "rarely says yes or no — it says yes, within these bounds, and a "
+                                + "model whose conditions are invisible is one whose limits get "
+                                + "forgotten.",
                         List.of(), List.of()));
     }
 
