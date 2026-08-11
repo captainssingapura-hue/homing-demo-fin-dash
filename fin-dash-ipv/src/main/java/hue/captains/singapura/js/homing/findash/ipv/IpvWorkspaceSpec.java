@@ -32,6 +32,9 @@ public final class IpvWorkspaceSpec implements WorkspaceSpec {
     public List<WidgetEntry> widgetEntries() {
         WidgetGroup overview = WidgetGroup.of("Overview");
         return List.of(
+            WidgetEntry.of(PnlExplainWidget.class, WidgetLabel.of("P&L Explain / IPV"))
+                    .withIcon(new WidgetIcon.Emoji("🧾"))
+                    .withGroup(WidgetGroup.of("Console")),
             WidgetEntry.of(IpvHomeWidget.class, WidgetLabel.of("Overview"))
                     .withIcon(new WidgetIcon.Emoji("🧾"))
                     .withGroup(overview)

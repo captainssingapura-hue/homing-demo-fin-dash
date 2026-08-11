@@ -29,6 +29,7 @@ public final class SalesCrate implements Crate {
     @Override
     public List<CrateEntry> entries() {
         return List.of(
-                CrateEntry.of(SalesHomeWidget.INSTANCE));
+                CrateEntry.of(SalesHomeWidget.INSTANCE),
+                CrateEntry.of(ClientPricerWidget.INSTANCE));
     }
 }

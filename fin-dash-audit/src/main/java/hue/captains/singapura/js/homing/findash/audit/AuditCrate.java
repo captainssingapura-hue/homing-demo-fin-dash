@@ -29,6 +29,7 @@ public final class AuditCrate implements Crate {
     @Override
     public List<CrateEntry> entries() {
         return List.of(
-                CrateEntry.of(AuditHomeWidget.INSTANCE));
+                CrateEntry.of(AuditHomeWidget.INSTANCE),
+                CrateEntry.of(AuditExplorerWidget.INSTANCE));
     }
 }

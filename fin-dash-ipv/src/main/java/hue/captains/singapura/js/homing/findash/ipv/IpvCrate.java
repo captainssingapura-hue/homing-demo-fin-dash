@@ -29,6 +29,7 @@ public final class IpvCrate implements Crate {
     @Override
     public List<CrateEntry> entries() {
         return List.of(
-                CrateEntry.of(IpvHomeWidget.INSTANCE));
+                CrateEntry.of(IpvHomeWidget.INSTANCE),
+                CrateEntry.of(PnlExplainWidget.INSTANCE));
     }
 }

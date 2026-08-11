@@ -29,6 +29,9 @@ public final class RiskCrate implements Crate {
     @Override
     public List<CrateEntry> entries() {
         return List.of(
-                CrateEntry.of(RiskHomeWidget.INSTANCE));
+                CrateEntry.of(RiskHomeWidget.INSTANCE),
+                CrateEntry.of(RiskViewsWidget.INSTANCE),
+                CrateEntry.of(ScenarioWorkbenchWidget.INSTANCE),
+                CrateEntry.of(ConcentrationWidget.INSTANCE));
     }
 }

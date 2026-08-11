@@ -29,6 +29,7 @@ public final class QuantCrate implements Crate {
     @Override
     public List<CrateEntry> entries() {
         return List.of(
-                CrateEntry.of(QuantHomeWidget.INSTANCE));
+                CrateEntry.of(QuantHomeWidget.INSTANCE),
+                CrateEntry.of(CalibrationLabWidget.INSTANCE));
     }
 }

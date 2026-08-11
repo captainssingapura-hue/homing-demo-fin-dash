@@ -32,6 +32,9 @@ public final class SalesWorkspaceSpec implements WorkspaceSpec {
     public List<WidgetEntry> widgetEntries() {
         WidgetGroup overview = WidgetGroup.of("Overview");
         return List.of(
+            WidgetEntry.of(ClientPricerWidget.class, WidgetLabel.of("Client Pricer"))
+                    .withIcon(new WidgetIcon.Emoji("🤝"))
+                    .withGroup(WidgetGroup.of("Console")),
             WidgetEntry.of(SalesHomeWidget.class, WidgetLabel.of("Overview"))
                     .withIcon(new WidgetIcon.Emoji("🤝"))
                     .withGroup(overview)

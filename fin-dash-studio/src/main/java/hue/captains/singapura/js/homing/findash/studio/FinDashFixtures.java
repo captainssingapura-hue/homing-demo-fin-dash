@@ -6,6 +6,12 @@ import hue.captains.singapura.js.homing.core.AppModule;
 import hue.captains.singapura.js.homing.core.Crate;
 import hue.captains.singapura.js.homing.core.CrateEntry;
 import hue.captains.singapura.js.homing.findash.audit.AuditWorkspaceSpec;
+import hue.captains.singapura.js.homing.findash.audit.data.AuditGetAction;
+import hue.captains.singapura.js.homing.findash.ipv.data.PnlGetAction;
+import hue.captains.singapura.js.homing.findash.middleoffice.data.LifecycleGetAction;
+import hue.captains.singapura.js.homing.findash.quant.data.CalibrationGetAction;
+import hue.captains.singapura.js.homing.findash.risk.data.RiskGetAction;
+import hue.captains.singapura.js.homing.findash.summary.data.SummaryGetAction;
 import hue.captains.singapura.js.homing.findash.etrading.ETradingWorkspaceSpec;
 import hue.captains.singapura.js.homing.findash.etrading.data.QuotingGetAction;
 import hue.captains.singapura.js.homing.findash.governance.GovernanceWorkspaceSpec;
@@ -118,6 +124,13 @@ public record FinDashFixtures(Umbrella<FinDashStudio> umbrella, List<Crate> topL
         actions.put("/fx/changes", new ChangesGetAction());
         // Platform SRE (W5) feed.
         actions.put("/fx/platform", new PlatformGetAction());
+        // Risk, MO, IPV, audit, quant, summary feeds.
+        actions.put("/fx/risk", new RiskGetAction());
+        actions.put("/fx/lifecycle", new LifecycleGetAction());
+        actions.put("/fx/pnl", new PnlGetAction());
+        actions.put("/fx/audit", new AuditGetAction());
+        actions.put("/fx/calibration", new CalibrationGetAction());
+        actions.put("/fx/summary", new SummaryGetAction());
         return Map.copyOf(actions);
     }
 

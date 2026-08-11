@@ -12,26 +12,28 @@ in the UI Requirements Study.
 
 ## Modules
 
-| Module | Persona / role | Workspace kind |
-|---|---|---|
-| `fin-dash-core` | shared substrate: UI kit, grid, smile chart, desk secretary, headless models, demo data, RFC 0044 policy extension | — |
-| `fin-dash-trader` | Trader / market-maker — **Pricer W1, Surface Manager W2, Risk Blotter W4 built** | `trader` |
-| `fin-dash-etrading` | e-Trading supervisor (W3) | `etrading` |
-| `fin-dash-sales` | Sales & structuring | `sales` |
-| `fin-dash-marketdata` | Market data operations (W5 pattern) | `market-data` |
-| `fin-dash-quant` | Quant / methodology | `quant` |
-| `fin-dash-risk` | Market risk manager | `risk` |
-| `fin-dash-governance` | Model validation (W6) | `governance` |
-| `fin-dash-middleoffice` | Middle office | `middle-office` |
-| `fin-dash-ipv` | Product control / IPV | `ipv` |
-| `fin-dash-platform` | Platform operations (SRE, W5) | `platform` |
-| `fin-dash-audit` | Audit & compliance | `audit` |
-| `fin-dash-summary` | Desk head / management | `summary` |
-| `fin-dash-studio` | the umbrella: landing (one tile per persona), servers, conformance config/export/gate | — |
+| Module | Persona / role | Workspace kind | Screens |
+|---|---|---|---|
+| `fin-dash-core` | shared substrate: UI kit, grid, smile chart, desk secretary, headless models, demo data, RFC 0044 policy extension | — | — |
+| `fin-dash-trader` | Trader / market-maker | `trader` | Pricer (W1), Surface Manager (W2), Risk Blotter (W4), Barrier Watch, Expiry/Pins |
+| `fin-dash-etrading` | e-Trading supervisor | `etrading` | Quoting Console (W3), RFQ Tape |
+| `fin-dash-sales` | Sales & structuring | `sales` | Client Pricer (margin on top, indicative/firm) |
+| `fin-dash-marketdata` | Market data operations | `market-data` | Feed & Quality (W5 pattern), Override Inventory |
+| `fin-dash-quant` | Quant / methodology | `quant` | Calibration Lab |
+| `fin-dash-risk` | Market risk manager | `risk` | Risk Views (limits), Scenario Workbench, Concentrations |
+| `fin-dash-governance` | Model validation | `governance` | Change Console (W6), Model Inventory |
+| `fin-dash-middleoffice` | Middle office | `middle-office` | Lifecycle Workstation + Breaks |
+| `fin-dash-ipv` | Product control / IPV | `ipv` | P&L Explain / IPV workbench / marks sign-off |
+| `fin-dash-platform` | Platform operations (SRE) | `platform` | Platform Console (W5), Epoch Flow |
+| `fin-dash-audit` | Audit & compliance | `audit` | Audit Explorer (cross-journal, time-travel) |
+| `fin-dash-summary` | Desk head / management | `summary` | Summary Dashboard (every tile a projection) |
+| `fin-dash-studio` | the umbrella: landing (one tile per persona), servers, conformance config/export/gate | — | — |
 
-Persona modules not yet built out ship their **home card** (mission, ring writes,
-cadence, planned screens) so every workspace exists from day one; screens land
-persona by persona.
+Every persona also keeps its **home card** (mission, ring writes, cadence,
+planned screens). One demo story runs through all screens: broker C's
+jump-filtered volBF quarantine degrades the USDJPY surface, stretches the reval
+budget, auto-widens quoting, ages a Ring-3 override, and surfaces in risk,
+audit, and the management rollup.
 
 ## Prerequisite
 
@@ -75,7 +77,10 @@ mvn -o -pl fin-dash-studio exec:java -Dexec.mainClass=hue.captains.singapura.js.
 
 ## Next steps
 
-Build the remaining persona screens (KT.md §5–§8, study §4–§13): quoting console
-W3, feed & quality console, change console W6, platform console W5, risk views —
-each in its own module, widgets declared in that module's crate (the gate fails
-otherwise, by design), data feeds added to `FinDashFixtures.harnessGetActions()`.
+Every persona has its primary screens; from here the demo deepens rather than
+widens: real ticking data (the demo feeds are static snapshots), the polyglot
+codec for typed decode, per-widget as-of time travel (P4), theming beyond the
+light palette, and the replay lab / champion-challenger screens (study §7).
+New widgets follow the recipe in CLAUDE.md — widget + spec entry + crate entry
++ feed in `FinDashFixtures.harnessGetActions()` (the gate fails otherwise, by
+design).

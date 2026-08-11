@@ -29,6 +29,7 @@ public final class MiddleOfficeCrate implements Crate {
     @Override
     public List<CrateEntry> entries() {
         return List.of(
-                CrateEntry.of(MiddleOfficeHomeWidget.INSTANCE));
+                CrateEntry.of(MiddleOfficeHomeWidget.INSTANCE),
+                CrateEntry.of(LifecycleWidget.INSTANCE));
     }
 }

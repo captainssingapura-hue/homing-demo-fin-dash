@@ -397,6 +397,175 @@ public final class DeskData {
             new PlatformControl("Enter degraded mode", "global",
                     "quoting auto-widens ×2 everywhere · control screens go snapshot-only", true));
 
+    // ------------------------------------------------------------------ risk
+
+    /** One limit row in risk's own hierarchy, with utilization. */
+    public record LimitRow(String book, String metric, String usage, String limit,
+                           double frac, String note) {}
+
+    public static final List<LimitRow> LIMITS = List.of(
+            new LimitRow("FXO (all)",   "vega",                  "€486k",  "€800k", 0.61, null),
+            new LimitRow("FXO (all)",   "overnight delta",       "€12.4M", "€20M",  0.62, null),
+            new LimitRow("FXO/USDJPY",  "vega",                  "€148k",  "€160k", 0.92, "wave queued — figure is Taylor-tracked"),
+            new LimitRow("FXO/USDJPY",  "barrier concentration", "€40M",   "€45M",  0.88, "NT cluster 12 pips off spot"),
+            new LimitRow("FXO/EURUSD",  "vega",                  "€212k",  "€400k", 0.53, null),
+            new LimitRow("FXO/EURUSD",  "pin exposure (NY cut)", "€45M",   "€60M",  0.75, "1.0900 magnet"));
+
+    /** The breach / warning worklist with acknowledgment state. */
+    public record Breach(String what, String detail, String severity, String state) {}
+
+    public static final List<Breach> BREACHES = List.of(
+            new Breach("USDJPY vega 92% of limit", "surface stale — number is Taylor-tracked; full reval queued",
+                    "serious", "unacknowledged"),
+            new Breach("USDJPY barrier concentration 88%", "€40M NT within 12 pips",
+                    "warn", "unacknowledged"),
+            new Breach("EURUSD pin exposure 75%", "NY-cut cluster at 1.0900",
+                    "warn", "acknowledged 13:40 by risk B"));
+
+    /** A governed scenario definition (Ring 2: reviewed, versioned, shared). */
+    public record Scenario(String id, String label, String kind, String governance,
+                           List<String> matrixCols, List<List<String>> matrix, String worst) {}
+
+    public static final List<Scenario> SCENARIOS = List.of(
+            new Scenario("spot-vol", "Spot ±1% × vol ±1", "matrix", "standard grid · v3 · approved",
+                    List.of("", "−1%", "−0.5%", "0", "+0.5%", "+1%"),
+                    List.of(List.of("σ+1", "−41k", "+102k", "+148k", "+121k", "−86k ⚠KO"),
+                            List.of("σ 0", "−96k", "+18k",  "0",     "+64k",  "−121k ⚠KO"),
+                            List.of("σ−1", "−162k", "−71k", "−148k", "−9k",   "−177k ⚠KO")),
+                    "σ−1 / +1%: −177k (KO band)"),
+            new Scenario("gfc-2008", "GFC Oct-2008 replay", "historical", "historical set · approved",
+                    List.of("", "impact"),
+                    List.of(List.of("P&L", "−€2.31M"),
+                            List.of("worst book", "USDJPY barriers −€1.4M"),
+                            List.of("vega after shock", "limit breach ×1.8")),
+                    "USDJPY barrier book"),
+            new Scenario("chf-2015", "CHF depeg Jan-2015 replay", "historical", "historical set · approved",
+                    List.of("", "impact"),
+                    List.of(List.of("P&L", "−€870k"),
+                            List.of("worst book", "EURUSD KO cluster −€520k"),
+                            List.of("gap risk", "3 barriers jump through")),
+                    "EURUSD KO cluster"),
+            new Scenario("draft-boj", "BoJ surprise +50bp (draft)", "custom", "DRAFT — Ring-2 review pending",
+                    List.of("", "impact"),
+                    List.of(List.of("P&L", "−€640k (indicative)"),
+                            List.of("status", "not usable for limits until approved")),
+                    "indicative only"));
+
+    /** Barrier-density band: notional of triggers within a band of spot. */
+    public record BarrierBand(String pair, String band, String notional, String note,
+                              String severity) {}
+
+    public static final List<BarrierBand> BARRIER_DENSITY = List.of(
+            new BarrierBand("USDJPY", "< 0.5%",   "€40M", "gamma flips at 152.00", "serious"),
+            new BarrierBand("USDJPY", "0.5–1.5%", "€12M", "quiet", "good"),
+            new BarrierBand("EURUSD", "1–2%",     "€25M", "KO 1.1200", "warn"),
+            new BarrierBand("GBPUSD", "> 2%",     "€8M",  "OT 1.3550", "good"));
+
+    /** Event-date vega concentration. */
+    public record EventVega(String date, String event, String vega, String severity) {}
+
+    public static final List<EventVega> EVENT_VEGA = List.of(
+            new EventVega("05-Sep", "NFP",  "€58k",  "good"),
+            new EventVega("17-Sep", "FOMC", "€112k", "warn"),
+            new EventVega("19-Sep", "BoJ",  "€87k",  "warn"));
+
+    // --------------------------------------------------------- middle office
+
+    /** One lifecycle-workstation item (study §10). */
+    public record LifecycleItem(String kind, String desc, String due, String state,
+                                String severity) {}
+
+    public static final List<LifecycleItem> LIFECYCLE = List.of(
+            new LifecycleItem("expiry",   "EURUSD €120M vanillas — NY 10am cut",
+                    "in 2h 14m", "auto-exercise per config · preview ready", "warn"),
+            new LifecycleItem("expiry",   "USDJPY $45M digitals at 151.50",
+                    "in 2h 14m", "manual decision required — near NT level", "serious"),
+            new LifecycleItem("barrier",  "USDJPY NT 152.00 proximity watch",
+                    "live", "no determination pending · fixing source: WMR", "warn"),
+            new LifecycleItem("fixing",   "AUDUSD NDF fixings ×3",
+                    "16:00", "sources confirmed", "good"),
+            new LifecycleItem("delivery", "EURJPY physical delivery pair ×2",
+                    "T+2", "SSI matched", "good"));
+
+    /** One reconciliation break with aging + ownership. */
+    public record BreakItem(String vs, String desc, String age, String owner,
+                            String severity) {}
+
+    public static final List<BreakItem> BREAKS = List.of(
+            new BreakItem("confirmations", "EURUSD KO — barrier level 1.1200 vs 1.1250 on confirm",
+                    "2 d", "MO A", "serious"),
+            new BreakItem("settlement", "GBPUSD premium — value-date mismatch",
+                    "4 h", "MO B", "warn"));
+
+    // ------------------------------------------------------------------- ipv
+
+    /** One P&L attribution term (study §11). */
+    public record PnlTerm(String term, String amount, boolean emphasis) {}
+
+    public static final List<PnlTerm> PNL_EXPLAIN = List.of(
+            new PnlTerm("delta",              "+€412k", false),
+            new PnlTerm("gamma",              "+€108k", false),
+            new PnlTerm("vega (smile buckets)", "−€184k", false),
+            new PnlTerm("theta",              "−€38k",  false),
+            new PnlTerm("rates / forwards",   "+€12k",  false),
+            new PnlTerm("new trades",         "+€85k",  false),
+            new PnlTerm("amendments",         "€0",     false),
+            new PnlTerm("model basis (VV vs stream)", "−€22k", false),
+            new PnlTerm("unexplained",        "+€6k",   true));
+
+    public static final String PNL_TOTAL = "+€379k";
+    public static final String PNL_UNEXPLAINED_TOL = "€25k";
+
+    /** One IPV variance row vs independent sources. */
+    public record IpvRow(String scope, String desk, String independent, String variance,
+                         String severity, String note) {}
+
+    public static final List<IpvRow> IPV_ROWS = List.of(
+            new IpvRow("EURUSD 3M ATM", "7.85", "7.83", "+0.02", "good", "within tolerance"),
+            new IpvRow("USDJPY 1M BF",  "0.34", "0.29", "+0.05", "warn", "quarantined source excluded from consensus"),
+            new IpvRow("EURJPY corr mark", "0.55", "0.62", "−0.07", "serious",
+                    "live Ring-3 override, 3 d old — adjustment proposal drafted, P&L impact −€41k"));
+
+    public static final String MARKS_STATE =
+            "candidate official epoch S513/87 · diffs vs yesterday: 2 exceptions flagged · sign-off pending (product control)";
+
+    // ----------------------------------------------------------------- audit
+
+    /** One cross-journal audit event (study §13) — everything stamped. */
+    public record AuditEvent(String time, String journal, String actor, String text,
+                             String stamp) {}
+
+    public static final List<AuditEvent> AUDIT_EVENTS = List.of(
+            new AuditEvent("14:32:07", "quotes",    "auto",         "EURUSD RFQ quoted 7.91/8.03 → WON", "S513/87"),
+            new AuditEvent("14:31:07", "quoting",   "rule QW-3",    "USDJPY auto-widened ×2.0 (surface degraded)", "S498"),
+            new AuditEvent("14:31:00", "data-ops",  "jump filter",  "broker C volBF quarantined", "C204"),
+            new AuditEvent("14:28:44", "trades",    "trader A",     "booked: eurusd 3m 1.0850 ko 1.1200 10 — priced slice attached", "C204 · S513/87 · VV-2.3"),
+            new AuditEvent("14:15:32", "marks",     "trader A",     "RR25 override → −1.10 · reason: stale broker run · expires 17:00", "S513/87"),
+            new AuditEvent("14:12:40", "quoting",   "supervisor B", "EURJPY pulled · reason: cross vol mismatch", "S204"),
+            new AuditEvent("13:02:11", "config",    "A. Chen",      "package #412 signed (quant owner) — VV-2.3 → SLV-1.0 staged", "epoch SOD 15-Aug"),
+            new AuditEvent("08-Aug",   "risk",      "desk quant",   "EURJPY corr mark override 0.62 → 0.55 · proxy pair illiquid", "C198"));
+
+    // ------------------------------------------------------------ calibration
+
+    /** Per-pair calibration diagnostics (study §7) — every value a time series. */
+    public record CalibDiag(String pair, String epoch, String residByPillar,
+                            String arbMargins, String solverTrend, String pathAgreement,
+                            String modelBasis, String severity) {}
+
+    public static final List<CalibDiag> CALIBRATION = List.of(
+            new CalibDiag("EURUSD", "S513/87", "ATM 0.02 · RR 0.08 · BF 0.11 (3M worst 0.42 > tol)",
+                    "butterfly 0.18 · calendar 0.12 · wings 0.22 (all clear)",
+                    "6 → 6 → 7 iterations (stable)", "fast vs slow 0.3bp ✓",
+                    "stream vs official 0.1 vol pt", "warn"),
+            new CalibDiag("USDJPY", "S498 (stale)", "1M BF unfit — input quarantined",
+                    "butterfly 0.09 · calendar 0.04 ⚠ thin · wings 0.15",
+                    "9 → 14 → 22 iterations (deteriorating — early warning)", "fast path only (slow queued)",
+                    "basis unmeasurable while stale", "serious"),
+            new CalibDiag("GBPUSD", "S471", "ATM 0.03 · RR 0.06 · BF 0.09",
+                    "butterfly 0.21 · calendar 0.16 · wings 0.25 (all clear)",
+                    "5 → 6 → 5 iterations (stable)", "fast vs slow 0.2bp ✓",
+                    "stream vs official 0.1 vol pt", "good"));
+
     // ---------------------------------------------------------------- pricer
 
     public record Ticket(String pair, String tenor, double strike, String barrierType,

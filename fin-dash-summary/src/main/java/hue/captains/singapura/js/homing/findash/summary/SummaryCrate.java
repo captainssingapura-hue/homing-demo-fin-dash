@@ -29,6 +29,7 @@ public final class SummaryCrate implements Crate {
     @Override
     public List<CrateEntry> entries() {
         return List.of(
-                CrateEntry.of(SummaryHomeWidget.INSTANCE));
+                CrateEntry.of(SummaryHomeWidget.INSTANCE),
+                CrateEntry.of(SummaryDashboardWidget.INSTANCE));
     }
 }

@@ -32,6 +32,9 @@ public final class AuditWorkspaceSpec implements WorkspaceSpec {
     public List<WidgetEntry> widgetEntries() {
         WidgetGroup overview = WidgetGroup.of("Overview");
         return List.of(
+            WidgetEntry.of(AuditExplorerWidget.class, WidgetLabel.of("Audit Explorer"))
+                    .withIcon(new WidgetIcon.Emoji("🔍"))
+                    .withGroup(WidgetGroup.of("Console")),
             WidgetEntry.of(AuditHomeWidget.class, WidgetLabel.of("Overview"))
                     .withIcon(new WidgetIcon.Emoji("🔍"))
                     .withGroup(overview)
