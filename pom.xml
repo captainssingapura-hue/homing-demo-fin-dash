@@ -7,11 +7,13 @@
     <groupId>io.github.captainssingapura-hue.homing.findash</groupId>
     <artifactId>homing-demo-fin-dash</artifactId>
     <version>LOCAL-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
     <name>homing-demo-fin-dash</name>
-    <description>Financial risk-management dashboard demo on the homing workspace, with RFC 0044 conformance.
-        Scaffold — see KT.md. Built by a downstream agent from the FX Options UI Requirements Study.</description>
+    <description>FX options risk-management demo on the homing workspace, with RFC 0044 conformance.
+        Multi-module: one Maven module (one Crate, one workspace kind) per human actor in the
+        UI Requirements Study, plus fin-dash-core (shared primitives + headless models) and
+        fin-dash-studio (the umbrella server + conformance gate/studio).</description>
 
     <properties>
         <maven.compiler.release>21</maven.compiler.release>
@@ -23,62 +25,64 @@
         <junit.version>5.11.3</junit.version>
     </properties>
 
-    <dependencies>
-        <!-- The serving stack (workspace + studio-base + server, transitively). -->
-        <dependency>
-            <groupId>io.github.captainssingapura-hue.homing.js</groupId>
-            <artifactId>homing-studio-starter</artifactId>
-            <version>${homing.core.version}</version>
-        </dependency>
+    <modules>
+        <module>fin-dash-core</module>
+        <module>fin-dash-trader</module>
+        <module>fin-dash-etrading</module>
+        <module>fin-dash-sales</module>
+        <module>fin-dash-marketdata</module>
+        <module>fin-dash-quant</module>
+        <module>fin-dash-risk</module>
+        <module>fin-dash-governance</module>
+        <module>fin-dash-middleoffice</module>
+        <module>fin-dash-ipv</module>
+        <module>fin-dash-platform</module>
+        <module>fin-dash-audit</module>
+        <module>fin-dash-summary</module>
+        <module>fin-dash-studio</module>
+    </modules>
 
-        <!-- Conformance studio (compile scope): lets the demo BOTH gate (test) and
-             serve its own conformance studio (main). Drags in the engine + rules +
-             core + the workspace/shell crates transitively. -->
-        <dependency>
-            <groupId>io.github.captainssingapura-hue.homing.js</groupId>
-            <artifactId>homing-conformance-studio</artifactId>
-            <version>${homing.core.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.github.captainssingapura-hue.homing.js</groupId>
+                <artifactId>homing-studio-starter</artifactId>
+                <version>${homing.core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.captainssingapura-hue.homing.js</groupId>
+                <artifactId>homing-conformance-rules</artifactId>
+                <version>${homing.core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.captainssingapura-hue.homing.js</groupId>
+                <artifactId>homing-conformance-studio</artifactId>
+                <version>${homing.core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.5</version>
-            </plugin>
-
-            <!-- RFC 0044 — export the demo's conformance report at process-classes into
-                 target/classes/conformance-report, where the conformance studio reads it.
-                 Uses the extended RISK_MODEL policy (FinDashConformanceExport). -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.5.0</version>
-                <executions>
-                    <execution>
-                        <id>export-fin-dash-conformance-report</id>
-                        <phase>process-classes</phase>
-                        <goals><goal>java</goal></goals>
-                        <configuration>
-                            <mainClass>hue.captains.singapura.js.homing.findash.conformance.FinDashConformanceExport</mainClass>
-                            <arguments>
-                                <argument>${project.build.outputDirectory}/conformance-report</argument>
-                            </arguments>
-                            <classpathScope>compile</classpathScope>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.2.5</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>3.5.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
 </project>
