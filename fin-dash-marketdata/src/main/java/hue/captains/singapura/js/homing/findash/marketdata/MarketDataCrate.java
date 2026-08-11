@@ -29,6 +29,8 @@ public final class MarketDataCrate implements Crate {
     @Override
     public List<CrateEntry> entries() {
         return List.of(
-                CrateEntry.of(MarketDataHomeWidget.INSTANCE));
+                CrateEntry.of(MarketDataHomeWidget.INSTANCE),
+                CrateEntry.of(FeedHealthWidget.INSTANCE),
+                CrateEntry.of(OverrideInventoryWidget.INSTANCE));
     }
 }

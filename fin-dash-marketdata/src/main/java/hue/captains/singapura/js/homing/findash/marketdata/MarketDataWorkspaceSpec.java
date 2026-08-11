@@ -1,5 +1,6 @@
 package hue.captains.singapura.js.homing.findash.marketdata;
 
+import hue.captains.singapura.js.homing.findash.core.bus.DeskSecretaryModule;
 import hue.captains.singapura.js.homing.studio.workspace.NavigatorSecretaryModule;
 import hue.captains.singapura.js.homing.workspace.WidgetEntry;
 import hue.captains.singapura.js.homing.workspace.WidgetGroup;
@@ -11,13 +12,13 @@ import hue.captains.singapura.js.homing.workspace.shell.WorkspaceSpec;
 import java.util.List;
 
 /**
- * The Market data operations workspace (kind {@code "market-data"}) on the reused
- * {@code GenericWorkspace} shell. Scaffold: the home card; the persona's real
- * screens (UI study) land beside it, grouped as they arrive.
+ * The market data operations workspace (kind {@code "market-data"}) —
+ * guarantee clean inputs, or the right people know they are not (study §6):
+ * the feed &amp; quality console (source × kind grid, monitors, quarantine
+ * queue) and the override inventory (every live Ring-3 action, one view).
  *
- * <p>The generic {@code NavigatorSecretary} bus is reused (exposed as
- * {@code navParty}) until this persona's cross-widget events need a bespoke
- * secretary.</p>
+ * <p>Two parties: navigation plus the desk bus — quarantine rows publish pair
+ * selections the trader widgets follow.</p>
  */
 public final class MarketDataWorkspaceSpec implements WorkspaceSpec {
 
@@ -30,8 +31,15 @@ public final class MarketDataWorkspaceSpec implements WorkspaceSpec {
 
     @Override
     public List<WidgetEntry> widgetEntries() {
+        WidgetGroup console  = WidgetGroup.of("Console");
         WidgetGroup overview = WidgetGroup.of("Overview");
         return List.of(
+            WidgetEntry.of(FeedHealthWidget.class, WidgetLabel.of("Feed & Quality"))
+                    .withIcon(new WidgetIcon.Emoji("📡"))
+                    .withGroup(console),
+            WidgetEntry.of(OverrideInventoryWidget.class, WidgetLabel.of("Override Inventory"))
+                    .withIcon(new WidgetIcon.Emoji("🗃"))
+                    .withGroup(console),
             WidgetEntry.of(MarketDataHomeWidget.class, WidgetLabel.of("Overview"))
                     .withIcon(new WidgetIcon.Emoji("📡"))
                     .withGroup(overview)
@@ -43,6 +51,9 @@ public final class MarketDataWorkspaceSpec implements WorkspaceSpec {
         return List.of(
             PartyDecl.of("navigation", NavigatorSecretaryModule.INSTANCE, "NavigatorSecretary")
                      .exposedAs("navParty")
+                     .build(),
+            PartyDecl.of("desk", DeskSecretaryModule.INSTANCE, "DeskSecretary")
+                     .exposedAs("deskParty")
                      .build()
         );
     }

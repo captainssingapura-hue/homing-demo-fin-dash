@@ -208,6 +208,62 @@ public final class DeskData {
             new Rfq("14:27:58", "bank client A", "GBPUSD 6M ATM €30M",
                     "8.49 / 8.61", "PENDING", "S471"));
 
+    // ----------------------------------------------------------- market data
+
+    /** One feed-health cell: source × quote-kind (W5 grid). */
+    public record FeedCell(String source, String kind, String state, String note,
+                           String downstream) {}
+
+    private static FeedCell ok(String src, String kind) {
+        return new FeedCell(src, kind, "ok", null, null);
+    }
+
+    public static final List<String> FEED_KINDS = List.of("spot", "fwd", "volATM", "volRR", "volBF");
+
+    public static final List<FeedCell> FEED_GRID = List.of(
+            ok("vendor A", "spot"), ok("vendor A", "fwd"), ok("vendor A", "volATM"),
+            ok("vendor A", "volRR"), ok("vendor A", "volBF"),
+            ok("vendor B", "spot"), ok("vendor B", "fwd"), ok("vendor B", "volATM"),
+            ok("vendor B", "volRR"),
+            new FeedCell("vendor B", "volBF", "stale", "stale 41s vs 15s class tolerance",
+                    "feeds the USDJPY 1M BF composite — already down to 2 sources"),
+            new FeedCell("broker C", "spot", "ok", null, null),
+            new FeedCell("broker C", "fwd", "none", "not provided", null),
+            new FeedCell("broker C", "volATM", "ok", null, null),
+            new FeedCell("broker C", "volRR", "ok", null, null),
+            new FeedCell("broker C", "volBF", "quarantined", "jump filter → review queue",
+                    "USDJPY 1M BF quarantined → surface S498 stale → reval budget 92% (blotter)"));
+
+    /** Composite / arbitrage monitors (trend beside value). */
+    public static final List<String> FEED_MONITORS = List.of(
+            "CIP residual 0.8bp ↘ (within band)",
+            "triangulation drift EURJPY 0.2bp → (quiet)",
+            "composite dispersion volBF 1.9σ ↗ (watch)");
+
+    /** Quarantine review queue entry — one-gesture release/extend (Ring 3). */
+    public record Quarantined(String instrument, String pair, String reason,
+                              String since, String severity) {}
+
+    public static final List<Quarantined> QUARANTINE = List.of(
+            new Quarantined("USDJPY 1M BF (broker C)", "USDJPY", "jump filter — 4.2σ move in one tick",
+                    "14:31", "serious"),
+            new Quarantined("EURJPY 6M RR (vendor B)", "EURJPY", "dispersion vs composite > tol",
+                    "13:55", "warn"));
+
+    /** One live Ring-3 override — the single queryable inventory (study §6). */
+    public record LiveOverride(String scope, String what, String who, String why,
+                               String expires, String age, String severity) {}
+
+    public static final List<LiveOverride> OVERRIDES = List.of(
+            new LiveOverride("risk",        "EURJPY corr mark 0.62 → 0.55", "desk quant",
+                    "proxy pair illiquid", "manual review", "3 d", "serious"),
+            new LiveOverride("market-data", "NDF staleness tolerance ×3 (Asia session)", "ops C",
+                    "illiquid session window", "07:00 SGT", "5 h", "warn"),
+            new LiveOverride("surface",     "USDJPY RR25 → −1.10", "trader A",
+                    "stale broker run", "17:00 SGT", "2 h", "warn"),
+            new LiveOverride("etrading",    "EURJPY quoting pulled", "supervisor B",
+                    "cross vol mismatch", "until resumed (four-eyes pending)", "25 min", "warn"));
+
     // ---------------------------------------------------------------- pricer
 
     public record Ticket(String pair, String tenor, double strike, String barrierType,
