@@ -264,6 +264,95 @@ public final class DeskData {
             new LiveOverride("etrading",    "EURJPY quoting pulled", "supervisor B",
                     "cross vol mismatch", "until resumed (four-eyes pending)", "25 min", "warn"));
 
+    // ------------------------------------------------------------ governance
+
+    /** One approval-chain step of a Ring-2 promotion package. */
+    public record ApprovalStep(String role, String who, String state, String when) {}
+
+    /** A Ring-2 promotion package (W6): diff + replay impact + rationale + chain. */
+    public record ChangePackage(String id, String title, String summary, String aging,
+                                String severity, List<String> semanticDiff,
+                                List<String> replayImpact, String rationale,
+                                List<ApprovalStep> chain, String activation) {}
+
+    public static final List<ChangePackage> CHANGES = List.of(
+            new ChangePackage("#412", "model selection matrix",
+                    "barriers × official, G10: VV-2.3 → SLV-1.0", "3 d", "warn",
+                    List.of("SelectionMatrix[barriers, official]: VV-2.3 → SLV-1.0 · 12 pairs",
+                            "stream/RFQ and risk rows unchanged",
+                            "model basis becomes a monitored quantity"),
+                    List.of("1,842 positions repriced (5-day golden replay)",
+                            "ΔPV distribution centred, tails at long-dated RKOs",
+                            "42 positions > $10k impact → flagged list attached"),
+                    "Quant desk: VV mispricing on long-dated RKOs vs street; SLV calibration "
+                            + "farm live since Phase 4; validation doc MV-2026-081 attached · "
+                            + "challenger shadow: 60 d, divergence within bounds.",
+                    List.of(new ApprovalStep("Quant owner", "A. Chen", "signed", "08-Aug"),
+                            new ApprovalStep("Model validation", "you", "pending", null)),
+                    "staged, effective SOD 15-Aug epoch — never \"now\""),
+            new ChangePackage("#413", "PairDef EURJPY",
+                    "add 18M pillar · implied blend weight", "1 d", "good",
+                    List.of("PairDef[EURJPY].pillars: +18M (between 1Y and 2Y)",
+                            "cross blend weight: direct 0.35 → 0.40"),
+                    List.of("312 positions repriced (2-day replay)",
+                            "max ΔPV $2.1k — below materiality"),
+                    "Desk request: 18M client flow now regular; direct market deep enough "
+                            + "to raise the blend weight.",
+                    List.of(new ApprovalStep("Quant owner", "A. Chen", "signed", "10-Aug"),
+                            new ApprovalStep("Model validation", "you", "pending", null)),
+                    "staged, effective SOD 13-Aug epoch"),
+            new ChangePackage("#414", "staleness tolerance",
+                    "NDF pairs, Asia session: class tolerance ×2", "6 d", "serious",
+                    List.of("QuoteClass[NDF].staleness: 15s → 30s, 00:00–07:00 SGT only",
+                            "auto-widening rule QW-3 threshold unchanged"),
+                    List.of("no repricing impact (input-quality gate only)",
+                            "historical replay: 14 fewer false quarantines/week"),
+                    "Market-data ops: recurring false quarantines in the illiquid window; "
+                            + "bounded to the session, expiring — not a global relaxation.",
+                    List.of(new ApprovalStep("Data ops lead", "R. Okafor", "signed", "05-Aug"),
+                            new ApprovalStep("Model validation", "you", "pending", null)),
+                    "staged, effective next Asia session open"),
+            new ChangePackage("#415", "event calendar",
+                    "add ECB emergency meeting 21-Aug · weight 2.6", "2 h", "good",
+                    List.of("EventCalendar: +ECB 21-Aug (unscheduled), w=2.6",
+                            "affects EURUSD, EURJPY event-vol interpolation"),
+                    List.of("surface refit preview: 1W EURUSD ATM +0.35 vol",
+                            "no position repricing until activation"),
+                    "Trader request via surface manager; event-vol WEIGHT edits are Ring 3, "
+                            + "but calendar membership is Ring 2 — hence this package.",
+                    List.of(new ApprovalStep("Quant owner", "A. Chen", "pending", null),
+                            new ApprovalStep("Model validation", "you", "pending", null)),
+                    "staged, effective 12-Aug 06:00 UTC epoch"));
+
+    /** The model inventory — every named strategy with status + where used. */
+    public record ModelEntry(String name, String version, String status, String usedBy,
+                             String doc) {}
+
+    public static final List<ModelEntry> MODELS = List.of(
+            new ModelEntry("VV (Vanna-Volga)", "2.3", "approved",
+                    "official: barriers G10 (12 pairs) · stream: all barriers", "MV-2025-112"),
+            new ModelEntry("SLV", "1.0", "candidate",
+                    "shadow (challenger) — package #412 pending", "MV-2026-081"),
+            new ModelEntry("GK (Garman-Kohlhagen)", "1.8", "approved",
+                    "official + stream: vanillas, all pairs", "MV-2024-071"),
+            new ModelEntry("HW-local", "0.9", "retired",
+                    "none (retired 2025-11; audit-visible only)", "MV-2023-018"));
+
+    public static final List<String> REVALIDATION = List.of(
+            "VV-2.3 annual revalidation — due 30-Sep (49 d)",
+            "GK-1.8 annual revalidation — overdue 12 d ⚠");
+
+    /** The reverse query auditors ask: everything priced by model X vY. */
+    public static String reverseQuery(String model) {
+        return switch (model) {
+            case "VV (Vanna-Volga)" -> "12,404 PricingResults · 1,842 open positions · 01-Aug → today "
+                    + "(every PricingResult carries its model stamp — P1)";
+            case "SLV"              -> "8,731 shadow PricingResults (never published) · challenger only";
+            case "GK (Garman-Kohlhagen)" -> "148,220 PricingResults · vanillas · 01-Aug → today";
+            default                  -> "0 since retirement · 41,002 in the journal archive (replayable)";
+        };
+    }
+
     // ---------------------------------------------------------------- pricer
 
     public record Ticket(String pair, String tenor, double strike, String barrierType,

@@ -9,6 +9,7 @@ import hue.captains.singapura.js.homing.findash.audit.AuditWorkspaceSpec;
 import hue.captains.singapura.js.homing.findash.etrading.ETradingWorkspaceSpec;
 import hue.captains.singapura.js.homing.findash.etrading.data.QuotingGetAction;
 import hue.captains.singapura.js.homing.findash.governance.GovernanceWorkspaceSpec;
+import hue.captains.singapura.js.homing.findash.governance.data.ChangesGetAction;
 import hue.captains.singapura.js.homing.findash.ipv.IpvWorkspaceSpec;
 import hue.captains.singapura.js.homing.findash.marketdata.MarketDataWorkspaceSpec;
 import hue.captains.singapura.js.homing.findash.marketdata.data.FeedsGetAction;
@@ -112,6 +113,8 @@ public record FinDashFixtures(Umbrella<FinDashStudio> umbrella, List<Crate> topL
         // Market-data ops feeds.
         actions.put("/fx/feeds", new FeedsGetAction());
         actions.put("/fx/overrides", new OverridesGetAction());
+        // Governance (W6) feed.
+        actions.put("/fx/changes", new ChangesGetAction());
         return Map.copyOf(actions);
     }
 

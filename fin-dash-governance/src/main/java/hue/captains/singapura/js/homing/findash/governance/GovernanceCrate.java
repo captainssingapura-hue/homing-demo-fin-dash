@@ -29,6 +29,8 @@ public final class GovernanceCrate implements Crate {
     @Override
     public List<CrateEntry> entries() {
         return List.of(
-                CrateEntry.of(GovernanceHomeWidget.INSTANCE));
+                CrateEntry.of(GovernanceHomeWidget.INSTANCE),
+                CrateEntry.of(ChangeConsoleWidget.INSTANCE),
+                CrateEntry.of(ModelInventoryWidget.INSTANCE));
     }
 }

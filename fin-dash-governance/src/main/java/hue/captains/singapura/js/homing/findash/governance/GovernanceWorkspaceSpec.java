@@ -11,13 +11,10 @@ import hue.captains.singapura.js.homing.workspace.shell.WorkspaceSpec;
 import java.util.List;
 
 /**
- * The Model validation & governance workspace (kind {@code "governance"}) on the reused
- * {@code GenericWorkspace} shell. Scaffold: the home card; the persona's real
- * screens (UI study) land beside it, grouped as they arrive.
- *
- * <p>The generic {@code NavigatorSecretary} bus is reused (exposed as
- * {@code navParty}) until this persona's cross-widget events need a bespoke
- * secretary.</p>
+ * The model validation &amp; governance workspace (kind {@code "governance"})
+ * — approve what may price and mark, with evidence (study §9): the change
+ * console (W6, Ring-2 promotions as packages) and the model inventory with
+ * the revalidation worklist and the auditors' reverse query.
  */
 public final class GovernanceWorkspaceSpec implements WorkspaceSpec {
 
@@ -30,8 +27,15 @@ public final class GovernanceWorkspaceSpec implements WorkspaceSpec {
 
     @Override
     public List<WidgetEntry> widgetEntries() {
+        WidgetGroup console  = WidgetGroup.of("Console");
         WidgetGroup overview = WidgetGroup.of("Overview");
         return List.of(
+            WidgetEntry.of(ChangeConsoleWidget.class, WidgetLabel.of("Change Console"))
+                    .withIcon(new WidgetIcon.Emoji("⚖"))
+                    .withGroup(console),
+            WidgetEntry.of(ModelInventoryWidget.class, WidgetLabel.of("Model Inventory"))
+                    .withIcon(new WidgetIcon.Emoji("📚"))
+                    .withGroup(console),
             WidgetEntry.of(GovernanceHomeWidget.class, WidgetLabel.of("Overview"))
                     .withIcon(new WidgetIcon.Emoji("⚖"))
                     .withGroup(overview)
