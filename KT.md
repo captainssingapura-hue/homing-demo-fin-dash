@@ -1,8 +1,15 @@
 # Knowledge Transfer — Financial Risk Dashboard on the Homing Workspace
 
-**Audience:** the downstream agent building `homing-risk-dashboard` — a set of demo
+**Audience:** the downstream agent building `homing-demo-fin-dash` — a set of demo
 widgets for a financial risk‑management dashboard, served on the homing workspace,
 with the RFC 0044 conformance test wired in.
+
+**The spec you build from lives in [`docs/`](docs/):**
+[`fx-options-ui-study.html`](docs/fx-options-ui-study.html) (screens, personas,
+wireframes W1–W6, principles P1–P5 — **this is the build target**) and
+[`fx-options-engine-architecture.html`](docs/fx-options-engine-architecture.html)
+(domain context: data model, Greeks, two-speed risk, quality flags). This scaffold
+already realizes a slice of it — see the repo `README.md`.
 
 **How to read this:** §1–§2 are orientation (read once). §3–§8 are build recipes.
 §9 is the gotcha list — **read it before you write a line of build config**; every

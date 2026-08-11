@@ -6,9 +6,10 @@ homing `GenericWorkspace` with RFC 0044 conformance.
 
 > **This is a scaffold.** It compiles, serves, and passes conformance today, but
 > ships one placeholder widget. Build the real UI from here — start with
-> **[KT.md](KT.md)** (the full knowledge-transfer guide) and the companion design
-> docs (the *FX Options Pricing & Risk Engine* architecture and the *UI
-> Requirements Study*).
+> **[KT.md](KT.md)** (the full knowledge-transfer guide), then the companion design
+> docs in [`docs/`](docs/):
+> - [`docs/fx-options-ui-study.html`](docs/fx-options-ui-study.html) — the UI Requirements Study (**build from this**: screens, personas, wireframes W1–W6, principles P1–P5).
+> - [`docs/fx-options-engine-architecture.html`](docs/fx-options-engine-architecture.html) — the pricing & risk engine architecture (domain context: data model, Greeks, two-speed risk, quality flags).
 
 ## Prerequisite
 
