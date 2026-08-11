@@ -128,40 +128,224 @@ derived, not authored. Current state must be consistent with the journal
 history (the integrity test replays simple invariants). This is what later
 makes time travel (P4) and ticking a data extension, not a redesign.
 
-## 3. Entity inventory
+## 3. The ontology — what exists, and in what mode of being
 
-Reference (Ring 1–2): `CurrencyPair` (conventions: premium ccy, delta
-convention, cut times, pip size, spot), `Tenor`, `Model` (+version, status,
-validation-doc ref), `SelectionMatrixRow` (instrument class × purpose → model),
-`QuoteClass` (staleness tolerances), `EventCalendarEntry`, `ScenarioDef`
-(governance state incl. DRAFT), `LimitDef`, `PortfolioNode` (3-level tree),
-`Actor` (persona-typed), `DataSource`, `Rule` (QW-3, QA-1 — quoting/quality
-automation rules referenced from journal entries).
+The dataset is declared with **jOntology** (`hue.captains.singapura.tao.ontology`),
+the marker-interface library the homing framework itself is written against.
+The markers are not decoration: they are the machine-readable statement of each
+object's nature, and the enforcer checks them (§3.6).
 
-Market state (per as-of): `MarketSlice`, `CurveSetEpoch`, `SurfaceEpoch` (per
-pair: status, waiting-on ref, sub-version), `PillarQuote` (source × pair ×
-tenor × kind: value, state, reason), `FittedSurface` (per tenor: smile points
-mkt/fit, residual, tolerance, gate margins), `SpotRate`.
+### 3.1 The central claim: nothing here is `Mutable`
 
-Book: `Instrument` (**structured**: type enum, strike, barrier {type, level,
-monitoring}, expiry date + cut, notionals, ccys), `Trade` (journal-anchored,
-lineage refs, portfolio leaf, actor, counterparty/RFQ ref), `Position`
-(instrument ref, trade refs, greeks as numbers incl. smile-bucket vega,
-reval-budget fraction, freshness), `Amendment` (journal).
+The dataset is pinned to one as-of (R4) and journal-first (R8). Therefore
+**no object in `fin-dash-data` is `Mutable`** — not one. Every object is an
+immutable fact. What looks like mutation in the domain is *another fact*:
 
-Quoting/sales: `QuotingPairState` (+ rule ref, base vs current spread as
-numbers), `Rfq` (client ref, instrument ref, quote, outcome, lineage).
+| Domain "change" | What actually exists |
+|---|---|
+| a trade is amended | the `TradeBooked` fact **and** a later `TradeAmended` fact |
+| an override expires | an `OverrideRecord` fact with an expiry instant; "live" is a predicate over the as-of |
+| a quote is quarantined | a `QuoteQuarantined` journal fact; the quote's state is read from the fold |
+| quoting auto-widens | a `QuotingStateChanged` fact carrying the rule that fired |
+| a breach is acknowledged | a `BreachAcknowledged` fact; "unacknowledged" is the absence of one |
 
-Risk/control: `LimitUtilization` (derived), `Breach` (state machine:
-unack/acked{by,at}), `ScenarioResult` (per scenario: derived from positions
-via the deterministic parametric model), `PnlAttribution` (terms per position,
-rolled up on demand), `IpvComparison`, `MarksSignoffState`.
+**Current state is a derivation, never a stored object.** This is what makes
+time travel (P4) a change of *which facts you fold*, not a change of type —
+and what makes the whole dataset trivially cacheable and shareable.
 
-Ops/governance: `QualityEvent`, `OverrideRecord` (scope ref, expiry,
-approval), `ChangePackage` (diff entries as structured refs, replay impact:
-{positionCount, flaggedPositionIds}), `LifecycleItem` (derived from positions
-where possible: expiries, barrier watches; authored only for externals like
-fixings), `BreakItem` (trade ref), `SloSample`, `EpochFlowState`.
+### 3.2 The modes of being in use
+
+| Marker | Enforced contract | Used here for |
+|---|---|---|
+| `ValueObject` | ≥1 final field · overrides `equals`/`hashCode` · transitively immutable | **every fact, identity, and quantity** — the entire dataset |
+| `FunctionalObject` | immutable; may hold immutable configuration | the dataset root — functions parameterised by the facts they close over |
+| `StatelessFunctionalObject` | zero instance fields; pure functions | derivations, queries, pricing, the bulk generator |
+| `Stateless` | zero instance fields | (subsumed by the above here) |
+| `Mutable` | — | **forbidden in this module** (gate rule) |
+
+Java records satisfy `ValueObject` for free (final fields, generated
+`equals`/`hashCode`). Two consequences of the enforced contract shape the
+design, and both are wanted:
+
+- **No static methods on immutable types.** Behaviour cannot hide in
+  `static` helpers; it must live on a `FunctionalObject` singleton. This is
+  precisely the discipline today's `DeskData` violates (`parse`, `price`,
+  `reverseQuery`, `round2` are all statics) and the reason its behaviour and
+  its facts are tangled.
+- **Transitive immutability.** Field types must themselves be immutable, so
+  quantities and ids may not be bare `double`/`String` at boundaries where a
+  unit or a referent is meant (see §3.3 strata 0–1).
+
+### 3.3 The strata — the type catalogue
+
+Each stratum may reference only strata below it. Every type is a
+`ValueObject` unless marked otherwise.
+
+**Stratum 0 — Identity.** `PairId`, `TenorId`, `PortfolioNodeId`,
+`PositionId`, `TradeId`, `InstrumentId`, `RfqId`, `JournalEntryId`, `SliceId`,
+`CurveSetId`, `EpochRef` (pair + epoch + subVersion), `ModelRef` (id +
+version), `ActorId`, `SourceId`, `ScenarioId`, `EventId`, `RuleId`,
+`PackageId`, `LimitId`, `BreakId`.
+*Rule:* an identity is a **value**, never a bare `String` at a boundary. This
+is what makes R6's join contract type-checked rather than hopeful.
+
+**Stratum 1 — Quantity.** `Money` (amount + currency), `Notional`, `Vol`,
+`Greek` (value + unit), `Pips`, `Fraction` (0..1, for budgets/utilisation),
+`Percent`, `AsOf` (instant + zone), `CutTime` (named cut + zone),
+`Residual`/`Tolerance`. No formatted strings anywhere (R3); formatting is the
+kit's job.
+
+**Stratum 2 — Reference data** (Ring 1–2; changes only through governance):
+`CurrencyPair` (premium ccy, delta convention, pip size, cuts), `Tenor`,
+`Model` (version, status, validation-doc ref), `SelectionMatrixRow`
+(instrument class × purpose → `ModelRef`), `QuoteClass` (staleness
+tolerances), `CalendarEvent`, `PortfolioNode` (the 3-level tree),
+`LimitDef`, `ScenarioDef` (incl. governance state, so DRAFT is data),
+`Actor` (persona-typed), `DataSource`, `AutomationRule` (QW-3, QA-1 …).
+
+**Stratum 3 — Market state at the as-of:** `MarketSlice`, `CurveSetEpoch`,
+`SurfaceEpoch` (status enum + `waitingOn` ref), `PillarQuote` (source × pair ×
+tenor × kind → value + state + reason), `FittedSmile` (points, residual,
+tolerance, gate margins), `SpotRate`.
+
+**Stratum 4 — Book:** `Instrument` (structured: type enum, strike, optional
+`Barrier` {type, level, monitoring}, expiry + cut, notionals), `Trade`
+(instrument, portfolio leaf, actor, lineage, optional `RfqId`), `Position`
+(instrument, contributing `TradeId`s, greeks, reval budget, freshness),
+`Rfq`.
+
+**Stratum 5 — Journals (the history).** `JournalEntry` = `{JournalEntryId,
+JournalId, Instant, ActorId, payload}` where the payload is a **sealed**
+interface: `TradeBooked`, `TradeAmended`, `MarkOverridden`, `QuoteQuarantined`,
+`QuoteReleased`, `QuotingStateChanged`, `PackageApproved`, `MarksSignedOff`,
+`OpsActionTaken`, `BreachAcknowledged`.
+*Why sealed:* the audit tape and every fold switch exhaustively over the
+payload kinds — the compiler refuses a renderer that forgets one. (Same
+sealed-vs-open reasoning the framework applies to `StandardJsModuleType`
+versus the open `JsModuleType`.)
+
+**Stratum 6 — Derived projections.** Produced, never stored: `BucketRow`,
+`DeskTotals`, `LimitUtilization`, `Breach`, `ConcentrationBand`,
+`ExpiryCluster`, `PinCandidate`, `PnlAttribution`, `ScenarioResult`,
+`AuditTape`, `OverrideInventoryRow`, `EpochFlowState`, `LifecycleItem`.
+They are `ValueObject`s *returned by* stratum-7 functions; nothing in strata
+0–5 may reference them (R1).
+
+**Stratum 7 — Behaviour** (the only non-`ValueObject` types):
+
+| Type | Marker | Role |
+|---|---|---|
+| `DeskDataset` | `FunctionalObject` | the root: holds the facts, exposes the join contract as methods |
+| `DeskQueries` | `StatelessFunctionalObject` | joins over a passed-in dataset (R6 keys) |
+| `Derivations` | `StatelessFunctionalObject` | every R1 aggregate |
+| `ParametricPricing` | `StatelessFunctionalObject` | greeks/PV behind the `ModelRef` seam (D4) |
+| `BulkGenerator` | `StatelessFunctionalObject` | seeded, pure `(seed, index) → facts` (D3) |
+| `JournalFold` | `StatelessFunctionalObject` | facts → current state (the P4 seam) |
+
+```java
+// Stratum 0 — identity is a value
+public record TradeId(String value) implements ValueObject {}
+
+// Stratum 1 — quantity carries its unit
+public record Money(BigDecimal amount, Currency currency) implements ValueObject {}
+
+// Stratum 4 — a fact: every edge is a typed id, every figure a quantity
+public record Trade(TradeId id, InstrumentId instrument, PortfolioNodeId portfolio,
+                    ActorId bookedBy, Money premium, Lineage lineage,
+                    Optional<RfqId> rfq) implements ValueObject {}
+
+// Stratum 7 — behaviour has no state, and no statics
+public final class Derivations implements StatelessFunctionalObject {
+    public DeskTotals totals(DeskDataset ds, List<PositionId> scope) { … }
+}
+```
+
+### 3.4 Relationships
+
+Every edge is **by typed id**, single-directional (child → parent, fact →
+subject), and resolved through stratum-7 queries. No object graph cycles, no
+back-pointers — the reverse direction is a query, which is what makes any
+widget able to start from any node.
+
+| From | Edge | To | Card. | Exists so that |
+|---|---|---|---|---|
+| `Position` | `instrument` | `Instrument` | 1 | strike/barrier/expiry render without duplication |
+| `Position` | `contributingTrades` | `Trade` | 1..n | drill position → trade; amendment impact |
+| `Position` | `portfolio` | `PortfolioNode` (leaf) | 1 | portfolio-tree selection at any level (R6) |
+| `Position` | `lineage` | `MarketSlice`/`EpochRef`/`ModelRef` | 1 each | P1 explain; "everything priced by model X" |
+| `Trade` | `portfolio`, `bookedBy`, `rfq?` | node / `Actor` / `Rfq` | 1 | blotter grouping; actor journals; RFQ→trade chain |
+| `Trade` | *(reverse)* `amendments` | `JournalEntry` | 0..n | amendment history unfolds under the trade |
+| `Instrument` | `pair`, `barrier?` | `CurrencyPair`, `Barrier` | 1 | pip-size maths, barrier proximity |
+| `PortfolioNode` | `children` | `PortfolioNode` | 0..n | the 3-level tree; `leafIds()` closure |
+| `SurfaceEpoch` | `pair`, `waitingOn?` | `CurrencyPair`, `PillarQuote` | 1 | the degradation chain, root-cause click-through |
+| `PillarQuote` | `source`, `pair`, `tenor` | `DataSource`, … | 1 | feed grid; composite membership |
+| `JournalEntry` | `actor`, `payload refs` | any stratum 2–4 | 1..n | the audit tape is a union of journals |
+| `OverrideRecord` | `scope` | pair / epoch / mark / portfolio | 1 | one inventory across every scope |
+| `ChangePackage` | `diff`, `impact` | `SelectionMatrixRow`, `PositionId` | 0..n | replay impact is a real position list |
+| `LimitDef` | `scope` | `PortfolioNode` | 1 | utilisation follows the same tree as everything else |
+| `ScenarioDef` | *(applied to)* | `Position` | n | results derive; definitions stay governed |
+
+### 3.5 Usage — which widget consumes what
+
+This is the connection map: a widget **drives** a key (publishes it),
+**follows** it (filters on it), or **renders** the entities behind it.
+
+| Type / projection | Widgets | Role |
+|---|---|---|
+| `PortfolioNode` | Portfolio Tree | drives `portfolioNodeId` (resolved to leaf set) |
+| | Portfolio, Trade Blotter | follow → filter; blotter also groups by leaf (Σ view) |
+| | Risk Views, P&L Explain | follow → limit scope, attribution scope |
+| `Position` | Portfolio | renders + drives `positionId`/pair/tenor |
+| | Risk Blotter (via `BucketRow`) | renders derived buckets; drives pair/tenor |
+| | Concentrations, Expiry/Pins, Barrier Watch | render derived bands/clusters from the same positions |
+| | Scenario Workbench | inputs to `ScenarioResult` |
+| `Trade` | Trade Blotter | renders + drives `tradeId`, unfolds amendments |
+| | Lifecycle, Audit Explorer, P&L Explain | follow → break subject, journal rows, amendment term |
+| `Instrument` | Pricer, Client Pricer | render parsed ticket; drive pricing |
+| | Barrier Watch, Expiry/Pins | barrier + expiry features |
+| `SurfaceEpoch` / `FittedSmile` | Surface Manager | renders; drives `epochRef` |
+| | Epoch Flow, Calibration Lab | follow → cadence state, diagnostics |
+| | Pricer, RFQ Tape | lineage stamps (P1) |
+| `PillarQuote` | Feed & Quality | renders grid; drives `sourceId`/quote state |
+| | Surface Manager | pillar table + override target |
+| `QuotingPairState` | Quoting Console | renders + drives pair; Ring-3 actions |
+| `Rfq` | RFQ Tape | renders; drives pair; lineage to epoch |
+| `Model` / `SelectionMatrixRow` | Model Inventory | renders; drives `modelRef` (reverse query) |
+| | Change Console | diff subjects |
+| `JournalEntry` | Audit Explorer | renders the union tape; filters by journal/actor |
+| | Trade Blotter, Quoting Console, Override Inventory | render their own slice of the same journals |
+| `OverrideRecord` | Override Inventory | renders every scope, oldest first |
+| | Surface Manager | shows the mark override it owns |
+| `ChangePackage` | Change Console | renders package; approval facts |
+| `LimitDef` → `LimitUtilization` | Risk Views | renders utilisation + breach worklist |
+| | Summary | rollup tile (projection only) |
+| `SloSample`, `EpochFlowState` | Platform Console, Epoch Flow | render; drive root cause → pair |
+| **Every type** | Summary Dashboard | projections only — no facts of its own (P5) |
+
+**The invariant this table encodes:** no widget owns data. Each is a lens on
+the same graph, so any selection made in one is resolvable by all the others —
+including across workspaces, since the party bus carries ids (R6) and both
+ends resolve against the same dataset.
+
+### 3.6 The ontology gate
+
+`fin-dash-data` ships `DeskOntologyTest`, which runs jOntology's
+`PackageScanner` + `OntologyEnforcer` over the whole module and fails on any
+violation. Rules:
+
+1. **No `Mutable` type** in the module.
+2. Every fact/id/quantity is a `ValueObject`; every behaviour type is a
+   `FunctionalObject` or `StatelessFunctionalObject`.
+3. **No static methods** (the enforcer's rule; `main` excepted) — behaviour
+   lives on the singletons of stratum 7.
+4. **One documented allowance:** JDK collection fields (`List`/`Map`/`Set`)
+   fail the enforcer's transitive check (a `List` *could* be an `ArrayList`),
+   but are permitted when the canonical constructor defensively copies via
+   `List.copyOf`/`Map.copyOf`/`Set.copyOf`, which yields genuinely immutable
+   instances. This mirrors the framework's own value objects (e.g.
+   `ConformanceStudioFixtures(… , List<Crate> topLevel)` with `List.copyOf`).
+   The allowance is a filter with a written reason — the same pattern as
+   `FinDashConformance.ALLOWANCES` — never a suppressed check.
 
 ## 4. Realism requirements
 
@@ -197,8 +381,11 @@ fixings), `BreakItem` (trade ref), `SloSample`, `EpochFlowState`.
 
 ## 5. Packaging & access
 
-- **One home:** a dedicated `fin-dash-data` module (or a `data` package in
-  `fin-dash-core` — see open question Q1) exposing:
+- **Dependencies:** `fin-dash-data` depends on **jOntology core** (the
+  markers) and, in test scope, **jOntology enforcing-utils** (the gate). It
+  depends on no UI module, and on no homing serving module — the data must be
+  buildable and testable with the whole front end deleted.
+- **One home:** the dedicated `fin-dash-data` module (D1) exposing:
   - the typed entity records + the dataset instance (`DeskDataset.INSTANCE`);
   - **query helpers** that encode the join contract (`positionsIn(leafIds)`,
     `tradesFor(positionId)`, `pricedBy(modelRef)`, `journal(journalId)`,
@@ -207,10 +394,10 @@ fixings), `BreakItem` (trade ref), `SloSample`, `EpochFlowState`.
 - Feeds (`GetAction`s) become thin projections: query → JSON. **No feed may
   author domain facts.** JSON field names follow the entity model, not widget
   needs; formatting moves to the kit (`fdk.fmt` grows money/vol formatters).
-- **Integrity gate:** a `DeskDatasetIntegrityTest` in the data module —
-  referential closure, R1 derivation agreement, R7 chain traversals, R4
-  determinism (no `Instant.now()` etc. by inspection). Runs with `mvn -o test`
-  like the conformance gate.
+- **Two gates**, both running under `mvn -o test` beside the conformance gate:
+  - `DeskDatasetIntegrityTest` — referential closure, R1 derivation
+    agreement, R7 chain traversals, R4 determinism, and the JSON export.
+  - `DeskOntologyTest` — the jOntology enforcer over the whole module (§3.6).
 
 ## 6. Migration requirements
 
