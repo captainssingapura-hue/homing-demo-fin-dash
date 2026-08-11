@@ -1,5 +1,6 @@
 package hue.captains.singapura.js.homing.findash.risk;
 
+import hue.captains.singapura.js.homing.findash.book.PortfolioTreeWidget;
 import hue.captains.singapura.js.homing.findash.book.PortfolioWidget;
 import hue.captains.singapura.js.homing.findash.core.bus.DeskSecretaryModule;
 import hue.captains.singapura.js.homing.studio.workspace.NavigatorSecretaryModule;
@@ -33,6 +34,9 @@ public final class RiskWorkspaceSpec implements WorkspaceSpec {
         WidgetGroup views    = WidgetGroup.of("Views");
         WidgetGroup overview = WidgetGroup.of("Overview");
         return List.of(
+            WidgetEntry.of(PortfolioTreeWidget.class, WidgetLabel.of("Portfolios"))
+                    .withIcon(new WidgetIcon.Emoji("🌳"))
+                    .withGroup(WidgetGroup.of("Book")),
             WidgetEntry.of(RiskViewsWidget.class, WidgetLabel.of("Risk Views"))
                     .withIcon(new WidgetIcon.Emoji("🛡"))
                     .withGroup(views),

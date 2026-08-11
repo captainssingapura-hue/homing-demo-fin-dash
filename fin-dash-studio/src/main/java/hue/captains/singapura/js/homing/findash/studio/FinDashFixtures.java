@@ -7,6 +7,7 @@ import hue.captains.singapura.js.homing.core.Crate;
 import hue.captains.singapura.js.homing.core.CrateEntry;
 import hue.captains.singapura.js.homing.findash.audit.AuditWorkspaceSpec;
 import hue.captains.singapura.js.homing.findash.audit.data.AuditGetAction;
+import hue.captains.singapura.js.homing.findash.book.data.PortfoliosGetAction;
 import hue.captains.singapura.js.homing.findash.book.data.PositionsGetAction;
 import hue.captains.singapura.js.homing.findash.book.data.TradesGetAction;
 import hue.captains.singapura.js.homing.findash.ipv.data.PnlGetAction;
@@ -133,7 +134,8 @@ public record FinDashFixtures(Umbrella<FinDashStudio> umbrella, List<Crate> topL
         actions.put("/fx/audit", new AuditGetAction());
         actions.put("/fx/calibration", new CalibrationGetAction());
         actions.put("/fx/summary", new SummaryGetAction());
-        // Shared book feeds (portfolio + trade journal).
+        // Shared book feeds (portfolio hierarchy + positions + trade journal).
+        actions.put("/fx/portfolios", new PortfoliosGetAction());
         actions.put("/fx/positions", new PositionsGetAction());
         actions.put("/fx/trades", new TradesGetAction());
         return Map.copyOf(actions);

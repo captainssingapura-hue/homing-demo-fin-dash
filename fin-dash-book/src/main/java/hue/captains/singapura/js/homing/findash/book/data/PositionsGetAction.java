@@ -38,7 +38,7 @@ public final class PositionsGetAction
         var positions = new JsonArray();
         for (DeskData.Position p : DeskData.POSITIONS) {
             positions.add(new JsonObject()
-                    .put("id", p.id()).put("pair", p.pair()).put("tenor", p.tenor())
+                    .put("id", p.id()).put("portfolioId", p.portfolioId()).put("pair", p.pair()).put("tenor", p.tenor())
                     .put("instrument", p.instrument()).put("notional", p.notional())
                     .put("pv", p.pv()).put("delta", p.delta()).put("vega", p.vega())
                     .put("barrierDist", p.barrierDist())

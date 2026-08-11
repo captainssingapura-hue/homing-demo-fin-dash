@@ -2,6 +2,7 @@ package hue.captains.singapura.js.homing.findash.book;
 
 import hue.captains.singapura.js.homing.core.Crate;
 import hue.captains.singapura.js.homing.core.CrateEntry;
+import hue.captains.singapura.js.homing.core.js.CoreJsCrate;
 import hue.captains.singapura.js.homing.findash.core.FinDashCoreCrate;
 
 import java.util.List;
@@ -23,13 +24,16 @@ public final class BookCrate implements Crate {
 
     @Override
     public List<Crate> requires() {
-        return List.of(FinDashCoreCrate.INSTANCE);
+        // FinDashCoreCrate: the kit. CoreJsCrate: PortfolioTreeWidget imports
+        // the framework's TreeRendererModule — a genuine cross-crate edge.
+        return List.of(FinDashCoreCrate.INSTANCE, CoreJsCrate.INSTANCE);
     }
 
     @Override
     public List<CrateEntry> entries() {
         return List.of(
                 CrateEntry.of(PortfolioWidget.INSTANCE),
-                CrateEntry.of(TradeBlotterWidget.INSTANCE));
+                CrateEntry.of(TradeBlotterWidget.INSTANCE),
+                CrateEntry.of(PortfolioTreeWidget.INSTANCE));
     }
 }

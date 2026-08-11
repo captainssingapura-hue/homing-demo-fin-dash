@@ -9,10 +9,16 @@
 // Message kinds:
 //   InstrumentSelected { instrument: { pair, tenor?, ref? } }
 //       -> broadcast InstrumentChanged (same payload) to all members
+//   PortfolioSelected { portfolio: { id, label, leafIds: [..] } }
+//       -> broadcast PortfolioChanged to all members. The tree resolves a
+//          node at ANY level to its leaf-portfolio ids before publishing,
+//          so consumers only ever test membership.
 //   ScenarioSelected { scenario: { id, label } }
 //       -> broadcast ScenarioChanged to all members
 //   CurrentInstrumentRequested   (late-join sync)
 //       -> reply InstrumentChanged to the asker if a selection exists
+//   CurrentPortfolioRequested    (late-join sync)
+//       -> reply PortfolioChanged to the asker if a selection exists
 //   anything else -> recentUnknown ring (bounded 10), no action
 //
 // The framework appends the `export { DeskSecretary }` from exports().
@@ -20,6 +26,7 @@ var DeskSecretary = {
 
     initial: {
         instrument:    null,
+        portfolio:     null,
         scenario:      null,
         lastChangedBy: null,
         recentUnknown: []
@@ -34,6 +41,7 @@ var DeskSecretary = {
                 return {
                     newState: {
                         instrument:    msg.instrument,
+                        portfolio:     state.portfolio,
                         scenario:      state.scenario,
                         lastChangedBy: envelope.from,
                         recentUnknown: state.recentUnknown
@@ -45,10 +53,27 @@ var DeskSecretary = {
                 };
             }
 
+            case "PortfolioSelected": {
+                return {
+                    newState: {
+                        instrument:    state.instrument,
+                        portfolio:     msg.portfolio,
+                        scenario:      state.scenario,
+                        lastChangedBy: envelope.from,
+                        recentUnknown: state.recentUnknown
+                    },
+                    actions: [{
+                        kind:    "BroadcastToMembers",
+                        message: { kind: "PortfolioChanged", portfolio: msg.portfolio }
+                    }]
+                };
+            }
+
             case "ScenarioSelected": {
                 return {
                     newState: {
                         instrument:    state.instrument,
+                        portfolio:     state.portfolio,
                         scenario:      msg.scenario,
                         lastChangedBy: envelope.from,
                         recentUnknown: state.recentUnknown
@@ -74,6 +99,20 @@ var DeskSecretary = {
                 };
             }
 
+            case "CurrentPortfolioRequested": {
+                if (state.portfolio == null) {
+                    return { newState: state, actions: [] };
+                }
+                return {
+                    newState: state,
+                    actions: [{
+                        kind:    "SendToMember",
+                        to:      envelope.from,
+                        message: { kind: "PortfolioChanged", portfolio: state.portfolio }
+                    }]
+                };
+            }
+
             default: {
                 var recent = state.recentUnknown.concat([{
                     kind: msg.kind,
@@ -82,6 +121,7 @@ var DeskSecretary = {
                 return {
                     newState: {
                         instrument:    state.instrument,
+                        portfolio:     state.portfolio,
                         scenario:      state.scenario,
                         lastChangedBy: state.lastChangedBy,
                         recentUnknown: recent

@@ -45,7 +45,7 @@ public final class TradesGetAction
                         .put("pnlImpact", a.pnlImpact()).put("approval", a.approval()));
             }
             trades.add(new JsonObject()
-                    .put("id", t.id()).put("time", t.time()).put("trader", t.trader())
+                    .put("id", t.id()).put("portfolioId", t.portfolioId()).put("time", t.time()).put("trader", t.trader())
                     .put("ticket", t.ticket()).put("pair", t.pair())
                     .put("notional", t.notional()).put("pvAtBooking", t.pvAtBooking())
                     .put("stamp", t.stamp()).put("status", t.status())

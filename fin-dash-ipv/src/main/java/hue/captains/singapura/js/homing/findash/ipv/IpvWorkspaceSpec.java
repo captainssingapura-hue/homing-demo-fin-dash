@@ -1,5 +1,6 @@
 package hue.captains.singapura.js.homing.findash.ipv;
 
+import hue.captains.singapura.js.homing.findash.book.PortfolioTreeWidget;
 import hue.captains.singapura.js.homing.findash.book.PortfolioWidget;
 import hue.captains.singapura.js.homing.findash.book.TradeBlotterWidget;
 import hue.captains.singapura.js.homing.findash.core.bus.DeskSecretaryModule;
@@ -35,6 +36,9 @@ public final class IpvWorkspaceSpec implements WorkspaceSpec {
     public List<WidgetEntry> widgetEntries() {
         WidgetGroup overview = WidgetGroup.of("Overview");
         return List.of(
+            WidgetEntry.of(PortfolioTreeWidget.class, WidgetLabel.of("Portfolios"))
+                    .withIcon(new WidgetIcon.Emoji("🌳"))
+                    .withGroup(WidgetGroup.of("Book")),
             WidgetEntry.of(PortfolioWidget.class, WidgetLabel.of("Portfolio"))
                     .withIcon(new WidgetIcon.Emoji("📁"))
                     .withGroup(WidgetGroup.of("Console")),

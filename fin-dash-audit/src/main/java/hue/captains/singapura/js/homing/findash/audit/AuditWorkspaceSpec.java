@@ -1,5 +1,6 @@
 package hue.captains.singapura.js.homing.findash.audit;
 
+import hue.captains.singapura.js.homing.findash.book.PortfolioTreeWidget;
 import hue.captains.singapura.js.homing.findash.book.TradeBlotterWidget;
 import hue.captains.singapura.js.homing.findash.core.bus.DeskSecretaryModule;
 import hue.captains.singapura.js.homing.studio.workspace.NavigatorSecretaryModule;
@@ -34,6 +35,9 @@ public final class AuditWorkspaceSpec implements WorkspaceSpec {
     public List<WidgetEntry> widgetEntries() {
         WidgetGroup overview = WidgetGroup.of("Overview");
         return List.of(
+            WidgetEntry.of(PortfolioTreeWidget.class, WidgetLabel.of("Portfolios"))
+                    .withIcon(new WidgetIcon.Emoji("🌳"))
+                    .withGroup(WidgetGroup.of("Book")),
             WidgetEntry.of(TradeBlotterWidget.class, WidgetLabel.of("Trade Blotter"))
                     .withIcon(new WidgetIcon.Emoji("🧾"))
                     .withGroup(WidgetGroup.of("Console")),
