@@ -21,6 +21,7 @@ import hue.captains.singapura.js.homing.findash.etrading.ETradingCrate;
 import hue.captains.singapura.js.homing.findash.governance.GovernanceCrate;
 import hue.captains.singapura.js.homing.findash.ipv.IpvCrate;
 import hue.captains.singapura.js.homing.findash.marketdata.MarketDataCrate;
+import hue.captains.singapura.js.homing.findash.ontology.OntologyCrate;
 import hue.captains.singapura.js.homing.findash.middleoffice.MiddleOfficeCrate;
 import hue.captains.singapura.js.homing.findash.platform.PlatformCrate;
 import hue.captains.singapura.js.homing.findash.quant.QuantCrate;
@@ -69,7 +70,8 @@ public final class FinDashConformance {
             IpvCrate.INSTANCE,
             PlatformCrate.INSTANCE,
             AuditCrate.INSTANCE,
-            SummaryCrate.INSTANCE);
+            SummaryCrate.INSTANCE,
+            OntologyCrate.INSTANCE);
 
     /**
      * The rule set for a {@code RISK_MODEL} module: the framework globals

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.github.captainssingapura-hue.homing.findash</groupId>
+        <artifactId>homing-demo-fin-dash</artifactId>
+        <version>LOCAL-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>fin-dash-ontology</artifactId>
+
+    <name>fin-dash-ontology</name>
+    <description>The Data Ontology workspace (kind "data-ontology"): browse the type
+        catalogue as a tree and see, for any selected type, which fin-dash widgets require
+        it and in what role. The demo documenting its own data model — and the validation
+        that the join contract holds before any facts exist.</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.github.captainssingapura-hue.homing.js</groupId>
+            <artifactId>homing-studio-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.captainssingapura-hue.homing.findash</groupId>
+            <artifactId>fin-dash-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.captainssingapura-hue.homing.findash</groupId>
+            <artifactId>fin-dash-data</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+</project>

@@ -23,10 +23,13 @@
              in homing-ssjs-core). Switch to a published release once one ships RFC 0044. -->
         <homing.core.version>LOCAL-SNAPSHOT</homing.core.version>
         <junit.version>5.11.3</junit.version>
+        <jontology.version>0.0.1</jontology.version>
     </properties>
 
     <modules>
         <module>fin-dash-core</module>
+        <module>fin-dash-data</module>
+        <module>fin-dash-ontology</module>
         <module>fin-dash-book</module>
         <module>fin-dash-trader</module>
         <module>fin-dash-etrading</module>

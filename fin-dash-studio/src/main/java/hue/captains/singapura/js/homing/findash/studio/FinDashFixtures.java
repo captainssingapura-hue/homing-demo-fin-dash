@@ -23,6 +23,8 @@ import hue.captains.singapura.js.homing.findash.ipv.IpvWorkspaceSpec;
 import hue.captains.singapura.js.homing.findash.marketdata.MarketDataWorkspaceSpec;
 import hue.captains.singapura.js.homing.findash.marketdata.data.FeedsGetAction;
 import hue.captains.singapura.js.homing.findash.marketdata.data.OverridesGetAction;
+import hue.captains.singapura.js.homing.findash.ontology.OntologyWorkspaceSpec;
+import hue.captains.singapura.js.homing.findash.ontology.data.DataTypesGetAction;
 import hue.captains.singapura.js.homing.findash.middleoffice.MiddleOfficeWorkspaceSpec;
 import hue.captains.singapura.js.homing.findash.platform.PlatformWorkspaceSpec;
 import hue.captains.singapura.js.homing.findash.platform.data.PlatformGetAction;
@@ -86,7 +88,8 @@ public record FinDashFixtures(Umbrella<FinDashStudio> umbrella, List<Crate> topL
             IpvWorkspaceSpec.INSTANCE,
             PlatformWorkspaceSpec.INSTANCE,
             AuditWorkspaceSpec.INSTANCE,
-            SummaryWorkspaceSpec.INSTANCE);
+            SummaryWorkspaceSpec.INSTANCE,
+            OntologyWorkspaceSpec.INSTANCE);
 
     public FinDashFixtures {
         Objects.requireNonNull(umbrella, "umbrella");
@@ -138,6 +141,8 @@ public record FinDashFixtures(Umbrella<FinDashStudio> umbrella, List<Crate> topL
         actions.put("/fx/portfolios", new PortfoliosGetAction());
         actions.put("/fx/positions", new PositionsGetAction());
         actions.put("/fx/trades", new TradesGetAction());
+        // The ontology catalogue — the demo's own data model, browsable.
+        actions.put("/fx/data-types", new DataTypesGetAction());
         return Map.copyOf(actions);
     }
 

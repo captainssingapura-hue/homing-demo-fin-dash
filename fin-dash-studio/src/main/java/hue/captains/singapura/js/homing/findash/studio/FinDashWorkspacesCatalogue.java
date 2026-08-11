@@ -41,7 +41,8 @@ public record FinDashWorkspacesCatalogue()
         new Persona("ipv",           "Product Control & IPV",  "P&L is right and marks are independent. P&L explain, IPV workbench."),
         new Persona("platform",      "Platform Operations",    "The system itself is healthy. System console, epochs, failover."),
         new Persona("audit",         "Audit Explorer",         "Reconstruct and attest anything. Cross-journal search, time travel."),
-        new Persona("summary",       "Management Summary",     "Situational awareness, escalation. Every tile a door."));
+        new Persona("summary",       "Management Summary",     "Situational awareness, escalation. Every tile a door."),
+        new Persona("data-ontology", "Data Ontology",          "For the builders: browse the type catalogue and see which widgets require each type."));
 
     @Override
     public List<Entry<FinDashWorkspacesCatalogue>> leaves() {

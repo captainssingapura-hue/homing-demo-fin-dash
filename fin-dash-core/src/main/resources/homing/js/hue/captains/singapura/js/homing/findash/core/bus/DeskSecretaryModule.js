@@ -69,6 +69,18 @@ var DeskSecretary = {
                 };
             }
 
+            case "DataTypeSelected": {
+                // The ontology workspace's selection. Same shape as every other
+                // selection: an id in, an id out — the usage pane resolves it.
+                return {
+                    newState: state,
+                    actions: [{
+                        kind:    "BroadcastToMembers",
+                        message: { kind: "DataTypeChanged", dataType: msg.dataType }
+                    }]
+                };
+            }
+
             case "ScenarioSelected": {
                 return {
                     newState: {
