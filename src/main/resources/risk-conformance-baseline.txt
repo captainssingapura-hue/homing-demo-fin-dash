@@ -1,0 +1,6 @@
+# RFC 0044 conformance baseline — homing-demo-fin-dash pre-existing violations, grandfathered to warnings.
+# One finding fingerprint per line: '<moduleClass> [<rule>] <message>' (line-number-independent).
+# Anything NOT here (or allowlisted) is a NEW violation and fails the build.
+# Regenerate deliberately (UTF-8 safe — never via console capture); the list should only shrink.
+# Scaffold ships clean — no baselined findings yet.
+#
