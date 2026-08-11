@@ -353,6 +353,50 @@ public final class DeskData {
         };
     }
 
+    // -------------------------------------------------------------- platform
+
+    /** One end-to-end latency SLO (p99, live) with budget consumption. */
+    public record Slo(String path, String p99, double budgetFrac) {}
+
+    public static final List<Slo> SLOS = List.of(
+            new Slo("spot → grid",    "4.1 ms", 0.41),
+            new Slo("RFQ vanilla",    "0.9 ms", 0.30),
+            new Slo("vol → epoch",    "240 ms", 0.48),
+            new Slo("reval-wave lag", "3.8 s",  0.95));
+
+    public static final String JOURNAL_HEALTH =
+            "append ok · replication lag 40 ms · replay-determinism spot checks green";
+    public static final double JOURNAL_QUOTA_FRAC = 0.62;
+    public static final String REPLAY_DETERMINISM = "PASS (6/6 days bit-identical)";
+
+    /** Per-pair epoch flow: surface age vs expected cadence, with root cause. */
+    public record EpochFlow(String pair, String epoch, String age, String expected,
+                            String state, String note) {}
+
+    public static final List<EpochFlow> EPOCH_FLOW = List.of(
+            new EpochFlow("EURUSD", "S513", "1.2 s", "~1 s",  "ok",   null),
+            new EpochFlow("USDJPY", "S498", "45 s",  "~5 s",  "warn",
+                    "waiting on 1M BF quarantine → affected: USDJPY surface, EURJPY cross"),
+            new EpochFlow("EURJPY", "S204", "2.1 s", "~2 s",  "ok",   "cross"),
+            new EpochFlow("GBPUSD", "S471", "0.9 s", "~1 s",  "ok",   null),
+            new EpochFlow("AUDUSD", "S502", "1.4 s", "~2 s",  "ok",   null));
+
+    public static final String CURVE_SET_FLOW = "curve-set C204 · consumed lag 0.8 s ✓";
+
+    /** A Ring-3 platform control — blast radius stated BEFORE commit (study §12). */
+    public record PlatformControl(String label, String scope, String blastRadius,
+                                  boolean fourEyes) {}
+
+    public static final List<PlatformControl> PLATFORM_CONTROLS = List.of(
+            new PlatformControl("Freeze publication", "scope: USDJPY",
+                    "stalls 1 auto-quoting pair · 1 dependent cross · 2 books", false),
+            new PlatformControl("Promote secondary (failover)", "deterministic twin",
+                    "twin at epoch −1 · every consumer re-anchors one epoch back", true),
+            new PlatformControl("Halt reval waves", "global",
+                    "blotter freshness degrades to Taylor-only · budgets accumulate", false),
+            new PlatformControl("Enter degraded mode", "global",
+                    "quoting auto-widens ×2 everywhere · control screens go snapshot-only", true));
+
     // ---------------------------------------------------------------- pricer
 
     public record Ticket(String pair, String tenor, double strike, String barrierType,

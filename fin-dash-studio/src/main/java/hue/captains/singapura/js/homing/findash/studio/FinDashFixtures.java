@@ -16,6 +16,7 @@ import hue.captains.singapura.js.homing.findash.marketdata.data.FeedsGetAction;
 import hue.captains.singapura.js.homing.findash.marketdata.data.OverridesGetAction;
 import hue.captains.singapura.js.homing.findash.middleoffice.MiddleOfficeWorkspaceSpec;
 import hue.captains.singapura.js.homing.findash.platform.PlatformWorkspaceSpec;
+import hue.captains.singapura.js.homing.findash.platform.data.PlatformGetAction;
 import hue.captains.singapura.js.homing.findash.quant.QuantWorkspaceSpec;
 import hue.captains.singapura.js.homing.findash.risk.RiskWorkspaceSpec;
 import hue.captains.singapura.js.homing.findash.sales.SalesWorkspaceSpec;
@@ -115,6 +116,8 @@ public record FinDashFixtures(Umbrella<FinDashStudio> umbrella, List<Crate> topL
         actions.put("/fx/overrides", new OverridesGetAction());
         // Governance (W6) feed.
         actions.put("/fx/changes", new ChangesGetAction());
+        // Platform SRE (W5) feed.
+        actions.put("/fx/platform", new PlatformGetAction());
         return Map.copyOf(actions);
     }
 

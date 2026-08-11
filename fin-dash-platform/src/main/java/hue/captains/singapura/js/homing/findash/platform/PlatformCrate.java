@@ -29,6 +29,8 @@ public final class PlatformCrate implements Crate {
     @Override
     public List<CrateEntry> entries() {
         return List.of(
-                CrateEntry.of(PlatformHomeWidget.INSTANCE));
+                CrateEntry.of(PlatformHomeWidget.INSTANCE),
+                CrateEntry.of(PlatformConsoleWidget.INSTANCE),
+                CrateEntry.of(EpochFlowWidget.INSTANCE));
     }
 }

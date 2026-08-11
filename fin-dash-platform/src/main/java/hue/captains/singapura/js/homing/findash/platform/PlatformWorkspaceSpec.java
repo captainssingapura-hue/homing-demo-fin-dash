@@ -1,5 +1,6 @@
 package hue.captains.singapura.js.homing.findash.platform;
 
+import hue.captains.singapura.js.homing.findash.core.bus.DeskSecretaryModule;
 import hue.captains.singapura.js.homing.studio.workspace.NavigatorSecretaryModule;
 import hue.captains.singapura.js.homing.workspace.WidgetEntry;
 import hue.captains.singapura.js.homing.workspace.WidgetGroup;
@@ -11,13 +12,11 @@ import hue.captains.singapura.js.homing.workspace.shell.WorkspaceSpec;
 import java.util.List;
 
 /**
- * The Platform operations (SRE) workspace (kind {@code "platform"}) on the reused
- * {@code GenericWorkspace} shell. Scaffold: the home card; the persona's real
- * screens (UI study) land beside it, grouped as they arrive.
- *
- * <p>The generic {@code NavigatorSecretary} bus is reused (exposed as
- * {@code navParty}) until this persona's cross-widget events need a bespoke
- * secretary.</p>
+ * The platform operations (SRE) workspace (kind {@code "platform"}) — the
+ * machine is healthy, and when it is not, the blast radius is chosen
+ * deliberately (study §12): the system console (W5) with SLO budget meters
+ * and heavy-framed Ring-3 controls, and the epoch-flow pane with root-cause
+ * click-through.
  */
 public final class PlatformWorkspaceSpec implements WorkspaceSpec {
 
@@ -30,8 +29,15 @@ public final class PlatformWorkspaceSpec implements WorkspaceSpec {
 
     @Override
     public List<WidgetEntry> widgetEntries() {
+        WidgetGroup console  = WidgetGroup.of("Console");
         WidgetGroup overview = WidgetGroup.of("Overview");
         return List.of(
+            WidgetEntry.of(PlatformConsoleWidget.class, WidgetLabel.of("Platform Console"))
+                    .withIcon(new WidgetIcon.Emoji("🖥"))
+                    .withGroup(console),
+            WidgetEntry.of(EpochFlowWidget.class, WidgetLabel.of("Epoch Flow"))
+                    .withIcon(new WidgetIcon.Emoji("🌀"))
+                    .withGroup(console),
             WidgetEntry.of(PlatformHomeWidget.class, WidgetLabel.of("Overview"))
                     .withIcon(new WidgetIcon.Emoji("🖥"))
                     .withGroup(overview)
@@ -43,6 +49,9 @@ public final class PlatformWorkspaceSpec implements WorkspaceSpec {
         return List.of(
             PartyDecl.of("navigation", NavigatorSecretaryModule.INSTANCE, "NavigatorSecretary")
                      .exposedAs("navParty")
+                     .build(),
+            PartyDecl.of("desk", DeskSecretaryModule.INSTANCE, "DeskSecretary")
+                     .exposedAs("deskParty")
                      .build()
         );
     }
