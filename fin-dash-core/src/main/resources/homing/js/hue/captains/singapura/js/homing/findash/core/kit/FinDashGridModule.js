@@ -13,8 +13,8 @@
 // Pure DOM builder — createElement + textContent only, no HTML literals.
 // The framework appends the `export { fdGrid }` from exports().
 function fdGrid(opts) {
-    var INK = '#0b0b0b', SOFT = '#52514e', MUTED = '#898781',
-        GRID = '#e1e0d9', WASH = '#eef4fc';
+    var INK = 'var(--color-text-primary)', SOFT = 'var(--color-text-primary)', MUTED = 'var(--color-text-muted)',
+        GRID = 'var(--color-border)', WASH = 'var(--color-surface-raised)';
     var pad = opts.compact ? '2px 8px' : '4px 10px';
 
     var root = document.createElement('div');
@@ -33,7 +33,7 @@ function fdGrid(opts) {
             + ';padding:' + pad + ';font-size:10.5px;font-weight:600;color:' + MUTED
             + ';border-bottom:1px solid ' + GRID + ';white-space:nowrap;'
             + (col.width ? 'width:' + col.width + ';' : '')
-            + 'position:sticky;top:0;background:#fcfcfb;';
+            + 'position:sticky;top:0;background:var(--color-surface);';
         th.textContent = col.label;
         hr.appendChild(th);
     }
@@ -48,7 +48,7 @@ function fdGrid(opts) {
     function buildRow(row) {
         var tr = document.createElement('tr');
         tr.style.cssText = 'border-bottom:1px solid ' + GRID + ';'
-            + (row._group ? 'background:#f4f4f2;font-weight:600;' : '');
+            + (row._group ? 'background:var(--color-surface-raised);font-weight:600;' : '');
         for (var c = 0; c < opts.columns.length; c++) {
             var col = opts.columns[c];
             var td = document.createElement('td');

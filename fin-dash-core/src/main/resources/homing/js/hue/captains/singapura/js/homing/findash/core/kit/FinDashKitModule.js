@@ -11,14 +11,14 @@
 var fdk = {
 
     tokens: {
-        ink:      '#0b0b0b',
-        soft:     '#52514e',
-        muted:    '#898781',
-        grid:     '#e1e0d9',
-        baseline: '#c3c2b7',
-        surface:  '#fcfcfb',
-        panel:    '#f4f4f2',
-        accent:   '#2a78d6',   // categorical slot 1 — the kit's single series hue
+        ink:      'var(--color-text-primary)',
+        soft:     'var(--color-text-primary)',
+        muted:    'var(--color-text-muted)',
+        grid:     'var(--color-border)',
+        baseline: 'var(--color-border)',
+        surface:  'var(--color-surface)',
+        panel:    'var(--color-surface-raised)',
+        accent:   'var(--color-accent)',   // categorical slot 1 — the kit's single series hue
         accentSoft: '#cde2fb',
         mono: 'ui-monospace, Menlo, Consolas, monospace'
     },
@@ -81,7 +81,7 @@ var fdk = {
         if (info.slice)   parts.push('slice ' + info.slice);
         if (info.surface) parts.push('surface ' + info.surface);
         if (info.model)   parts.push('model ' + info.model);
-        var d = fdk.el('span', 'color:#898781;font-size:11px;white-space:nowrap;',
+        var d = fdk.el('span', 'color:var(--color-text-muted);font-size:11px;white-space:nowrap;',
             parts.join(' · '));
         d.title = 'Lineage (P1 — every number explains itself): '
             + parts.join(', ') + (info.note ? ' — ' + info.note : '');
@@ -111,15 +111,15 @@ var fdk = {
     // label: value row for fact panels
     kv: function (label, value) {
         var row = fdk.el('div', 'display:flex;gap:8px;font-size:12.5px;line-height:1.6;');
-        row.appendChild(fdk.el('span', 'color:#898781;min-width:110px;', label));
-        var v = fdk.el('span', 'color:#0b0b0b;');
+        row.appendChild(fdk.el('span', 'color:var(--color-text-muted);min-width:110px;', label));
+        var v = fdk.el('span', 'color:var(--color-text-primary);');
         if (value && value.nodeType) v.appendChild(value); else v.textContent = value;
         row.appendChild(v);
         return row;
     },
 
     sectionTitle: function (text) {
-        return fdk.el('div', 'font-weight:600;font-size:12px;color:#0b0b0b;'
+        return fdk.el('div', 'font-weight:600;font-size:12px;color:var(--color-text-primary);'
             + 'margin:14px 0 6px;letter-spacing:0.2px;', text);
     }
 };

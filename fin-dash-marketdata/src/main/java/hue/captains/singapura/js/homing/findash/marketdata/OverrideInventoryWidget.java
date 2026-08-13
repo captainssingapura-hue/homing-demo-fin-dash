@@ -42,7 +42,7 @@ public final class OverrideInventoryWidget
         return List.of(
             "    var root = branch.createElement('root', 'div');",
             "    root.style.cssText = 'height:100%;overflow:auto;box-sizing:border-box;padding:14px;'",
-            "        + 'font-family:system-ui,sans-serif;font-size:13px;color:#0b0b0b;';",
+            "        + 'font-family:system-ui,sans-serif;font-size:13px;color:var(--color-text-primary);';",
             "",
             "    var head = fdk.el('div', 'display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;');",
             "    head.appendChild(fdk.el('span', 'font-weight:700;font-size:14px;letter-spacing:0.3px;',",
@@ -50,7 +50,7 @@ public final class OverrideInventoryWidget
             "    var countSlot = fdk.el('span', '');",
             "    head.appendChild(countSlot);",
             "    root.appendChild(head);",
-            "    root.appendChild(fdk.el('div', 'color:#52514e;font-size:11.5px;margin:2px 0 8px;',",
+            "    root.appendChild(fdk.el('div', 'color:var(--color-text-primary);font-size:11.5px;margin:2px 0 8px;',",
             "        'every live Ring-3 mark + data action, whole stack \\u00b7 who \\u00b7 why \\u00b7 expiry \\u00b7 oldest first'));",
             "",
             "    var gridSlot = fdk.el('div', '');",

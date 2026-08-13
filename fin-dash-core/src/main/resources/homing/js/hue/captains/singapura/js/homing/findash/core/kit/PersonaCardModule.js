@@ -15,8 +15,8 @@ function personaCard(info) {
     var accent = info.accent || '#1f5f8b';
     var card = el('div', 'max-width:560px;');
 
-    card.appendChild(el('div', 'font-size:18px;font-weight:700;color:#1a2332;', info.title));
-    card.appendChild(el('div', 'color:#4a5568;margin:4px 0 12px;', info.mission));
+    card.appendChild(el('div', 'font-size:18px;font-weight:700;color:var(--color-text-primary);', info.title));
+    card.appendChild(el('div', 'color:var(--color-text-primary);margin:4px 0 12px;', info.mission));
 
     // P2 — status chip in the shared visual language ("scaffold" state: work
     // planned, not degraded, not healthy-live).
@@ -25,12 +25,12 @@ function personaCard(info) {
         '● scaffold — screens not built yet');
     card.appendChild(chip);
 
-    var facts = el('div', 'margin-top:12px;color:#4a5568;font-size:12.5px;line-height:1.7;');
+    var facts = el('div', 'margin-top:12px;color:var(--color-text-primary);font-size:12.5px;line-height:1.7;');
     facts.appendChild(el('div', null, 'Ring writes:  ' + info.ring));
     facts.appendChild(el('div', null, 'Cadence:  ' + info.cadence));
     card.appendChild(facts);
 
-    var list = el('div', 'margin-top:14px;color:#4a5568;line-height:1.7;');
+    var list = el('div', 'margin-top:14px;color:var(--color-text-primary);line-height:1.7;');
     list.appendChild(el('div', 'font-weight:600;color:' + accent + ';', 'Planned screens (UI study):'));
     for (var i = 0; i < info.screens.length; i++) {
         list.appendChild(el('div', null, '• ' + info.screens[i]));
@@ -38,7 +38,7 @@ function personaCard(info) {
     card.appendChild(list);
 
     // P1 — lineage stamp, always visible (static example until live data lands).
-    card.appendChild(el('div', 'color:#8494a8;font-size:11px;margin-top:14px;',
+    card.appendChild(el('div', 'color:var(--color-text-muted);font-size:11px;margin-top:14px;',
         'slice C204 · surface S513/87 · model VV-2.3  (explain on hover)'));
 
     return card;
