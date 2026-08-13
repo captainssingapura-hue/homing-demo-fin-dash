@@ -8,6 +8,8 @@ import hue.captains.singapura.js.homing.core.CrateEntry;
 import hue.captains.singapura.js.homing.findash.audit.AuditWorkspaceSpec;
 import hue.captains.singapura.js.homing.findash.audit.data.AuditGetAction;
 import hue.captains.singapura.js.homing.findash.book.data.PortfoliosGetAction;
+import hue.captains.singapura.js.homing.findash.core.theme.FinDashThemes;
+import hue.captains.singapura.js.homing.server.ThemeRegistry;
 import hue.captains.singapura.js.homing.findash.book.data.PositionsGetAction;
 import hue.captains.singapura.js.homing.findash.book.data.TradesGetAction;
 import hue.captains.singapura.js.homing.findash.ipv.data.PnlGetAction;
@@ -149,6 +151,21 @@ public record FinDashFixtures(Umbrella<FinDashStudio> umbrella, List<Crate> topL
     @Override
     public NodeChrome chromeFor(Umbrella<FinDashStudio> node) {
         return defaults().chromeFor(node);
+    }
+
+    /**
+     * The framework's themes plus fin-dash's own (docs/adding-a-theme.md §3).
+     * Without this override the theme compiles and registers but is never
+     * reachable — the server keeps serving the default registry.
+     *
+     * <p>{@code defaultTheme()} is deliberately NOT overridden: the desk opens
+     * on Default and the Terminal look is one pick away in the header. Flip it
+     * by returning {@code FinDashTerminal.INSTANCE} from a {@code defaultTheme()}
+     * override here.</p>
+     */
+    @Override
+    public ThemeRegistry themeRegistry() {
+        return FinDashThemes.INSTANCE;
     }
 
     /**
