@@ -57,8 +57,14 @@ public record FinDashTerminal() implements Theme {
                 Map.entry(StudioVars.COLOR_TEXT_ON_INVERTED_MUTED, "#C99A4A"),
                 Map.entry(StudioVars.COLOR_TEXT_LINK,              "#4FC3F7"),
                 Map.entry(StudioVars.COLOR_TEXT_LINK_HOVER,        "#81D4FA"),
-                // Borders — hairlines that disappear until they matter.
-                Map.entry(StudioVars.COLOR_BORDER,          "#2A2A2A"),
+                // Borders — amber rules, because on a near-black surface a neutral
+                // grey hairline (#2A2A2A ≈ 1.3:1) is simply not there: pane frames,
+                // tab pills and corners all read this token, so the whole layout
+                // loses its structure. A dim amber at ~5:1 keeps the frame legible
+                // and unmistakably part of the palette; the full accent stays on
+                // COLOR_BORDER_EMPHASIS for the lines that mean something (the
+                // header underline, focus, active edges).
+                Map.entry(StudioVars.COLOR_BORDER,          "#B0741A"),
                 Map.entry(StudioVars.COLOR_BORDER_EMPHASIS, "#FF9900"),
                 // Accent — amber, with black text on top of it.
                 Map.entry(StudioVars.COLOR_ACCENT,          "#FF9900"),
@@ -104,7 +110,7 @@ public record FinDashTerminal() implements Theme {
                         --color-text-on-inverted-muted:  #C99A4A;
                         --color-text-link:               #4FC3F7;
                         --color-text-link-hover:         #81D4FA;
-                        --color-border:           #2A2A2A;
+                        --color-border:           #B0741A;
                         --color-border-emphasis:  #FF9900;
                         --color-accent:           #FF9900;
                         --color-accent-emphasis:  #FFB74D;
