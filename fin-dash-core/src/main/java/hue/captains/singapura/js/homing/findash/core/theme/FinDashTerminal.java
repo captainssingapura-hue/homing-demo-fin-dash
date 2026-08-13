@@ -41,8 +41,8 @@ public record FinDashTerminal() implements Theme {
      * previously edited two of the three and shipped a half-change, they are
      * constants rather than repeated literals.
      */
-    static final String BORDER = "#FF9900";
-    static final String BORDER_EMPHASIS = "#FFD54F";
+    static final String BORDER = "#B0741A";
+    static final String BORDER_EMPHASIS = "#FF9900";
 
     /** The token bindings — every colour role bound; a missing one renders empty. */
     public record Vars() implements ThemeVariables<FinDashTerminal> {
@@ -138,6 +138,17 @@ public record FinDashTerminal() implements Theme {
         // other frame, with the emphasis colour on hover/drag so the grab
         // target announces itself.
         //
+        // Thin line, fat target. The gutter is 6px wide and that width is NOT
+        // themeable — SplitPaneModule owns it as `var _DIV_PX = 6` and does its
+        // pane arithmetic with it, so shrinking the element from CSS would only
+        // desynchronise the visual from the space actually reserved. What a
+        // theme *can* decide is how much of that gutter it paints: here a 1px
+        // rule centred in the 6px band, which keeps the full band as the drag
+        // target while the seam stays quiet. Hover and drag then fill the whole
+        // band in the emphasis colour, so the handle announces itself only when
+        // reached for — the affordance the framework's translucent original was
+        // going for, restored for a dark surface.
+        //
         // `!important` is load-bearing, not laziness. The server wraps this
         // stylesheet in `@layer theme`, and SplitPaneModule injects its rule at
         // runtime as UNLAYERED css. Unlayered normal declarations beat layered
@@ -150,8 +161,15 @@ public record FinDashTerminal() implements Theme {
                 html, body {
                     font-family: "Cascadia Mono", "Consolas", "SF Mono", "Liberation Mono", monospace;
                 }
-                .hsp-divider {
-                    background: var(--color-border) !important;
+                .hsp-divider.hsp-h-div {
+                    background: linear-gradient(to right,
+                        transparent 2px, var(--color-border) 2px,
+                        var(--color-border) 3px, transparent 3px) !important;
+                }
+                .hsp-divider.hsp-v-div {
+                    background: linear-gradient(to bottom,
+                        transparent 2px, var(--color-border) 2px,
+                        var(--color-border) 3px, transparent 3px) !important;
                 }
                 .hsp-divider:hover,
                 .hsp-divider.hsp-active {
