@@ -35,6 +35,15 @@ public record FinDashTerminal() implements Theme {
     @Override public String slug()  { return "fd-terminal"; }
     @Override public String label() { return "Terminal (amber)"; }
 
+    /**
+     * The border colours, named once. They are needed in three places — the
+     * token map, the dark-mode override, and the divider overlay — and having
+     * previously edited two of the three and shipped a half-change, they are
+     * constants rather than repeated literals.
+     */
+    static final String BORDER = "#FF9900";
+    static final String BORDER_EMPHASIS = "#FFD54F";
+
     /** The token bindings — every colour role bound; a missing one renders empty. */
     public record Vars() implements ThemeVariables<FinDashTerminal> {
 
@@ -57,15 +66,13 @@ public record FinDashTerminal() implements Theme {
                 Map.entry(StudioVars.COLOR_TEXT_ON_INVERTED_MUTED, "#C99A4A"),
                 Map.entry(StudioVars.COLOR_TEXT_LINK,              "#4FC3F7"),
                 Map.entry(StudioVars.COLOR_TEXT_LINK_HOVER,        "#81D4FA"),
-                // Borders — amber rules, because on a near-black surface a neutral
-                // grey hairline (#2A2A2A ≈ 1.3:1) is simply not there: pane frames,
-                // tab pills and corners all read this token, so the whole layout
-                // loses its structure. A dim amber at ~5:1 keeps the frame legible
-                // and unmistakably part of the palette; the full accent stays on
-                // COLOR_BORDER_EMPHASIS for the lines that mean something (the
-                // header underline, focus, active edges).
-                Map.entry(StudioVars.COLOR_BORDER,          "#B0741A"),
-                Map.entry(StudioVars.COLOR_BORDER_EMPHASIS, "#FF9900"),
+                // Borders — bright amber rules. On a near-black surface a neutral
+                // grey hairline (#2A2A2A ≈ 1.3:1) is simply not there, and even a
+                // dimmed amber reads as murky against the panes it is meant to
+                // separate. The frame is structure, so it is drawn at full accent
+                // strength — the same line already visible under the header.
+                Map.entry(StudioVars.COLOR_BORDER,          BORDER),
+                Map.entry(StudioVars.COLOR_BORDER_EMPHASIS, BORDER_EMPHASIS),
                 // Accent — amber, with black text on top of it.
                 Map.entry(StudioVars.COLOR_ACCENT,          "#FF9900"),
                 Map.entry(StudioVars.COLOR_ACCENT_EMPHASIS, "#FFB74D"),
@@ -110,20 +117,45 @@ public record FinDashTerminal() implements Theme {
                         --color-text-on-inverted-muted:  #C99A4A;
                         --color-text-link:               #4FC3F7;
                         --color-text-link-hover:         #81D4FA;
-                        --color-border:           #B0741A;
-                        --color-border-emphasis:  #FF9900;
+                        --color-border:           %s;
+                        --color-border-emphasis:  %s;
                         --color-accent:           #FF9900;
                         --color-accent-emphasis:  #FFB74D;
                         --color-accent-on:        #000000;
                     }
                 }
-                """;
+                """.formatted(BORDER, BORDER_EMPHASIS);
 
         // Tier-3 overlay. MUST follow STRUCTURAL_CSS: its `background:
         // var(--color-surface)` shorthand would otherwise clear what we set here.
+        //
+        // The split-pane dividers are the second half of the border story, and
+        // they are NOT token-driven: SplitPaneModule.js hardcodes
+        //   .hsp-divider{background:rgba(0,0,0,0.08)}   (:hover / .hsp-active → 0.22)
+        // Black at 8% opacity is a hairline on white and nothing at all on a
+        // near-black surface — so on any dark theme the panes lose the only
+        // thing separating them. Retinted here to the same amber rules as every
+        // other frame, with the emphasis colour on hover/drag so the grab
+        // target announces itself.
+        //
+        // `!important` is load-bearing, not laziness. The server wraps this
+        // stylesheet in `@layer theme`, and SplitPaneModule injects its rule at
+        // runtime as UNLAYERED css. Unlayered normal declarations beat layered
+        // ones outright — specificity is only compared within a layer — so no
+        // selector written here can win by being more specific. An important
+        // declaration reverses that precedence, and is the only lever available
+        // from inside the layer. Remove it the moment the upstream default
+        // becomes token-driven.
         private static final String OVERLAY = """
                 html, body {
                     font-family: "Cascadia Mono", "Consolas", "SF Mono", "Liberation Mono", monospace;
+                }
+                .hsp-divider {
+                    background: var(--color-border) !important;
+                }
+                .hsp-divider:hover,
+                .hsp-divider.hsp-active {
+                    background: var(--color-border-emphasis) !important;
                 }
                 """;
     }
