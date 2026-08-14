@@ -8,6 +8,8 @@ import hue.captains.singapura.js.homing.workspace.WorkspaceWidget;
 import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
 import hue.captains.singapura.js.homing.findash.core.css.FdStatusCss;
 import hue.captains.singapura.js.homing.findash.core.css.FdTextCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdControlCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdSurfaceCss;
 
 import java.util.List;
 
@@ -37,6 +39,7 @@ public final class BarrierWatchWidget
         return List.of(new ModuleImports<>(
                 List.of(new FinDashKitModule.fdk()), FinDashKitModule.INSTANCE),
                 new ModuleImports<>(List.of(
+                        new FdFrameCss.fd_row(),
                         new FdFrameCss.fd_header_row(),
                         new FdFrameCss.fd_section(),
                         new FdFrameCss.fd_widget_root()),
@@ -45,10 +48,17 @@ public final class BarrierWatchWidget
                         new FdStatusCss.fd_error_text()),
                         FdStatusCss.INSTANCE),
                 new ModuleImports<>(List.of(
+                        new FdTextCss.fd_muted(),
                         new FdTextCss.fd_caption(),
                         new FdTextCss.fd_strong(),
                         new FdTextCss.fd_title()),
-                        FdTextCss.INSTANCE));
+                        FdTextCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdControlCss.fd_clickable()),
+                        FdControlCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdSurfaceCss.fd_rule()),
+                        FdSurfaceCss.INSTANCE));
     }
 
     @Override
@@ -74,7 +84,7 @@ public final class BarrierWatchWidget
             "",
             "    var list = fdk.el(branch, 'sect-1', 'div', fd_section);",
             "    root.appendChild(list);",
-            "    root.appendChild(fdk.el('div', 'color:var(--color-text-muted);font-size:11px;margin-top:8px;', ",
+            "    root.appendChild(fdk.el(branch, 'footer', 'div', [fd_caption, fd_muted, fd_section],",
             "        'positions inside their band tighten the reval error budget (two-speed risk) \\u00b7 '",
             "        + 'click a row to broadcast the selection'));",
             "",
@@ -82,15 +92,16 @@ public final class BarrierWatchWidget
             "        stampSlot.appendChild(fdk.stamp(branch, 'stamp-1', { slice: d.slice, model: d.model }));",
             "        var bs = d.barriers.slice().sort(function (a, b) { return a.pips - b.pips; });",
             "        for (var i = 0; i < bs.length; i++) {",
-            "            (function (b) {",
-            "                var line = fdk.el('div', 'display:flex;gap:10px;align-items:center;padding:7px 4px;'",
-            "                    + 'border-bottom:1px solid var(--color-border);font-size:12.5px;cursor:pointer;');",
-            "                line.appendChild(fdk.chip(b.severity === 'good' ? 'good' : b.severity,",
-            "                    b.pips + ' pips'));",
-            "                var main = fdk.el(branch, 'slot-2', 'div', null);",
-            "                main.appendChild(fdk.el(branch, 'strong-1', 'div', fd_strong, ",
+            "            // Every element is keyed by the row index — one name per barrier,",
+            "            // since a branch name may only be claimed once.",
+            "            (function (b, i) {",
+            "                var line = fdk.el(branch, 'b-' + i, 'div', [fd_row, fd_rule, fd_clickable]);",
+            "                line.appendChild(fdk.chip(branch, 'b-chip-' + i,",
+            "                    b.severity === 'good' ? 'good' : b.severity, b.pips + ' pips'));",
+            "                var main = fdk.el(branch, 'b-main-' + i, 'div', null);",
+            "                main.appendChild(fdk.el(branch, 'b-level-' + i, 'div', fd_strong,",
             "                    b.pair + ' ' + b.type + ' ' + b.level));",
-            "                main.appendChild(fdk.el(branch, 'cap-2', 'div', fd_caption, ",
+            "                main.appendChild(fdk.el(branch, 'b-note-' + i, 'div', fd_caption,",
             "                    b.notional + ' notional \\u00b7 ' + b.note));",
             "                line.appendChild(main);",
             "                line.onclick = function () {",
@@ -100,7 +111,7 @@ public final class BarrierWatchWidget
             "                    }",
             "                };",
             "                list.appendChild(line);",
-            "            })(bs[i]);",
+            "            })(bs[i], i);",
             "        }",
             "    }",
             "",

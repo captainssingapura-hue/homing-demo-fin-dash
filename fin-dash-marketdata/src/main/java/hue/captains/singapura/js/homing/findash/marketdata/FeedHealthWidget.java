@@ -8,6 +8,7 @@ import hue.captains.singapura.js.homing.workspace.WorkspaceWidget;
 import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
 import hue.captains.singapura.js.homing.findash.core.css.FdStatusCss;
 import hue.captains.singapura.js.homing.findash.core.css.FdTextCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdSurfaceCss;
 
 import java.util.List;
 
@@ -52,7 +53,10 @@ public final class FeedHealthWidget
                         new FdTextCss.fd_caption(),
                         new FdTextCss.fd_muted(),
                         new FdTextCss.fd_title()),
-                        FdTextCss.INSTANCE));
+                        FdTextCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdSurfaceCss.fd_rule()),
+                        FdSurfaceCss.INSTANCE));
     }
 
     @Override
@@ -156,8 +160,7 @@ public final class FeedHealthWidget
             "    }",
             "",
             "    function queueRow(q) {",
-            "        var line = fdk.el(branch, 'row-1', 'div', fd_row",
-            "            + 'border-bottom:1px solid var(--color-border);font-size:12.5px;');",
+            "        var line = fdk.el(branch, 'row-1', 'div', [fd_row, fd_rule]);",
             "        line.appendChild(fdk.chip(branch, 'chip-1', q.severity, q.since));",
             "        var main = fdk.el(branch, 'spacer-1', 'div', fd_spacer);",
             "        main.appendChild(fdk.el('div', 'font-weight:600;cursor:pointer;', q.instrument));",

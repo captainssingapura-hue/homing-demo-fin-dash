@@ -8,6 +8,7 @@ import hue.captains.singapura.js.homing.workspace.WorkspaceWidget;
 import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
 import hue.captains.singapura.js.homing.findash.core.css.FdStatusCss;
 import hue.captains.singapura.js.homing.findash.core.css.FdTextCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdSurfaceCss;
 
 import java.util.List;
 
@@ -50,7 +51,10 @@ public final class PnlExplainWidget
                         new FdTextCss.fd_caption(),
                         new FdTextCss.fd_strong(),
                         new FdTextCss.fd_title()),
-                        FdTextCss.INSTANCE));
+                        FdTextCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdSurfaceCss.fd_rule()),
+                        FdSurfaceCss.INSTANCE));
     }
 
     @Override
@@ -96,8 +100,7 @@ public final class PnlExplainWidget
             "    }",
             "",
             "    function ipvRow(r) {",
-            "        var line = fdk.el(branch, 'row-1', 'div', fd_row",
-            "            + 'border-bottom:1px solid var(--color-border);font-size:12.5px;');",
+            "        var line = fdk.el(branch, 'row-1', 'div', [fd_row, fd_rule]);",
             "        line.appendChild(fdk.chip(branch, 'chip-2', r.severity, r.variance));",
             "        var main = fdk.el(branch, 'slot-4', 'div', null);",
             "        main.appendChild(fdk.el(branch, 'strong-1', 'div', fd_strong, ",

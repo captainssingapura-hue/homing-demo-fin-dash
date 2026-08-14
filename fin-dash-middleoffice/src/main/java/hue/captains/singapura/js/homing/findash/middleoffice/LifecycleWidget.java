@@ -8,6 +8,7 @@ import hue.captains.singapura.js.homing.workspace.WorkspaceWidget;
 import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
 import hue.captains.singapura.js.homing.findash.core.css.FdStatusCss;
 import hue.captains.singapura.js.homing.findash.core.css.FdTextCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdSurfaceCss;
 
 import java.util.List;
 
@@ -51,7 +52,10 @@ public final class LifecycleWidget
                         new FdTextCss.fd_muted(),
                         new FdTextCss.fd_strong(),
                         new FdTextCss.fd_title()),
-                        FdTextCss.INSTANCE));
+                        FdTextCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdSurfaceCss.fd_rule()),
+                        FdSurfaceCss.INSTANCE));
     }
 
     @Override
@@ -92,8 +96,7 @@ public final class LifecycleWidget
             "        + ' materiality-based four-eyes'));",
             "",
             "    function itemRow(i) {",
-            "        var line = fdk.el(branch, 'row-1', 'div', fd_row",
-            "            + 'border-bottom:1px solid var(--color-border);font-size:12.5px;');",
+            "        var line = fdk.el(branch, 'row-1', 'div', [fd_row, fd_rule]);",
             "        line.appendChild(fdk.chip(branch, 'chip-1', i.severity, i.kind));",
             "        var main = fdk.el(branch, 'spacer-1', 'div', fd_spacer);",
             "        main.appendChild(fdk.el(branch, 'strong-1', 'div', fd_strong, i.desc));",
@@ -104,8 +107,7 @@ public final class LifecycleWidget
             "    }",
             "",
             "    function breakRow(b) {",
-            "        var line = fdk.el(branch, 'row-2', 'div', fd_row",
-            "            + 'border-bottom:1px solid var(--color-border);font-size:12.5px;');",
+            "        var line = fdk.el(branch, 'row-2', 'div', [fd_row, fd_rule]);",
             "        line.appendChild(fdk.chip(branch, 'chip-2', b.severity, 'aging ' + b.age));",
             "        var main = fdk.el(branch, 'spacer-2', 'div', fd_spacer);",
             "        main.appendChild(fdk.el(branch, 'strong-2', 'div', fd_strong, b.desc));",

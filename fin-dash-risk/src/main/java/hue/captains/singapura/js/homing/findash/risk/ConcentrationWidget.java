@@ -8,6 +8,8 @@ import hue.captains.singapura.js.homing.workspace.WorkspaceWidget;
 import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
 import hue.captains.singapura.js.homing.findash.core.css.FdStatusCss;
 import hue.captains.singapura.js.homing.findash.core.css.FdTextCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdControlCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdSurfaceCss;
 
 import java.util.List;
 
@@ -46,7 +48,13 @@ public final class ConcentrationWidget
                         new FdTextCss.fd_caption(),
                         new FdTextCss.fd_strong(),
                         new FdTextCss.fd_title()),
-                        FdTextCss.INSTANCE));
+                        FdTextCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdControlCss.fd_clickable()),
+                        FdControlCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdSurfaceCss.fd_rule()),
+                        FdSurfaceCss.INSTANCE));
     }
 
     @Override
@@ -74,8 +82,7 @@ public final class ConcentrationWidget
             "    root.appendChild(events);",
             "",
             "    function row(container, chipState, chipText, boldText, subText, pair) {",
-            "        var line = fdk.el(branch, 'row-1', 'div', fd_row",
-            "            + 'border-bottom:1px solid var(--color-border);font-size:12.5px;cursor:pointer;');",
+            "        var line = fdk.el(branch, 'row-1', 'div', [fd_row, fd_rule, fd_clickable]);",
             "        line.appendChild(fdk.chip(branch, 'chip-1', chipState, chipText));",
             "        var main = fdk.el(branch, 'slot-3', 'div', null);",
             "        main.appendChild(fdk.el(branch, 'strong-1', 'div', fd_strong, boldText));",

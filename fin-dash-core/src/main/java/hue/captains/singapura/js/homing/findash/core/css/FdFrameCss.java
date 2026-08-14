@@ -139,6 +139,26 @@ public record FdFrameCss() implements CssGroup<FdFrameCss> {
         @Override public String body() { return "overflow: auto;\n"; }
     }
 
+    /** Label/value pairs in columns — the greeks block, fact tables. */
+    public record fd_grid_pairs() implements CssClass<FdFrameCss> {
+        @Override public String body() { return """
+                display: grid;
+                grid-template-columns: auto auto auto auto;
+                gap: 2px var(--space-4, 16px);
+                max-width: 420px;
+                """;
+        }
+    }
+
+    /** A row whose two ends are pushed apart — ladder rungs, totals lines. */
+    public record fd_split_row() implements CssClass<FdFrameCss> {
+        @Override public String body() { return """
+                display: flex;
+                justify-content: space-between;
+                """;
+        }
+    }
+
     @Override
     public List<CssClass<FdFrameCss>> cssClasses() {
         return List.of(
@@ -153,7 +173,9 @@ public record FdFrameCss() implements CssGroup<FdFrameCss> {
                 new fd_spacer(),
                 new fd_section(),
                 new fd_hidden(),
-                new fd_scroll());
+                new fd_scroll(),
+                new fd_grid_pairs(),
+                new fd_split_row());
     }
 
     @Override

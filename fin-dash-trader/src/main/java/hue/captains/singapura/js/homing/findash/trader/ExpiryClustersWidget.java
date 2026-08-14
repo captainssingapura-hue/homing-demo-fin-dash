@@ -8,6 +8,8 @@ import hue.captains.singapura.js.homing.workspace.WorkspaceWidget;
 import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
 import hue.captains.singapura.js.homing.findash.core.css.FdStatusCss;
 import hue.captains.singapura.js.homing.findash.core.css.FdTextCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdControlCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdSurfaceCss;
 
 import java.util.List;
 
@@ -37,6 +39,7 @@ public final class ExpiryClustersWidget
         return List.of(new ModuleImports<>(
                 List.of(new FinDashKitModule.fdk()), FinDashKitModule.INSTANCE),
                 new ModuleImports<>(List.of(
+                        new FdFrameCss.fd_section(),
                         new FdFrameCss.fd_header_row(),
                         new FdFrameCss.fd_row(),
                         new FdFrameCss.fd_widget_root()),
@@ -45,10 +48,17 @@ public final class ExpiryClustersWidget
                         new FdStatusCss.fd_error_text()),
                         FdStatusCss.INSTANCE),
                 new ModuleImports<>(List.of(
+                        new FdTextCss.fd_muted(),
                         new FdTextCss.fd_caption(),
                         new FdTextCss.fd_strong(),
                         new FdTextCss.fd_title()),
-                        FdTextCss.INSTANCE));
+                        FdTextCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdControlCss.fd_clickable()),
+                        FdControlCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdSurfaceCss.fd_rule()),
+                        FdSurfaceCss.INSTANCE));
     }
 
     @Override
@@ -81,17 +91,18 @@ public final class ExpiryClustersWidget
             "    root.appendChild(pinsTitle);",
             "    var pins = fdk.el(branch, 'slot-3', 'div', null);",
             "    root.appendChild(pins);",
-            "    root.appendChild(fdk.el('div', 'color:var(--color-text-muted);font-size:11px;margin-top:8px;', ",
+            "    root.appendChild(fdk.el(branch, 'footer', 'div', [fd_caption, fd_muted, fd_section],",
             "        'portfolio expiry processing is preview-then-commit (middle office \\u00a710) \\u00b7 '",
             "        + 'click a row to broadcast the selection'));",
             "",
-            "    function row(container, chipState, chipText, boldText, subText, pair) {",
-            "        var line = fdk.el(branch, 'row-1', 'div', fd_row",
-            "            + 'border-bottom:1px solid var(--color-border);font-size:12.5px;cursor:pointer;');",
-            "        line.appendChild(fdk.chip(branch, 'chip-1', chipState, chipText));",
-            "        var main = fdk.el(branch, 'slot-4', 'div', null);",
-            "        main.appendChild(fdk.el(branch, 'strong-1', 'div', fd_strong, boldText));",
-            "        main.appendChild(fdk.el(branch, 'cap-2', 'div', fd_caption, subText));",
+            "    // k keys every element in the row — the two callers use disjoint",
+            "    // prefixes so a cut and a pin at the same index never collide.",
+            "    function row(k, container, chipState, chipText, boldText, subText, pair) {",
+            "        var line = fdk.el(branch, k, 'div', [fd_row, fd_rule, fd_clickable]);",
+            "        line.appendChild(fdk.chip(branch, k + '-chip', chipState, chipText));",
+            "        var main = fdk.el(branch, k + '-main', 'div', null);",
+            "        main.appendChild(fdk.el(branch, k + '-label', 'div', fd_strong, boldText));",
+            "        main.appendChild(fdk.el(branch, k + '-note', 'div', fd_caption, subText));",
             "        line.appendChild(main);",
             "        line.onclick = function () {",
             "            if (party && actorId) {",
@@ -106,12 +117,12 @@ public final class ExpiryClustersWidget
             "        stampSlot.appendChild(fdk.stamp(branch, 'stamp-1', { slice: d.slice, model: d.model }));",
             "        for (var i = 0; i < d.clusters.length; i++) {",
             "            var c = d.clusters[i];",
-            "            row(cuts, c.severity === 'good' ? 'good' : c.severity, c.notional,",
+            "            row('cut-' + i, cuts, c.severity === 'good' ? 'good' : c.severity, c.notional,",
             "                c.pair + ' \\u00b7 ' + c.cut, c.note, c.pair);",
             "        }",
             "        for (i = 0; i < d.pins.length; i++) {",
             "            var p = d.pins[i];",
-            "            row(pins, p.severity === 'good' ? 'good' : p.severity, p.notional,",
+            "            row('pin-' + i, pins, p.severity === 'good' ? 'good' : p.severity, p.notional,",
             "                p.pair + ' ' + p.strike, p.note, p.pair);",
             "        }",
             "    }",
