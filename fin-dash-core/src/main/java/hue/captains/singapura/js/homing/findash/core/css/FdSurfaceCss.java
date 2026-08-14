@@ -47,6 +47,16 @@ public record FdSurfaceCss() implements CssGroup<FdSurfaceCss> {
         @Override public String body() { return "border-bottom: 1px solid var(--color-border);\n"; }
     }
 
+    /** Vertical separator — a detail pane beside a list. */
+    public record fd_rule_left() implements CssClass<FdSurfaceCss> {
+        @Override public String body() { return """
+                border-left: 1px solid var(--color-border);
+                padding-left: var(--space-3, 12px);
+                min-width: 320px;
+                """;
+        }
+    }
+
     /** Separator above a footer or totals row. */
     public record fd_rule_top() implements CssClass<FdSurfaceCss> {
         @Override public String body() { return "border-top: 1px solid var(--color-border);\n"; }
@@ -64,6 +74,7 @@ public record FdSurfaceCss() implements CssGroup<FdSurfaceCss> {
                 new fd_card(),
                 new fd_inset(),
                 new fd_rule(),
+                new fd_rule_left(),
                 new fd_rule_top(),
                 new fd_rule_strong());
     }
