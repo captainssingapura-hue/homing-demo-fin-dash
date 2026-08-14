@@ -34,6 +34,26 @@ public record FdControlCss() implements CssGroup<FdControlCss> {
         }
     }
 
+    /**
+     * Destructive action — the master kill. Deliberately larger and louder than
+     * {@link fd_btn}: on a quoting desk this is the one control that must be
+     * findable and hittable without hesitation (UI study P2).
+     */
+    public record fd_btn_danger() implements CssClass<FdControlCss> {
+        @Override public String body() { return """
+                padding: var(--space-2, 8px) var(--space-4, 16px);
+                font-size: 13px;
+                font-weight: 700;
+                letter-spacing: 0.5px;
+                border: none;
+                border-radius: var(--radius-md);
+                cursor: pointer;
+                background: var(--color-status-critical, #a32e2e);
+                color: var(--color-surface);
+                """;
+        }
+    }
+
     /** Secondary action — same metrics, outlined instead of filled. */
     public record fd_btn_ghost() implements CssClass<FdControlCss> {
         @Override public String body() { return """
@@ -117,6 +137,7 @@ public record FdControlCss() implements CssGroup<FdControlCss> {
     public List<CssClass<FdControlCss>> cssClasses() {
         return List.of(
                 new fd_btn(),
+                new fd_btn_danger(),
                 new fd_btn_ghost(),
                 new fd_input(),
                 new fd_clickable(),

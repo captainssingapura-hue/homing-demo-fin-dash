@@ -8,6 +8,8 @@ import hue.captains.singapura.js.homing.workspace.WorkspaceWidget;
 import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
 import hue.captains.singapura.js.homing.findash.core.css.FdStatusCss;
 import hue.captains.singapura.js.homing.findash.core.css.FdTextCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdControlCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdSurfaceCss;
 
 import java.util.List;
 
@@ -35,6 +37,7 @@ public final class RfqTapeWidget extends WorkspaceWidget<WorkspaceWidget._None, 
         return List.of(new ModuleImports<>(
                 List.of(new FinDashKitModule.fdk()), FinDashKitModule.INSTANCE),
                 new ModuleImports<>(List.of(
+                        new FdFrameCss.fd_row(),
                         new FdFrameCss.fd_header_row(),
                         new FdFrameCss.fd_section(),
                         new FdFrameCss.fd_widget_root()),
@@ -43,10 +46,18 @@ public final class RfqTapeWidget extends WorkspaceWidget<WorkspaceWidget._None, 
                         new FdStatusCss.fd_error_text()),
                         FdStatusCss.INSTANCE),
                 new ModuleImports<>(List.of(
+                        new FdTextCss.fd_muted(),
+                        new FdTextCss.fd_num(),
                         new FdTextCss.fd_caption(),
                         new FdTextCss.fd_strong(),
                         new FdTextCss.fd_title()),
-                        FdTextCss.INSTANCE));
+                        FdTextCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdControlCss.fd_clickable()),
+                        FdControlCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdSurfaceCss.fd_rule()),
+                        FdSurfaceCss.INSTANCE));
     }
 
     @Override
@@ -71,27 +82,28 @@ public final class RfqTapeWidget extends WorkspaceWidget<WorkspaceWidget._None, 
             "    var list = fdk.el(branch, 'sect-1', 'div', fd_section);",
             "    root.appendChild(list);",
             "",
-            "    function outcomeChip(o) {",
-            "        if (o === 'WON')  return fdk.chip(branch, 'chip-1', 'good', 'WON');",
-            "        if (o === 'LOST') return fdk.chip(branch, 'chip-2', 'serious', 'LOST');",
-            "        return fdk.chip(branch, 'chip-3', 'neutral', o);",
+            "    function outcomeChip(i, o) {",
+            "        if (o === 'WON')  return fdk.chip(branch, 'q-chip-' + i, 'good', 'WON');",
+            "        if (o === 'LOST') return fdk.chip(branch, 'q-chip-' + i, 'serious', 'LOST');",
+            "        return fdk.chip(branch, 'q-chip-' + i, 'neutral', o);",
             "    }",
             "",
             "    function render(d) {",
             "        for (var i = 0; i < d.rfqs.length; i++) {",
-            "            (function (q) {",
-            "                var line = fdk.el('div', 'display:flex;gap:10px;align-items:center;padding:7px 4px;'",
-            "                    + 'border-bottom:1px solid var(--color-border);font-size:12.5px;cursor:pointer;');",
-            "                line.appendChild(outcomeChip(q.outcome));",
-            "                var main = fdk.el(branch, 'slot-1', 'div', null);",
-            "                var top = fdk.el(branch, 'slot-2', 'div', null);",
-            "                top.appendChild(fdk.el('span', 'color:var(--color-text-muted);font-variant-numeric:tabular-nums;'",
-            "                    + 'font-size:11px;', q.time + ' \\u00b7 ' + q.source + '  '));",
-            "                top.appendChild(fdk.el(branch, 'strong-1', 'span', fd_strong, q.desc));",
+            "            // Keyed by tape position — every element in the row carries the",
+            "            // index, since a branch name may only be claimed once.",
+            "            (function (q, i) {",
+            "                var line = fdk.el(branch, 'q-' + i, 'div', [fd_row, fd_rule, fd_clickable]);",
+            "                line.appendChild(outcomeChip(i, q.outcome));",
+            "                var main = fdk.el(branch, 'q-main-' + i, 'div', null);",
+            "                var top = fdk.el(branch, 'q-top-' + i, 'div', null);",
+            "                top.appendChild(fdk.el(branch, 'q-meta-' + i, 'span', [fd_caption, fd_muted, fd_num],",
+            "                    q.time + ' \\u00b7 ' + q.source + '  '));",
+            "                top.appendChild(fdk.el(branch, 'q-desc-' + i, 'span', fd_strong, q.desc));",
             "                main.appendChild(top);",
-            "                var sub = fdk.el('div', 'display:flex;gap:8px;align-items:baseline;');",
-            "                sub.appendChild(fdk.el(branch, 'cap-2', 'span', fd_caption, q.quote));",
-            "                sub.appendChild(fdk.stamp(branch, 'stamp-1', { surface: q.stamp }));",
+            "                var sub = fdk.el(branch, 'q-sub-' + i, 'div', fd_header_row);",
+            "                sub.appendChild(fdk.el(branch, 'q-quote-' + i, 'span', fd_caption, q.quote));",
+            "                sub.appendChild(fdk.stamp(branch, 'q-stamp-' + i, { surface: q.stamp }));",
             "                main.appendChild(sub);",
             "                line.appendChild(main);",
             "                line.onclick = function () {",
@@ -100,7 +112,7 @@ public final class RfqTapeWidget extends WorkspaceWidget<WorkspaceWidget._None, 
             "                        { kind: 'InstrumentSelected', instrument: { pair: pair } });",
             "                };",
             "                list.appendChild(line);",
-            "            })(d.rfqs[i]);",
+            "            })(d.rfqs[i], i);",
             "        }",
             "    }",
             "",
