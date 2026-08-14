@@ -6,6 +6,9 @@ import hue.captains.singapura.js.homing.findash.core.kit.FinDashGridModule;
 import hue.captains.singapura.js.homing.findash.core.kit.FinDashKitModule;
 import hue.captains.singapura.js.homing.workspace.LifecycleHint;
 import hue.captains.singapura.js.homing.workspace.WorkspaceWidget;
+import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdStatusCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdTextCss;
 
 import java.util.List;
 
@@ -36,40 +39,56 @@ public final class RiskViewsWidget
     protected List<ModuleImports<? extends Importable>> bodyImports() {
         return List.of(
                 new ModuleImports<>(List.of(new FinDashKitModule.fdk()), FinDashKitModule.INSTANCE),
-                new ModuleImports<>(List.of(new FinDashGridModule.fdGrid()), FinDashGridModule.INSTANCE));
+                new ModuleImports<>(List.of(new FinDashGridModule.fdGrid()), FinDashGridModule.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdFrameCss.fd_cluster(),
+                        new FdFrameCss.fd_header_row(),
+                        new FdFrameCss.fd_row(),
+                        new FdFrameCss.fd_section(),
+                        new FdFrameCss.fd_spacer(),
+                        new FdFrameCss.fd_widget_root()),
+                        FdFrameCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdStatusCss.fd_error_text()),
+                        FdStatusCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdTextCss.fd_caption(),
+                        new FdTextCss.fd_muted(),
+                        new FdTextCss.fd_strong(),
+                        new FdTextCss.fd_title()),
+                        FdTextCss.INSTANCE));
     }
 
     @Override
     protected List<String> constructBodyJs() {
         return List.of(
             "    var root = branch.createElement('root', 'div');",
-            "    root.style.cssText = 'height:100%;overflow:auto;box-sizing:border-box;padding:14px;'",
-            "        + 'font-family:system-ui,sans-serif;font-size:13px;color:var(--color-text-primary);';",
+            "    css.setClass(root, fd_widget_root);",
             "",
-            "    var head = fdk.el('div', 'display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;');",
-            "    head.appendChild(fdk.el('span', 'font-weight:700;font-size:14px;letter-spacing:0.3px;',",
+            "    var head = fdk.el(branch, 'head-1', 'div', fd_header_row);",
+            "    head.appendChild(fdk.el(branch, 'title-1', 'span', fd_title, ",
             "        'RISK VIEWS \\u2014 limits & utilization'));",
-            "    var asOfSlot = fdk.el('span', '');",
+            "    var asOfSlot = fdk.el(branch, 'slot-1', 'span', null);",
             "    head.appendChild(asOfSlot);",
             "    root.appendChild(head);",
             "",
-            "    var gridSlot = fdk.el('div', 'margin-top:8px;');",
+            "    var gridSlot = fdk.el(branch, 'sect-1', 'div', fd_section);",
             "    root.appendChild(gridSlot);",
             "",
-            "    root.appendChild(fdk.sectionTitle('Breach / warning worklist'));",
-            "    var worklist = fdk.el('div', '');",
+            "    root.appendChild(fdk.sectionTitle(branch, 'sect-1', 'Breach / warning worklist'));",
+            "    var worklist = fdk.el(branch, 'slot-2', 'div', null);",
             "    root.appendChild(worklist);",
-            "    root.appendChild(fdk.el('div', 'color:var(--color-text-muted);font-size:11px;margin-top:6px;',",
+            "    root.appendChild(fdk.el(branch, 'cap-1', 'div', [fd_caption, fd_muted, fd_section], ",
             "        'no mark or model controls here \\u2014 independence of the view is the point \\u00b7 '",
             "        + 'annotations are journaled and visible to the desk (demo)'));",
             "",
             "    function breachRow(b) {",
-            "        var line = fdk.el('div', 'display:flex;gap:10px;align-items:center;padding:6px 4px;'",
+            "        var line = fdk.el(branch, 'row-1', 'div', fd_row",
             "            + 'border-bottom:1px solid var(--color-border);font-size:12.5px;');",
-            "        line.appendChild(fdk.chip(b.severity, b.severity === 'serious' ? 'breach risk' : 'warning'));",
-            "        var main = fdk.el('div', 'flex:1;');",
-            "        main.appendChild(fdk.el('div', 'font-weight:600;', b.what));",
-            "        main.appendChild(fdk.el('div', 'color:var(--color-text-primary);font-size:11.5px;', b.detail));",
+            "        line.appendChild(fdk.chip(branch, 'chip-1', b.severity, b.severity === 'serious' ? 'breach risk' : 'warning'));",
+            "        var main = fdk.el(branch, 'spacer-1', 'div', fd_spacer);",
+            "        main.appendChild(fdk.el(branch, 'strong-1', 'div', fd_strong, b.what));",
+            "        main.appendChild(fdk.el(branch, 'cap-2', 'div', fd_caption, b.detail));",
             "        line.appendChild(main);",
             "        if (b.state === 'unacknowledged') {",
             "            var ack = document.createElement('button');",
@@ -78,12 +97,12 @@ public final class RiskViewsWidget
             "                + 'border-radius:4px;background:var(--color-surface);color:var(--color-text-primary);cursor:pointer;';",
             "            ack.onclick = function () {",
             "                while (line.lastChild !== main) line.removeChild(line.lastChild);",
-            "                line.appendChild(fdk.el('span', 'color:var(--color-text-muted);font-size:11px;',",
+            "                line.appendChild(fdk.el(branch, 'cap-3', 'span', [fd_caption, fd_muted], ",
             "                    'acknowledged now \\u00b7 journaled (demo)'));",
             "            };",
             "            line.appendChild(ack);",
             "        } else {",
-            "            line.appendChild(fdk.el('span', 'color:var(--color-text-muted);font-size:11px;', b.state));",
+            "            line.appendChild(fdk.el(branch, 'cap-4', 'span', [fd_caption, fd_muted], b.state));",
             "        }",
             "        return line;",
             "    }",
@@ -91,8 +110,8 @@ public final class RiskViewsWidget
             "    fetch('/fx/risk')",
             "        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })",
             "        .then(function (d) {",
-            "            asOfSlot.appendChild(fdk.chip('neutral', 'as-of ' + d.asOf + ' \\u2014 NOT live'));",
-            "            var grid = fdGrid({",
+            "            asOfSlot.appendChild(fdk.chip(branch, 'chip-2', 'neutral', 'as-of ' + d.asOf + ' \\u2014 NOT live'));",
+            "            var grid = fdGrid(branch, {",
             "                compact: true,",
             "                columns: [",
             "                    { key: 'book', label: 'Book' },",
@@ -100,14 +119,14 @@ public final class RiskViewsWidget
             "                    { key: 'usage', label: 'Usage', align: 'right' },",
             "                    { key: 'limit', label: 'Limit', align: 'right' },",
             "                    { key: 'frac', label: 'Utilization', render: function (v, row) {",
-            "                        var cell = fdk.el('span', 'display:inline-flex;gap:6px;align-items:center;');",
+            "                        var cell = fdk.el(branch, 'cluster-1', 'span', fd_cluster);",
             "                        cell.appendChild(fdk.meter(v, { width: 70 }));",
-            "                        cell.appendChild(fdk.el('span', 'font-size:11px;color:var(--color-text-primary);',",
+            "                        cell.appendChild(fdk.el('span', 'font-size:11px;color:var(--color-text-primary);', ",
             "                            Math.round(v * 100) + '%'));",
             "                        return cell;",
             "                    } },",
             "                    { key: 'note', label: 'Note', render: function (v, row) {",
-            "                        var cell = fdk.el('span', 'display:inline-flex;gap:6px;align-items:center;');",
+            "                        var cell = fdk.el(branch, 'cluster-2', 'span', fd_cluster);",
             "                        if (v) cell.appendChild(fdk.el('span', 'color:#9a6b1f;font-size:11px;', v));",
             "                        var note = document.createElement('button');",
             "                        note.textContent = '+ note';",
@@ -127,7 +146,7 @@ public final class RiskViewsWidget
             "            for (var i = 0; i < d.breaches.length; i++) worklist.appendChild(breachRow(d.breaches[i]));",
             "        })",
             "        .catch(function (e) {",
-            "            gridSlot.appendChild(fdk.el('div', 'color:#a8502a;',",
+            "            gridSlot.appendChild(fdk.el(branch, 'err-1', 'div', fd_error_text, ",
             "                'risk load failed: ' + (e && e.message ? e.message : e)));",
             "        });",
             "",

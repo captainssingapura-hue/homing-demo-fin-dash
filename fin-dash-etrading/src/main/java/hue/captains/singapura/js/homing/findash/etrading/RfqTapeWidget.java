@@ -5,6 +5,9 @@ import hue.captains.singapura.js.homing.core.ModuleImports;
 import hue.captains.singapura.js.homing.findash.core.kit.FinDashKitModule;
 import hue.captains.singapura.js.homing.workspace.LifecycleHint;
 import hue.captains.singapura.js.homing.workspace.WorkspaceWidget;
+import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdStatusCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdTextCss;
 
 import java.util.List;
 
@@ -30,15 +33,27 @@ public final class RfqTapeWidget extends WorkspaceWidget<WorkspaceWidget._None, 
     @Override
     protected List<ModuleImports<? extends Importable>> bodyImports() {
         return List.of(new ModuleImports<>(
-                List.of(new FinDashKitModule.fdk()), FinDashKitModule.INSTANCE));
+                List.of(new FinDashKitModule.fdk()), FinDashKitModule.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdFrameCss.fd_header_row(),
+                        new FdFrameCss.fd_section(),
+                        new FdFrameCss.fd_widget_root()),
+                        FdFrameCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdStatusCss.fd_error_text()),
+                        FdStatusCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdTextCss.fd_caption(),
+                        new FdTextCss.fd_strong(),
+                        new FdTextCss.fd_title()),
+                        FdTextCss.INSTANCE));
     }
 
     @Override
     protected List<String> constructBodyJs() {
         return List.of(
             "    var root = branch.createElement('root', 'div');",
-            "    root.style.cssText = 'height:100%;overflow:auto;box-sizing:border-box;padding:14px;'",
-            "        + 'font-family:system-ui,sans-serif;font-size:13px;color:var(--color-text-primary);';",
+            "    css.setClass(root, fd_widget_root);",
             "",
             "    var party = (workspaceCtx && workspaceCtx.deskParty) ? workspaceCtx.deskParty : null;",
             "    var actorId = null;",
@@ -47,19 +62,19 @@ public final class RfqTapeWidget extends WorkspaceWidget<WorkspaceWidget._None, 
             "        party.joinActor({ id: actorId, parentSecretary: 'desk', reactors: {} });",
             "    }",
             "",
-            "    var head = fdk.el('div', 'display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;');",
-            "    head.appendChild(fdk.el('span', 'font-weight:700;font-size:14px;letter-spacing:0.3px;', 'RFQ TAPE'));",
-            "    head.appendChild(fdk.el('span', 'color:var(--color-text-primary);font-size:11.5px;',",
+            "    var head = fdk.el(branch, 'head-1', 'div', fd_header_row);",
+            "    head.appendChild(fdk.el(branch, 'title-1', 'span', fd_title, 'RFQ TAPE'));",
+            "    head.appendChild(fdk.el(branch, 'cap-1', 'span', fd_caption, ",
             "        'every quote stamped with its slice (P1)'));",
             "    root.appendChild(head);",
             "",
-            "    var list = fdk.el('div', 'margin-top:8px;');",
+            "    var list = fdk.el(branch, 'sect-1', 'div', fd_section);",
             "    root.appendChild(list);",
             "",
             "    function outcomeChip(o) {",
-            "        if (o === 'WON')  return fdk.chip('good', 'WON');",
-            "        if (o === 'LOST') return fdk.chip('serious', 'LOST');",
-            "        return fdk.chip('neutral', o);",
+            "        if (o === 'WON')  return fdk.chip(branch, 'chip-1', 'good', 'WON');",
+            "        if (o === 'LOST') return fdk.chip(branch, 'chip-2', 'serious', 'LOST');",
+            "        return fdk.chip(branch, 'chip-3', 'neutral', o);",
             "    }",
             "",
             "    function render(d) {",
@@ -68,15 +83,15 @@ public final class RfqTapeWidget extends WorkspaceWidget<WorkspaceWidget._None, 
             "                var line = fdk.el('div', 'display:flex;gap:10px;align-items:center;padding:7px 4px;'",
             "                    + 'border-bottom:1px solid var(--color-border);font-size:12.5px;cursor:pointer;');",
             "                line.appendChild(outcomeChip(q.outcome));",
-            "                var main = fdk.el('div', '');",
-            "                var top = fdk.el('div', '');",
+            "                var main = fdk.el(branch, 'slot-1', 'div', null);",
+            "                var top = fdk.el(branch, 'slot-2', 'div', null);",
             "                top.appendChild(fdk.el('span', 'color:var(--color-text-muted);font-variant-numeric:tabular-nums;'",
             "                    + 'font-size:11px;', q.time + ' \\u00b7 ' + q.source + '  '));",
-            "                top.appendChild(fdk.el('span', 'font-weight:600;', q.desc));",
+            "                top.appendChild(fdk.el(branch, 'strong-1', 'span', fd_strong, q.desc));",
             "                main.appendChild(top);",
             "                var sub = fdk.el('div', 'display:flex;gap:8px;align-items:baseline;');",
-            "                sub.appendChild(fdk.el('span', 'color:var(--color-text-primary);font-size:11.5px;', q.quote));",
-            "                sub.appendChild(fdk.stamp({ surface: q.stamp }));",
+            "                sub.appendChild(fdk.el(branch, 'cap-2', 'span', fd_caption, q.quote));",
+            "                sub.appendChild(fdk.stamp(branch, 'stamp-1', { surface: q.stamp }));",
             "                main.appendChild(sub);",
             "                line.appendChild(main);",
             "                line.onclick = function () {",
@@ -93,7 +108,7 @@ public final class RfqTapeWidget extends WorkspaceWidget<WorkspaceWidget._None, 
             "        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })",
             "        .then(render)",
             "        .catch(function (e) {",
-            "            list.appendChild(fdk.el('div', 'color:#a8502a;',",
+            "            list.appendChild(fdk.el(branch, 'err-1', 'div', fd_error_text, ",
             "                'tape load failed: ' + (e && e.message ? e.message : e)));",
             "        });",
             "",

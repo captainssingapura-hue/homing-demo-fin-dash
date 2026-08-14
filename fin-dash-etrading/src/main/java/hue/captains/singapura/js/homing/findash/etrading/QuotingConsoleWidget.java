@@ -6,6 +6,9 @@ import hue.captains.singapura.js.homing.findash.core.kit.FinDashGridModule;
 import hue.captains.singapura.js.homing.findash.core.kit.FinDashKitModule;
 import hue.captains.singapura.js.homing.workspace.LifecycleHint;
 import hue.captains.singapura.js.homing.workspace.WorkspaceWidget;
+import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdStatusCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdTextCss;
 
 import java.util.List;
 
@@ -42,15 +45,27 @@ public final class QuotingConsoleWidget
     protected List<ModuleImports<? extends Importable>> bodyImports() {
         return List.of(
                 new ModuleImports<>(List.of(new FinDashKitModule.fdk()), FinDashKitModule.INSTANCE),
-                new ModuleImports<>(List.of(new FinDashGridModule.fdGrid()), FinDashGridModule.INSTANCE));
+                new ModuleImports<>(List.of(new FinDashGridModule.fdGrid()), FinDashGridModule.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdFrameCss.fd_cluster(),
+                        new FdFrameCss.fd_section(),
+                        new FdFrameCss.fd_widget_root()),
+                        FdFrameCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdStatusCss.fd_error_text()),
+                        FdStatusCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdTextCss.fd_caption(),
+                        new FdTextCss.fd_muted(),
+                        new FdTextCss.fd_title()),
+                        FdTextCss.INSTANCE));
     }
 
     @Override
     protected List<String> constructBodyJs() {
         return List.of(
             "    var root = branch.createElement('root', 'div');",
-            "    root.style.cssText = 'height:100%;overflow:auto;box-sizing:border-box;padding:14px;'",
-            "        + 'font-family:system-ui,sans-serif;font-size:13px;color:var(--color-text-primary);';",
+            "    css.setClass(root, fd_widget_root);",
             "",
             "    var party = (workspaceCtx && workspaceCtx.deskParty) ? workspaceCtx.deskParty : null;",
             "    var actorId = null;",
@@ -66,9 +81,9 @@ public final class QuotingConsoleWidget
             "",
             "    // -- header: master state + the unceremonious kill ------------------",
             "    var head = fdk.el('div', 'display:flex;align-items:center;gap:12px;flex-wrap:wrap;');",
-            "    head.appendChild(fdk.el('span', 'font-weight:700;font-size:14px;letter-spacing:0.3px;',",
+            "    head.appendChild(fdk.el(branch, 'title-1', 'span', fd_title, ",
             "        'E-TRADING CONSOLE'));",
-            "    var masterSlot = fdk.el('span', '');",
+            "    var masterSlot = fdk.el(branch, 'slot-1', 'span', null);",
             "    head.appendChild(masterSlot);",
             "    var kill = document.createElement('button');",
             "    kill.style.cssText = 'margin-left:auto;padding:8px 18px;font-size:13px;font-weight:700;'",
@@ -84,25 +99,25 @@ public final class QuotingConsoleWidget
             "    var stampSlot = fdk.el('div', 'margin:6px 0 2px;');",
             "    root.appendChild(stampSlot);",
             "",
-            "    var evTitle = fdk.sectionTitle('Event stream — automatic + manual, one stream');",
+            "    var evTitle = fdk.sectionTitle(branch, 'sect-1', 'Event stream — automatic + manual, one stream');",
             "    root.appendChild(evTitle);",
             "    var evList = fdk.el('div', 'font-size:11.5px;line-height:1.7;max-height:110px;overflow:auto;'",
             "        + 'border:1px solid var(--color-border);border-radius:8px;padding:6px 10px;');",
             "    root.appendChild(evList);",
             "",
-            "    var gridTitle = fdk.sectionTitle('Pairs');",
+            "    var gridTitle = fdk.sectionTitle(branch, 'sect-2', 'Pairs');",
             "    root.appendChild(gridTitle);",
-            "    var gridSlot = fdk.el('div', '');",
+            "    var gridSlot = fdk.el(branch, 'slot-2', 'div', null);",
             "    root.appendChild(gridSlot);",
-            "    root.appendChild(fdk.el('div', 'color:var(--color-text-muted);font-size:11px;margin-top:6px;',",
+            "    root.appendChild(fdk.el(branch, 'cap-1', 'div', [fd_caption, fd_muted, fd_section], ",
             "        'all actions Ring 3: entitled \\u00b7 reason-captured \\u00b7 auto-expiring \\u00b7 journaled \\u2014 '",
             "        + 'resume requires reason; > 30 min pulled requires second approver (four-eyes) \\u00b7 demo: not journaled'));",
             "",
             "    function stateChip(p) {",
-            "        if (state.master === 'KILLED') return fdk.chip('critical', 'killed');",
-            "        if (p.state === 'streaming')    return fdk.chip('live', 'streaming');",
-            "        if (p.state === 'auto-widened') return fdk.chip('warn', 'auto-widened');",
-            "        return fdk.chip('neutral', 'pulled');",
+            "        if (state.master === 'KILLED') return fdk.chip(branch, 'chip-1', 'critical', 'killed');",
+            "        if (p.state === 'streaming')    return fdk.chip(branch, 'chip-2', 'live', 'streaming');",
+            "        if (p.state === 'auto-widened') return fdk.chip(branch, 'chip-3', 'warn', 'auto-widened');",
+            "        return fdk.chip(branch, 'chip-4', 'neutral', 'pulled');",
             "    }",
             "",
             "    function addEvent(kind, text) {",
@@ -113,11 +128,11 @@ public final class QuotingConsoleWidget
             "        clear(evList);",
             "        for (var i = 0; i < state.events.length; i++) {",
             "            var e = state.events[i];",
-            "            var row = fdk.el('div', '');",
+            "            var row = fdk.el(branch, 'slot-3', 'div', null);",
             "            row.appendChild(fdk.el('span', 'color:var(--color-text-muted);font-variant-numeric:tabular-nums;', e.time + '  '));",
             "            row.appendChild(fdk.el('span', 'font-weight:600;color:'",
             "                + (e.kind === 'auto' ? '#1c5cab' : '#9a6b1f') + ';', '[' + e.kind + '] '));",
-            "            row.appendChild(fdk.el('span', 'color:var(--color-text-primary);', e.text));",
+            "            row.appendChild(fdk.el(branch, 'txt-1', 'span', null, e.text));",
             "            evList.appendChild(row);",
             "        }",
             "    }",
@@ -134,7 +149,7 @@ public final class QuotingConsoleWidget
             "    function renderMaster() {",
             "        clear(masterSlot);",
             "        masterSlot.appendChild(state.master === 'KILLED'",
-            "            ? fdk.chip('critical', 'master: KILLED') : fdk.chip('live', 'master: STREAMING'));",
+            "            ? fdk.chip(branch, 'chip-5', 'critical', 'master: KILLED') : fdk.chip(branch, 'chip-6', 'live', 'master: STREAMING'));",
             "        kill.textContent = state.master === 'KILLED' ? 'KILLED \\u23fb' : 'MASTER KILL \\u23fb';",
             "        kill.disabled = state.master === 'KILLED';",
             "        unkillBar.style.display = state.master === 'KILLED' ? 'flex' : 'none';",
@@ -156,7 +171,7 @@ public final class QuotingConsoleWidget
             "    });",
             "    reason.style.cssText = 'padding:3px 6px;font-size:12px;border:1px solid var(--color-border);border-radius:4px;';",
             "    unkillBar.appendChild(reason);",
-            "    unkillBar.appendChild(fdk.el('span', 'color:var(--color-text-primary);', '+ second approver (four-eyes)'));",
+            "    unkillBar.appendChild(fdk.el(branch, 'txt-2', 'span', null, '+ second approver (four-eyes)'));",
             "    var unkill = actBtn('resume streaming', function () {",
             "        state.master = 'STREAMING';",
             "        addEvent('manual', 'master resumed \\u00b7 reason: ' + reason.value + ' \\u00b7 four-eyes: supervisor B \\u2713');",
@@ -190,7 +205,7 @@ public final class QuotingConsoleWidget
             "",
             "    function renderGrid() {",
             "        clear(gridSlot);",
-            "        state.grid = fdGrid({",
+            "        state.grid = fdGrid(branch, {",
             "            compact: true,",
             "            columns: [",
             "                { key: 'pair', label: 'Pair', render: function (v, row) {",
@@ -202,10 +217,10 @@ public final class QuotingConsoleWidget
             "                    return s;",
             "                } },",
             "                { key: 'state', label: 'State', render: function (v, row) {",
-            "                    var cell = fdk.el('span', 'display:inline-flex;gap:6px;align-items:center;');",
+            "                    var cell = fdk.el(branch, 'cluster-1', 'span', fd_cluster);",
             "                    cell.appendChild(stateChip(row));",
             "                    if (row.stateNote && state.master !== 'KILLED') {",
-            "                        cell.appendChild(fdk.el('span', 'color:var(--color-text-muted);font-size:11px;', row.stateNote));",
+            "                        cell.appendChild(fdk.el(branch, 'cap-2', 'span', [fd_caption, fd_muted], row.stateNote));",
             "                    }",
             "                    return cell;",
             "                } },",
@@ -227,12 +242,12 @@ public final class QuotingConsoleWidget
             "            state.master = d.master;",
             "            state.pairs = d.pairs;",
             "            state.events = d.events;",
-            "            stampSlot.appendChild(fdk.stamp({ slice: d.slice, model: d.model }));",
+            "            stampSlot.appendChild(fdk.stamp(branch, 'stamp-1', { slice: d.slice, model: d.model }));",
             "            renderEvents();",
             "            renderMaster();",
             "        })",
             "        .catch(function (e) {",
-            "            gridSlot.appendChild(fdk.el('div', 'color:#a8502a;',",
+            "            gridSlot.appendChild(fdk.el(branch, 'err-1', 'div', fd_error_text, ",
             "                'quoting load failed: ' + (e && e.message ? e.message : e)));",
             "        });",
             "",

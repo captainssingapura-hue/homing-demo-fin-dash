@@ -5,6 +5,9 @@ import hue.captains.singapura.js.homing.core.ModuleImports;
 import hue.captains.singapura.js.homing.findash.core.kit.FinDashKitModule;
 import hue.captains.singapura.js.homing.workspace.LifecycleHint;
 import hue.captains.singapura.js.homing.workspace.WorkspaceWidget;
+import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdStatusCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdTextCss;
 
 import java.util.List;
 
@@ -31,15 +34,26 @@ public final class ConcentrationWidget
     @Override
     protected List<ModuleImports<? extends Importable>> bodyImports() {
         return List.of(new ModuleImports<>(
-                List.of(new FinDashKitModule.fdk()), FinDashKitModule.INSTANCE));
+                List.of(new FinDashKitModule.fdk()), FinDashKitModule.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdFrameCss.fd_row(),
+                        new FdFrameCss.fd_widget_root()),
+                        FdFrameCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdStatusCss.fd_error_text()),
+                        FdStatusCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdTextCss.fd_caption(),
+                        new FdTextCss.fd_strong(),
+                        new FdTextCss.fd_title()),
+                        FdTextCss.INSTANCE));
     }
 
     @Override
     protected List<String> constructBodyJs() {
         return List.of(
             "    var root = branch.createElement('root', 'div');",
-            "    root.style.cssText = 'height:100%;overflow:auto;box-sizing:border-box;padding:14px;'",
-            "        + 'font-family:system-ui,sans-serif;font-size:13px;color:var(--color-text-primary);';",
+            "    css.setClass(root, fd_widget_root);",
             "",
             "    var party = (workspaceCtx && workspaceCtx.deskParty) ? workspaceCtx.deskParty : null;",
             "    var actorId = null;",
@@ -48,24 +62,24 @@ public final class ConcentrationWidget
             "        party.joinActor({ id: actorId, parentSecretary: 'desk', reactors: {} });",
             "    }",
             "",
-            "    root.appendChild(fdk.el('div', 'font-weight:700;font-size:14px;letter-spacing:0.3px;',",
+            "    root.appendChild(fdk.el(branch, 'title-1', 'div', fd_title, ",
             "        'CONCENTRATIONS'));",
             "",
-            "    root.appendChild(fdk.sectionTitle('Barrier density \\u2014 notional within bands of spot'));",
-            "    var density = fdk.el('div', '');",
+            "    root.appendChild(fdk.sectionTitle(branch, 'sect-1', 'Barrier density \\u2014 notional within bands of spot'));",
+            "    var density = fdk.el(branch, 'slot-1', 'div', null);",
             "    root.appendChild(density);",
             "",
-            "    root.appendChild(fdk.sectionTitle('Event-date vega'));",
-            "    var events = fdk.el('div', '');",
+            "    root.appendChild(fdk.sectionTitle(branch, 'sect-2', 'Event-date vega'));",
+            "    var events = fdk.el(branch, 'slot-2', 'div', null);",
             "    root.appendChild(events);",
             "",
             "    function row(container, chipState, chipText, boldText, subText, pair) {",
-            "        var line = fdk.el('div', 'display:flex;gap:10px;align-items:center;padding:6px 4px;'",
+            "        var line = fdk.el(branch, 'row-1', 'div', fd_row",
             "            + 'border-bottom:1px solid var(--color-border);font-size:12.5px;cursor:pointer;');",
-            "        line.appendChild(fdk.chip(chipState, chipText));",
-            "        var main = fdk.el('div', '');",
-            "        main.appendChild(fdk.el('div', 'font-weight:600;', boldText));",
-            "        main.appendChild(fdk.el('div', 'color:var(--color-text-primary);font-size:11.5px;', subText));",
+            "        line.appendChild(fdk.chip(branch, 'chip-1', chipState, chipText));",
+            "        var main = fdk.el(branch, 'slot-3', 'div', null);",
+            "        main.appendChild(fdk.el(branch, 'strong-1', 'div', fd_strong, boldText));",
+            "        main.appendChild(fdk.el(branch, 'cap-1', 'div', fd_caption, subText));",
             "        line.appendChild(main);",
             "        line.onclick = function () {",
             "            if (party && actorId && pair) party.tellFrom(actorId,",
@@ -89,7 +103,7 @@ public final class ConcentrationWidget
             "            }",
             "        })",
             "        .catch(function (e) {",
-            "            density.appendChild(fdk.el('div', 'color:#a8502a;',",
+            "            density.appendChild(fdk.el(branch, 'err-1', 'div', fd_error_text, ",
             "                'concentration load failed: ' + (e && e.message ? e.message : e)));",
             "        });",
             "",

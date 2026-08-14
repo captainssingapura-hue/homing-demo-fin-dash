@@ -5,6 +5,9 @@ import hue.captains.singapura.js.homing.core.ModuleImports;
 import hue.captains.singapura.js.homing.findash.core.kit.FinDashKitModule;
 import hue.captains.singapura.js.homing.workspace.LifecycleHint;
 import hue.captains.singapura.js.homing.workspace.WorkspaceWidget;
+import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdStatusCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdTextCss;
 
 import java.util.List;
 
@@ -32,19 +35,31 @@ public final class AuditExplorerWidget
     @Override
     protected List<ModuleImports<? extends Importable>> bodyImports() {
         return List.of(new ModuleImports<>(
-                List.of(new FinDashKitModule.fdk()), FinDashKitModule.INSTANCE));
+                List.of(new FinDashKitModule.fdk()), FinDashKitModule.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdFrameCss.fd_section(),
+                        new FdFrameCss.fd_spacer(),
+                        new FdFrameCss.fd_widget_root()),
+                        FdFrameCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdStatusCss.fd_error_text()),
+                        FdStatusCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdTextCss.fd_caption(),
+                        new FdTextCss.fd_strong(),
+                        new FdTextCss.fd_title()),
+                        FdTextCss.INSTANCE));
     }
 
     @Override
     protected List<String> constructBodyJs() {
         return List.of(
             "    var root = branch.createElement('root', 'div');",
-            "    root.style.cssText = 'height:100%;overflow:auto;box-sizing:border-box;padding:14px;'",
-            "        + 'font-family:system-ui,sans-serif;font-size:13px;color:var(--color-text-primary);';",
+            "    css.setClass(root, fd_widget_root);",
             "",
-            "    root.appendChild(fdk.el('div', 'font-weight:700;font-size:14px;letter-spacing:0.3px;',",
+            "    root.appendChild(fdk.el(branch, 'title-1', 'div', fd_title, ",
             "        'AUDIT EXPLORER'));",
-            "    root.appendChild(fdk.el('div', 'color:var(--color-text-primary);font-size:11.5px;margin:2px 0 8px;',",
+            "    root.appendChild(fdk.el(branch, 'cap-1', 'div', [fd_caption, fd_section], ",
             "        'read-only \\u00b7 cross-journal \\u00b7 reconstruct any screen any participant saw (P4)'));",
             "",
             "    var controls = fdk.el('div', 'display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;');",
@@ -63,9 +78,9 @@ public final class AuditExplorerWidget
             "    controls.appendChild(journal);",
             "    root.appendChild(controls);",
             "",
-            "    var list = fdk.el('div', '');",
+            "    var list = fdk.el(branch, 'slot-1', 'div', null);",
             "    root.appendChild(list);",
-            "    root.appendChild(fdk.el('div', 'color:var(--color-text-muted);font-size:11px;margin-top:8px;',",
+            "    root.appendChild(fdk.el('div', 'color:var(--color-text-muted);font-size:11px;margin-top:8px;', ",
             "        'set an as-of like \"14:31:07\" to reconstruct the moment \\u00b7 the reconstruction is itself evidential'));",
             "",
             "    var state = { events: [] };",
@@ -84,11 +99,11 @@ public final class AuditExplorerWidget
             "            line.appendChild(fdk.el('span', 'color:var(--color-text-muted);font-variant-numeric:tabular-nums;'",
             "                + 'min-width:64px;', e.time));",
             "            line.appendChild(fdk.chip('neutral', e.journal));",
-            "            var main = fdk.el('div', 'flex:1;');",
-            "            main.appendChild(fdk.el('span', 'font-weight:600;', e.actor + '  '));",
-            "            main.appendChild(fdk.el('span', 'color:var(--color-text-primary);', e.text));",
+            "            var main = fdk.el(branch, 'spacer-1', 'div', fd_spacer);",
+            "            main.appendChild(fdk.el(branch, 'strong-1', 'span', fd_strong, e.actor + '  '));",
+            "            main.appendChild(fdk.el(branch, 'txt-1', 'span', null, e.text));",
             "            line.appendChild(main);",
-            "            line.appendChild(fdk.stamp({ slice: e.stamp }));",
+            "            line.appendChild(fdk.stamp(branch, 'stamp-1', { slice: e.stamp }));",
             "            list.appendChild(line);",
             "        }",
             "        if (!shown) list.appendChild(fdk.el('div', 'color:var(--color-text-muted);font-size:12px;', 'no events in this journal'));",
@@ -99,7 +114,7 @@ public final class AuditExplorerWidget
             "        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })",
             "        .then(function (d) { state.events = d.events; render(); })",
             "        .catch(function (e) {",
-            "            list.appendChild(fdk.el('div', 'color:#a8502a;',",
+            "            list.appendChild(fdk.el(branch, 'err-1', 'div', fd_error_text, ",
             "                'audit load failed: ' + (e && e.message ? e.message : e)));",
             "        });",
             "",

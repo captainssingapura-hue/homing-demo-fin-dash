@@ -5,6 +5,9 @@ import hue.captains.singapura.js.homing.core.ModuleImports;
 import hue.captains.singapura.js.homing.findash.core.kit.FinDashKitModule;
 import hue.captains.singapura.js.homing.workspace.LifecycleHint;
 import hue.captains.singapura.js.homing.workspace.WorkspaceWidget;
+import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdStatusCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdTextCss;
 
 import java.util.List;
 
@@ -38,27 +41,40 @@ public final class DataTypeUsageWidget
     @Override
     protected List<ModuleImports<? extends Importable>> bodyImports() {
         return List.of(new ModuleImports<>(
-                List.of(new FinDashKitModule.fdk()), FinDashKitModule.INSTANCE));
+                List.of(new FinDashKitModule.fdk()), FinDashKitModule.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdFrameCss.fd_cluster(),
+                        new FdFrameCss.fd_header_row(),
+                        new FdFrameCss.fd_section(),
+                        new FdFrameCss.fd_widget_root()),
+                        FdFrameCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdStatusCss.fd_error_text()),
+                        FdStatusCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdTextCss.fd_caption(),
+                        new FdTextCss.fd_strong(),
+                        new FdTextCss.fd_title()),
+                        FdTextCss.INSTANCE));
     }
 
     @Override
     protected List<String> constructBodyJs() {
         return List.of(
             "    var root = branch.createElement('root', 'div');",
-            "    root.style.cssText = 'height:100%;overflow:auto;box-sizing:border-box;padding:14px;'",
-            "        + 'font-family:system-ui,sans-serif;font-size:13px;color:var(--color-text-primary);';",
+            "    css.setClass(root, fd_widget_root);",
             "",
-            "    var head = fdk.el('div', 'display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;');",
-            "    var title = fdk.el('span', 'font-weight:700;font-size:14px;letter-spacing:0.3px;',",
+            "    var head = fdk.el(branch, 'head-1', 'div', fd_header_row);",
+            "    var title = fdk.el(branch, 'title-1', 'span', fd_title, ",
             "        'TYPE USAGE');",
             "    head.appendChild(title);",
-            "    var chips = fdk.el('span', 'display:inline-flex;gap:6px;align-items:center;');",
+            "    var chips = fdk.el(branch, 'cluster-1', 'span', fd_cluster);",
             "    head.appendChild(chips);",
             "    root.appendChild(head);",
             "",
-            "    var body = fdk.el('div', 'margin-top:8px;');",
+            "    var body = fdk.el(branch, 'sect-1', 'div', fd_section);",
             "    root.appendChild(body);",
-            "    body.appendChild(fdk.el('div', 'color:var(--color-text-muted);font-size:12px;',",
+            "    body.appendChild(fdk.el('div', 'color:var(--color-text-muted);font-size:12px;', ",
             "        'select a data type in the tree \\u2014 this pane answers \"which widgets require it?\"'));",
             "",
             "    var index = {};",
@@ -72,28 +88,28 @@ public final class DataTypeUsageWidget
             "    };",
             "",
             "    function line(container, label, value) {",
-            "        container.appendChild(fdk.kv(label, value));",
+            "        container.appendChild(fdk.kv(branch, 'kv-1', label, value));",
             "    }",
             "",
             "    function render(id) {",
             "        var t = index[id];",
             "        clear(body); clear(chips);",
             "        if (!t) {",
-            "            body.appendChild(fdk.el('div', 'color:#a8502a;', 'unknown type: ' + id));",
+            "            body.appendChild(fdk.el(branch, 'err-1', 'div', fd_error_text, 'unknown type: ' + id));",
             "            return;",
             "        }",
             "        title.textContent = 'TYPE USAGE \\u2014 ' + id;",
-            "        chips.appendChild(fdk.chip('neutral', t.marker.toLowerCase().replace(/_/g, ' ')));",
-            "        chips.appendChild(fdk.chip('neutral', 'stratum ' + t.stratum.toLowerCase()));",
-            "        chips.appendChild(fdk.chip('good', 'era ' + t.era));",
+            "        chips.appendChild(fdk.chip(branch, 'chip-1', 'neutral', t.marker.toLowerCase().replace(/_/g, ' ')));",
+            "        chips.appendChild(fdk.chip(branch, 'chip-2', 'neutral', 'stratum ' + t.stratum.toLowerCase()));",
+            "        chips.appendChild(fdk.chip(branch, 'chip-3', 'good', 'era ' + t.era));",
             "",
             "        body.appendChild(fdk.el('div', 'color:var(--color-text-primary);font-size:12.5px;line-height:1.6;'",
             "            + 'margin:6px 0 10px;', t.summary));",
             "        line(body, 'java type', t.javaType);",
             "",
-            "        body.appendChild(fdk.sectionTitle('Required by (' + t.usages.length + ')'));",
+            "        body.appendChild(fdk.sectionTitle(branch, 'sect-1', 'Required by (' + t.usages.length + ')'));",
             "        if (!t.usages.length) {",
-            "            body.appendChild(fdk.el('div', 'color:#9a6b1f;font-size:12px;',",
+            "            body.appendChild(fdk.el('div', 'color:#9a6b1f;font-size:12px;', ",
             "                'no widget declares a dependency on this type \\u2014 either it is purely "
                 + "internal, or a consumer is missing from the map.'));",
             "        }",
@@ -112,9 +128,9 @@ public final class DataTypeUsageWidget
             "                    + 'padding:4px 2px;font-size:12.5px;');",
             "                var r = ROLE[u.role] || { state: 'neutral', text: u.role };",
             "                row.appendChild(fdk.chip(r.state, r.text));",
-            "                var main = fdk.el('div', '');",
-            "                main.appendChild(fdk.el('div', 'font-weight:600;', u.widget));",
-            "                main.appendChild(fdk.el('div', 'color:var(--color-text-primary);font-size:11.5px;', u.note));",
+            "                var main = fdk.el(branch, 'slot-1', 'div', null);",
+            "                main.appendChild(fdk.el(branch, 'strong-1', 'div', fd_strong, u.widget));",
+            "                main.appendChild(fdk.el(branch, 'cap-1', 'div', fd_caption, u.note));",
             "                row.appendChild(main);",
             "                group.appendChild(row);",
             "            });",
@@ -122,9 +138,9 @@ public final class DataTypeUsageWidget
             "        });",
             "",
             "        if (t.relations.length) {",
-            "            body.appendChild(fdk.sectionTitle('Points at'));",
+            "            body.appendChild(fdk.sectionTitle(branch, 'sect-2', 'Points at'));",
             "            t.relations.forEach(function (r) {",
-            "                body.appendChild(fdk.el('div', 'font-size:12px;color:var(--color-text-primary);line-height:1.6;',",
+            "                body.appendChild(fdk.el('div', 'font-size:12px;color:var(--color-text-primary);line-height:1.6;', ",
             "                    '\\u2192 ' + r.to + '  (' + r.edge + ', '",
             "                    + r.cardinality.toLowerCase().replace(/_/g, ' ') + ') \\u00b7 ' + r.purpose));",
             "            });",
@@ -132,7 +148,7 @@ public final class DataTypeUsageWidget
             "        if (t.incoming.length) {",
             "            body.appendChild(fdk.sectionTitle('Pointed at by'));",
             "            t.incoming.forEach(function (r) {",
-            "                body.appendChild(fdk.el('div', 'font-size:12px;color:var(--color-text-primary);line-height:1.6;',",
+            "                body.appendChild(fdk.el('div', 'font-size:12px;color:var(--color-text-primary);line-height:1.6;', ",
             "                    '\\u2190 ' + r.from + '  (' + r.edge + ') \\u00b7 ' + r.purpose));",
             "            });",
             "        }",
@@ -158,7 +174,7 @@ public final class DataTypeUsageWidget
             "        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })",
             "        .then(function (d) { index = d.index; })",
             "        .catch(function (e) {",
-            "            body.appendChild(fdk.el('div', 'color:#a8502a;',",
+            "            body.appendChild(fdk.el(branch, 'err-2', 'div', fd_error_text, ",
             "                'ontology load failed: ' + (e && e.message ? e.message : e)));",
             "        });",
             "",

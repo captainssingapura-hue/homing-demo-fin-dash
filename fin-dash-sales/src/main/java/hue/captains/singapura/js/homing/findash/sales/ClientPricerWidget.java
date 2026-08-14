@@ -5,6 +5,9 @@ import hue.captains.singapura.js.homing.core.ModuleImports;
 import hue.captains.singapura.js.homing.findash.core.kit.FinDashKitModule;
 import hue.captains.singapura.js.homing.workspace.LifecycleHint;
 import hue.captains.singapura.js.homing.workspace.WorkspaceWidget;
+import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdStatusCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdTextCss;
 
 import java.util.List;
 
@@ -33,19 +36,30 @@ public final class ClientPricerWidget
     @Override
     protected List<ModuleImports<? extends Importable>> bodyImports() {
         return List.of(new ModuleImports<>(
-                List.of(new FinDashKitModule.fdk()), FinDashKitModule.INSTANCE));
+                List.of(new FinDashKitModule.fdk()), FinDashKitModule.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdFrameCss.fd_section(),
+                        new FdFrameCss.fd_widget_root()),
+                        FdFrameCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdStatusCss.fd_error_text()),
+                        FdStatusCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdTextCss.fd_caption(),
+                        new FdTextCss.fd_muted(),
+                        new FdTextCss.fd_title()),
+                        FdTextCss.INSTANCE));
     }
 
     @Override
     protected List<String> constructBodyJs() {
         return List.of(
             "    var root = branch.createElement('root', 'div');",
-            "    root.style.cssText = 'height:100%;overflow:auto;box-sizing:border-box;padding:14px;'",
-            "        + 'font-family:system-ui,sans-serif;font-size:13px;color:var(--color-text-primary);';",
+            "    css.setClass(root, fd_widget_root);",
             "",
-            "    root.appendChild(fdk.el('div', 'font-weight:700;font-size:14px;letter-spacing:0.3px;',",
+            "    root.appendChild(fdk.el(branch, 'title-1', 'div', fd_title, ",
             "        'CLIENT PRICER'));",
-            "    root.appendChild(fdk.el('div', 'color:var(--color-text-primary);font-size:11.5px;margin:2px 0 8px;',",
+            "    root.appendChild(fdk.el(branch, 'cap-1', 'div', [fd_caption, fd_section], ",
             "        'read-only projection of the pricing core \\u2014 sales sees prices, never mark inputs'));",
             "",
             "    var input = document.createElement('input');",
@@ -56,7 +70,7 @@ public final class ClientPricerWidget
             "        + 'border-radius:6px;background:var(--color-surface);';",
             "    root.appendChild(input);",
             "",
-            "    var out = fdk.el('div', '');",
+            "    var out = fdk.el(branch, 'slot-1', 'div', null);",
             "    root.appendChild(out);",
             "",
             "    var state = { firmLeft: 0, timer: null, data: null, margin: 8 };",
@@ -66,9 +80,9 @@ public final class ClientPricerWidget
             "        clear(out);",
             "        var d = state.data;",
             "        if (!d) return;",
-            "        if (d.error) { out.appendChild(fdk.chip('warn', d.error)); return; }",
-            "        out.appendChild(fdk.kv('Instrument', d.ticket.pair + ' ' + d.ticket.tenor + ' ' + d.ticket.type));",
-            "        out.appendChild(fdk.kv('Desk price', 'EUR ' + fdk.fmt.amount(d.pvAmount)",
+            "        if (d.error) { out.appendChild(fdk.chip(branch, 'chip-1', 'warn', d.error)); return; }",
+            "        out.appendChild(fdk.kv(branch, 'kv-1', 'Instrument', d.ticket.pair + ' ' + d.ticket.tenor + ' ' + d.ticket.type));",
+            "        out.appendChild(fdk.kv(branch, 'kv-2', 'Desk price', 'EUR ' + fdk.fmt.amount(d.pvAmount)",
             "            + '  (' + fdk.fmt.num(d.pvPct, 4) + ' %)'));",
             "",
             "        var mRow = fdk.el('div', 'display:flex;gap:8px;align-items:center;margin:6px 0;font-size:12.5px;');",
@@ -81,11 +95,11 @@ public final class ClientPricerWidget
             "            var v = parseFloat(m.value); if (!isNaN(v)) { state.margin = v; renderClient(); }",
             "        });",
             "        mRow.appendChild(m);",
-            "        mRow.appendChild(fdk.el('span', 'color:var(--color-text-muted);font-size:11px;',",
+            "        mRow.appendChild(fdk.el(branch, 'cap-2', 'span', [fd_caption, fd_muted], ",
             "            'bp \\u00b7 visible to desk + product control \\u2014 never blended into \"the price\"'));",
             "        out.appendChild(mRow);",
             "",
-            "        var clientSlot = fdk.el('div', '');",
+            "        var clientSlot = fdk.el(branch, 'slot-2', 'div', null);",
             "        out.appendChild(clientSlot);",
             "        state.clientSlot = clientSlot;",
             "        renderClient();",
@@ -97,10 +111,10 @@ public final class ClientPricerWidget
             "            + 'background:#2a78d6;border:none;border-radius:6px;cursor:pointer;';",
             "        firm.onclick = function () { state.firmLeft = 30; tick(); };",
             "        btns.appendChild(firm);",
-            "        state.firmSlot = fdk.el('span', '');",
+            "        state.firmSlot = fdk.el(branch, 'slot-3', 'span', null);",
             "        btns.appendChild(state.firmSlot);",
             "        out.appendChild(btns);",
-            "        out.appendChild(fdk.el('div', 'color:var(--color-text-muted);font-size:11px;margin-top:6px;',",
+            "        out.appendChild(fdk.el(branch, 'cap-3', 'div', [fd_caption, fd_muted, fd_section], ",
             "            'RFQ chain journaled: request \\u2192 desk response \\u2192 client presentation (demo)'));",
             "        renderFirm();",
             "    }",
@@ -110,9 +124,9 @@ public final class ClientPricerWidget
             "        clear(state.clientSlot);",
             "        var d = state.data;",
             "        var clientPv = d.pvAmount * (1 + state.margin / 10000);",
-            "        state.clientSlot.appendChild(fdk.el('div', 'font-size:20px;font-weight:700;margin-top:4px;',",
+            "        state.clientSlot.appendChild(fdk.el('div', 'font-size:20px;font-weight:700;margin-top:4px;', ",
             "            'EUR ' + fdk.fmt.amount(clientPv)));",
-            "        state.clientSlot.appendChild(fdk.el('div', 'color:var(--color-text-primary);font-size:11.5px;',",
+            "        state.clientSlot.appendChild(fdk.el(branch, 'cap-4', 'div', fd_caption, ",
             "            'client all-in = desk ' + fdk.fmt.amount(d.pvAmount) + ' + margin '",
             "            + fdk.fmt.amount(clientPv - d.pvAmount) + '  (decomposed \\u2014 P1)'));",
             "    }",
@@ -121,8 +135,8 @@ public final class ClientPricerWidget
             "        if (!state.firmSlot) return;",
             "        clear(state.firmSlot);",
             "        state.firmSlot.appendChild(state.firmLeft > 0",
-            "            ? fdk.chip('good', 'FIRM \\u00b7 expires in ' + state.firmLeft + 's')",
-            "            : fdk.chip('neutral', 'INDICATIVE'));",
+            "            ? fdk.chip(branch, 'chip-2', 'good', 'FIRM \\u00b7 expires in ' + state.firmLeft + 's')",
+            "            : fdk.chip(branch, 'chip-3', 'neutral', 'INDICATIVE'));",
             "    }",
             "",
             "    function tick() {",
@@ -139,7 +153,7 @@ public final class ClientPricerWidget
             "            .then(function (d) { state.data = d; state.firmLeft = 0; render(); })",
             "            .catch(function (e) {",
             "                clear(out);",
-            "                out.appendChild(fdk.el('div', 'color:#a8502a;', 'price failed: ' + (e && e.message ? e.message : e)));",
+            "                out.appendChild(fdk.el(branch, 'err-1', 'div', fd_error_text, 'price failed: ' + (e && e.message ? e.message : e)));",
             "            });",
             "    }",
             "    input.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') priceNow(); });",

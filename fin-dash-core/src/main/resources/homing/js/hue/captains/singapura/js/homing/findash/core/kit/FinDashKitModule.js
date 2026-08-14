@@ -24,11 +24,16 @@ var fdk = {
         neutral:  { icon: '○', label: 'idle',     cls: fd_chip_neutral  }
     },
 
-    // The general builder. `klass` is a CssClass constant the caller imported;
-    // passing null leaves the element unstyled (a slot or a wrapper).
+    // The general builder. `klass` is a CssClass constant the caller imported,
+    // or an array of them when an element carries more than one role (a caption
+    // that is also muted). Passing null leaves the element unstyled — a slot or
+    // a bare wrapper that inherits from its parent.
     el: function (branch, name, tag, klass, text) {
         var d = branch.createElement(name, tag);
-        if (klass) css.setClass(d, klass);
+        if (klass) {
+            if (klass.length !== undefined) css.setClass.apply(null, [d].concat(klass));
+            else css.setClass(d, klass);
+        }
         if (text != null) d.textContent = text;
         return d;
     },

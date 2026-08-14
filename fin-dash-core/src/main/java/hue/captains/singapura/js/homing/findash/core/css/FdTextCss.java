@@ -95,6 +95,19 @@ public record FdTextCss() implements CssGroup<FdTextCss> {
         @Override public String body() { return "font-variant-numeric: tabular-nums;\n"; }
     }
 
+    /**
+     * Monospace — deal tickets and identifiers, where character alignment is
+     * what makes two strings comparable at a glance. Replaces the kit's old
+     * {@code fdk.tokens.mono} string, which was a font stack passed around as
+     * data rather than a styling decision.
+     */
+    public record fd_mono() implements CssClass<FdTextCss> {
+        @Override public String body() { return """
+                font-family: ui-monospace, Menlo, Consolas, monospace;
+                """;
+        }
+    }
+
     @Override
     public List<CssClass<FdTextCss>> cssClasses() {
         return List.of(
@@ -107,7 +120,8 @@ public record FdTextCss() implements CssGroup<FdTextCss> {
                 new fd_strong(),
                 new fd_strongest(),
                 new fd_muted(),
-                new fd_num());
+                new fd_num(),
+                new fd_mono());
     }
 
     @Override

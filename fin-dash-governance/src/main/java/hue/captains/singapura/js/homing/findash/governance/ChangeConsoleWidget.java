@@ -5,6 +5,9 @@ import hue.captains.singapura.js.homing.core.ModuleImports;
 import hue.captains.singapura.js.homing.findash.core.kit.FinDashKitModule;
 import hue.captains.singapura.js.homing.workspace.LifecycleHint;
 import hue.captains.singapura.js.homing.workspace.WorkspaceWidget;
+import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdStatusCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdTextCss;
 
 import java.util.List;
 
@@ -34,20 +37,32 @@ public final class ChangeConsoleWidget
     @Override
     protected List<ModuleImports<? extends Importable>> bodyImports() {
         return List.of(new ModuleImports<>(
-                List.of(new FinDashKitModule.fdk()), FinDashKitModule.INSTANCE));
+                List.of(new FinDashKitModule.fdk()), FinDashKitModule.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdFrameCss.fd_header_row(),
+                        new FdFrameCss.fd_widget_root()),
+                        FdFrameCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdStatusCss.fd_error_text()),
+                        FdStatusCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdTextCss.fd_caption(),
+                        new FdTextCss.fd_muted(),
+                        new FdTextCss.fd_strongest(),
+                        new FdTextCss.fd_title()),
+                        FdTextCss.INSTANCE));
     }
 
     @Override
     protected List<String> constructBodyJs() {
         return List.of(
             "    var root = branch.createElement('root', 'div');",
-            "    root.style.cssText = 'height:100%;overflow:auto;box-sizing:border-box;padding:14px;'",
-            "        + 'font-family:system-ui,sans-serif;font-size:13px;color:var(--color-text-primary);';",
+            "    css.setClass(root, fd_widget_root);",
             "",
-            "    var head = fdk.el('div', 'display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;');",
-            "    head.appendChild(fdk.el('span', 'font-weight:700;font-size:14px;letter-spacing:0.3px;',",
+            "    var head = fdk.el(branch, 'head-1', 'div', fd_header_row);",
+            "    head.appendChild(fdk.el(branch, 'title-1', 'span', fd_title, ",
             "        'CHANGE CONSOLE \\u2014 Ring-2 promotions'));",
-            "    var queueSlot = fdk.el('span', '');",
+            "    var queueSlot = fdk.el(branch, 'slot-1', 'span', null);",
             "    head.appendChild(queueSlot);",
             "    root.appendChild(head);",
             "",
@@ -64,7 +79,7 @@ public final class ChangeConsoleWidget
             "",
             "    function renderQueue() {",
             "        clear(queue);",
-            "        queue.appendChild(fdk.sectionTitle('Pending'));",
+            "        queue.appendChild(fdk.sectionTitle(branch, 'sect-1', 'Pending'));",
             "        for (var i = 0; i < state.changes.length; i++) {",
             "            (function (i2) {",
             "                var c = state.changes[i2];",
@@ -72,13 +87,13 @@ public final class ChangeConsoleWidget
             "                    + 'margin-bottom:4px;border:1px solid '",
             "                    + (i2 === state.selected ? '#2a78d6;background:var(--color-surface-raised);' : 'var(--color-border);'));",
             "                var top = fdk.el('div', 'display:flex;gap:8px;align-items:center;');",
-            "                top.appendChild(fdk.el('span', 'font-weight:700;', c.id));",
+            "                top.appendChild(fdk.el(branch, 'strong-1', 'span', fd_strongest, c.id));",
             "                top.appendChild(fdk.el('span', 'color:var(--color-text-primary);font-size:12px;', c.title));",
             "                item.appendChild(top);",
             "                var sub = fdk.el('div', 'display:flex;gap:6px;align-items:center;margin-top:2px;');",
             "                var dec = state.decided[c.id];",
             "                sub.appendChild(dec ? fdk.chip(dec === 'approved' ? 'good' : 'neutral', dec)",
-            "                    : fdk.chip(c.severity === 'serious' ? 'serious' : (c.severity === 'warn' ? 'warn' : 'neutral'),",
+            "                    : fdk.chip(branch, 'chip-1', c.severity === 'serious' ? 'serious' : (c.severity === 'warn' ? 'warn' : 'neutral'),",
             "                        'aging ' + c.aging));",
             "                item.appendChild(sub);",
             "                item.onclick = function () { state.selected = i2; renderQueue(); renderDetail(); };",
@@ -88,10 +103,10 @@ public final class ChangeConsoleWidget
             "    }",
             "",
             "    function lines(title, arr) {",
-            "        var box = fdk.el('div', '');",
-            "        box.appendChild(fdk.sectionTitle(title));",
+            "        var box = fdk.el(branch, 'slot-2', 'div', null);",
+            "        box.appendChild(fdk.sectionTitle(branch, 'sect-2', title));",
             "        for (var i = 0; i < arr.length; i++) {",
-            "            box.appendChild(fdk.el('div', 'color:var(--color-text-primary);font-size:12px;line-height:1.6;',",
+            "            box.appendChild(fdk.el('div', 'color:var(--color-text-primary);font-size:12px;line-height:1.6;', ",
             "                '\\u2022 ' + arr[i]));",
             "        }",
             "        return box;",
@@ -110,14 +125,14 @@ public final class ChangeConsoleWidget
             "        clear(detail);",
             "        var c = state.changes[state.selected];",
             "        if (!c) return;",
-            "        detail.appendChild(fdk.el('div', 'font-weight:700;font-size:13px;',",
+            "        detail.appendChild(fdk.el('div', 'font-weight:700;font-size:13px;', ",
             "            'Package ' + c.id + ' \\u2014 ' + c.title));",
             "        detail.appendChild(fdk.el('div', 'color:var(--color-text-primary);font-size:12px;', c.summary));",
             "        detail.appendChild(lines('Semantic diff', c.semanticDiff));",
             "        detail.appendChild(lines('Golden replay impact', c.replayImpact));",
-            "        detail.appendChild(fdk.sectionTitle('Rationale'));",
+            "        detail.appendChild(fdk.sectionTitle(branch, 'sect-3', 'Rationale'));",
             "        detail.appendChild(fdk.el('div', 'color:var(--color-text-primary);font-size:12px;line-height:1.6;', c.rationale));",
-            "        detail.appendChild(fdk.sectionTitle('Approval chain \\u2014 structural four-eyes \\u00b7 journaled'));",
+            "        detail.appendChild(fdk.sectionTitle(branch, 'sect-4', 'Approval chain \\u2014 structural four-eyes \\u00b7 journaled'));",
             "        var dec = state.decided[c.id];",
             "        for (var i = 0; i < c.chain.length; i++) {",
             "            var s = c.chain[i];",
@@ -125,12 +140,12 @@ public final class ChangeConsoleWidget
             "            var row = fdk.el('div', 'display:flex;gap:8px;align-items:center;padding:2px 0;font-size:12.5px;');",
             "            row.appendChild(fdk.el('span', 'font-weight:600;color:'",
             "                + (signed ? '#006300' : 'var(--color-text-muted)') + ';', signed ? '\\u2713' : '\\u25fb'));",
-            "            row.appendChild(fdk.el('span', 'color:var(--color-text-primary);', s.role + ' \\u00b7 ' + s.who));",
-            "            row.appendChild(fdk.el('span', 'color:var(--color-text-muted);font-size:11px;',",
+            "            row.appendChild(fdk.el(branch, 'txt-1', 'span', null, s.role + ' \\u00b7 ' + s.who));",
+            "            row.appendChild(fdk.el(branch, 'cap-1', 'span', [fd_caption, fd_muted], ",
             "                signed ? ('signed ' + (s.when || 'now (demo)')) : 'pending'));",
             "            detail.appendChild(row);",
             "        }",
-            "        detail.appendChild(fdk.el('div', 'color:var(--color-text-primary);font-size:12px;margin-top:4px;',",
+            "        detail.appendChild(fdk.el('div', 'color:var(--color-text-primary);font-size:12px;margin-top:4px;', ",
             "            'activation: ' + c.activation));",
             "        var acts = fdk.el('div', 'margin-top:10px;');",
             "        if (!dec) {",
@@ -143,11 +158,11 @@ public final class ChangeConsoleWidget
             "            acts.appendChild(decideBtn('Request info', 'var(--color-text-muted)', function () {",
             "                state.decided[c.id] = 'info requested'; renderQueue(); renderDetail();",
             "            }));",
-            "            acts.appendChild(fdk.el('div', 'color:var(--color-text-muted);font-size:11px;margin-top:4px;',",
+            "            acts.appendChild(fdk.el('div', 'color:var(--color-text-muted);font-size:11px;margin-top:4px;', ",
             "                'this approval will be journaled \\u00b7 demo: screen state only'));",
             "        } else {",
-            "            acts.appendChild(fdk.chip(dec === 'approved' ? 'good' : 'neutral', dec));",
-            "            acts.appendChild(fdk.el('span', 'margin-left:8px;color:var(--color-text-muted);font-size:11.5px;',",
+            "            acts.appendChild(fdk.chip(branch, 'chip-2', dec === 'approved' ? 'good' : 'neutral', dec));",
+            "            acts.appendChild(fdk.el('span', 'margin-left:8px;color:var(--color-text-muted);font-size:11.5px;', ",
             "                dec === 'approved' ? 'journaled \\u00b7 activation stays staged to its named epoch (demo)'",
             "                    : 'journaled (demo)'));",
             "        }",
@@ -167,7 +182,7 @@ public final class ChangeConsoleWidget
             "            renderQueue(); renderDetail();",
             "        })",
             "        .catch(function (e) {",
-            "            detail.appendChild(fdk.el('div', 'color:#a8502a;',",
+            "            detail.appendChild(fdk.el(branch, 'err-1', 'div', fd_error_text, ",
             "                'changes load failed: ' + (e && e.message ? e.message : e)));",
             "        });",
             "",

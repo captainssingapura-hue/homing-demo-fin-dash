@@ -6,6 +6,7 @@ import hue.captains.singapura.js.homing.core.js.TreeRendererModule;
 import hue.captains.singapura.js.homing.findash.core.kit.FinDashKitModule;
 import hue.captains.singapura.js.homing.workspace.LifecycleHint;
 import hue.captains.singapura.js.homing.workspace.WorkspaceWidget;
+import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
 
 import java.util.List;
 
@@ -36,30 +37,32 @@ public final class DataTypeTreeWidget
         return List.of(
                 new ModuleImports<>(List.of(new FinDashKitModule.fdk()), FinDashKitModule.INSTANCE),
                 new ModuleImports<>(List.of(new TreeRendererModule.TreeRenderer()),
-                        TreeRendererModule.INSTANCE));
+                        TreeRendererModule.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdFrameCss.fd_widget_root()),
+                        FdFrameCss.INSTANCE));
     }
 
     @Override
     protected List<String> constructBodyJs() {
         return List.of(
             "    var root = branch.createElement('root', 'div');",
-            "    root.style.cssText = 'height:100%;overflow:auto;box-sizing:border-box;padding:10px 6px;'",
-            "        + 'font-family:system-ui,sans-serif;font-size:13px;color:var(--color-text-primary);';",
+            "    css.setClass(root, fd_widget_root);",
             "",
             "    var head = fdk.el('div', 'display:flex;align-items:baseline;gap:8px;padding:0 8px;flex-wrap:wrap;');",
-            "    head.appendChild(fdk.el('span', 'font-weight:700;font-size:13px;letter-spacing:0.3px;',",
+            "    head.appendChild(fdk.el('span', 'font-weight:700;font-size:13px;letter-spacing:0.3px;', ",
             "        'DATA TYPES'));",
-            "    var selSlot = fdk.el('span', '');",
+            "    var selSlot = fdk.el(branch, 'slot-1', 'span', null);",
             "    head.appendChild(selSlot);",
             "    root.appendChild(head);",
-            "    root.appendChild(fdk.el('div', 'color:var(--color-text-muted);font-size:10.5px;padding:2px 8px 6px;',",
+            "    root.appendChild(fdk.el('div', 'color:var(--color-text-muted);font-size:10.5px;padding:2px 8px 6px;', ",
             "        'the ontology, by stratum \\u00b7 a type may reference only strata below its own'));",
             "",
             "    var container = branch.createElement('treeContainer', 'div');",
             "    root.appendChild(container);",
             "    var status = fdk.el('div', 'padding:6px 8px;color:var(--color-text-muted);font-size:12px;', 'Loading ontology\\u2026');",
             "    container.appendChild(status);",
-            "    root.appendChild(fdk.el('div', 'color:var(--color-text-muted);font-size:10.5px;padding:6px 8px;',",
+            "    root.appendChild(fdk.el('div', 'color:var(--color-text-muted);font-size:10.5px;padding:6px 8px;', ",
             "        '\\u2191\\u2193 move \\u00b7 \\u2192\\u2190 expand/fold \\u00b7 selection drives the usage pane'));",
             "",
             "    var party = (workspaceCtx && workspaceCtx.deskParty) ? workspaceCtx.deskParty : null;",
@@ -78,7 +81,7 @@ public final class DataTypeTreeWidget
             "        var meta = index[id];",
             "        if (!meta) { return; }",
             "        clear(selSlot);",
-            "        selSlot.appendChild(fdk.chip('neutral', id + ' \\u00b7 ' + meta.usages.length + ' widgets'));",
+            "        selSlot.appendChild(fdk.chip(branch, 'chip-1', 'neutral', id + ' \\u00b7 ' + meta.usages.length + ' widgets'));",
             "        if (party && actorId) {",
             "            party.tellFrom(actorId, { kind: 'DataTypeSelected', dataType: { id: id } });",
             "        }",

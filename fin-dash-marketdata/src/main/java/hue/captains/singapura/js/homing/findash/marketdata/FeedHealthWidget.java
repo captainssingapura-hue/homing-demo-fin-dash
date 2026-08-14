@@ -5,6 +5,9 @@ import hue.captains.singapura.js.homing.core.ModuleImports;
 import hue.captains.singapura.js.homing.findash.core.kit.FinDashKitModule;
 import hue.captains.singapura.js.homing.workspace.LifecycleHint;
 import hue.captains.singapura.js.homing.workspace.WorkspaceWidget;
+import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdStatusCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdTextCss;
 
 import java.util.List;
 
@@ -34,15 +37,29 @@ public final class FeedHealthWidget
     @Override
     protected List<ModuleImports<? extends Importable>> bodyImports() {
         return List.of(new ModuleImports<>(
-                List.of(new FinDashKitModule.fdk()), FinDashKitModule.INSTANCE));
+                List.of(new FinDashKitModule.fdk()), FinDashKitModule.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdFrameCss.fd_header_row(),
+                        new FdFrameCss.fd_row(),
+                        new FdFrameCss.fd_section(),
+                        new FdFrameCss.fd_spacer(),
+                        new FdFrameCss.fd_widget_root()),
+                        FdFrameCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdStatusCss.fd_error_text()),
+                        FdStatusCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdTextCss.fd_caption(),
+                        new FdTextCss.fd_muted(),
+                        new FdTextCss.fd_title()),
+                        FdTextCss.INSTANCE));
     }
 
     @Override
     protected List<String> constructBodyJs() {
         return List.of(
             "    var root = branch.createElement('root', 'div');",
-            "    root.style.cssText = 'height:100%;overflow:auto;box-sizing:border-box;padding:14px;'",
-            "        + 'font-family:system-ui,sans-serif;font-size:13px;color:var(--color-text-primary);';",
+            "    css.setClass(root, fd_widget_root);",
             "",
             "    var party = (workspaceCtx && workspaceCtx.deskParty) ? workspaceCtx.deskParty : null;",
             "    var actorId = null;",
@@ -51,29 +68,29 @@ public final class FeedHealthWidget
             "        party.joinActor({ id: actorId, parentSecretary: 'desk', reactors: {} });",
             "    }",
             "",
-            "    var head = fdk.el('div', 'display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;');",
-            "    head.appendChild(fdk.el('span', 'font-weight:700;font-size:14px;letter-spacing:0.3px;',",
+            "    var head = fdk.el(branch, 'head-1', 'div', fd_header_row);",
+            "    head.appendChild(fdk.el(branch, 'title-1', 'span', fd_title, ",
             "        'FEED & QUALITY'));",
-            "    var summarySlot = fdk.el('span', '');",
+            "    var summarySlot = fdk.el(branch, 'slot-1', 'span', null);",
             "    head.appendChild(summarySlot);",
             "    root.appendChild(head);",
             "",
-            "    root.appendChild(fdk.sectionTitle('Feed health (source \\u00d7 kind)'));",
+            "    root.appendChild(fdk.sectionTitle(branch, 'sect-1', 'Feed health (source \\u00d7 kind)'));",
             "    var gridSlot = fdk.el('div', 'overflow-x:auto;');",
             "    root.appendChild(gridSlot);",
-            "    var impact = fdk.el('div', 'margin-top:6px;font-size:12px;color:var(--color-text-primary);min-height:18px;',",
+            "    var impact = fdk.el('div', 'margin-top:6px;font-size:12px;color:var(--color-text-primary);min-height:18px;', ",
             "        'click a degraded cell for its downstream impact');",
             "    impact.style.color = 'var(--color-text-muted)';",
             "    root.appendChild(impact);",
             "",
-            "    root.appendChild(fdk.sectionTitle('Monitors'));",
+            "    root.appendChild(fdk.sectionTitle(branch, 'sect-2', 'Monitors'));",
             "    var monitors = fdk.el('div', 'color:var(--color-text-primary);font-size:12px;line-height:1.7;');",
             "    root.appendChild(monitors);",
             "",
-            "    root.appendChild(fdk.sectionTitle('Quarantine review queue \\u2014 Ring 3, one gesture'));",
-            "    var queue = fdk.el('div', '');",
+            "    root.appendChild(fdk.sectionTitle(branch, 'sect-3', 'Quarantine review queue \\u2014 Ring 3, one gesture'));",
+            "    var queue = fdk.el(branch, 'slot-2', 'div', null);",
             "    root.appendChild(queue);",
-            "    root.appendChild(fdk.el('div', 'color:var(--color-text-muted);font-size:11px;margin-top:6px;',",
+            "    root.appendChild(fdk.el(branch, 'cap-1', 'div', [fd_caption, fd_muted, fd_section], ",
             "        'release/extend are reason-captured and journaled \\u00b7 demo: screen state only'));",
             "",
             "    var STATE = {",
@@ -139,16 +156,16 @@ public final class FeedHealthWidget
             "    }",
             "",
             "    function queueRow(q) {",
-            "        var line = fdk.el('div', 'display:flex;gap:10px;align-items:center;padding:6px 4px;'",
+            "        var line = fdk.el(branch, 'row-1', 'div', fd_row",
             "            + 'border-bottom:1px solid var(--color-border);font-size:12.5px;');",
-            "        line.appendChild(fdk.chip(q.severity, q.since));",
-            "        var main = fdk.el('div', 'flex:1;');",
+            "        line.appendChild(fdk.chip(branch, 'chip-1', q.severity, q.since));",
+            "        var main = fdk.el(branch, 'spacer-1', 'div', fd_spacer);",
             "        main.appendChild(fdk.el('div', 'font-weight:600;cursor:pointer;', q.instrument));",
             "        main.firstChild.onclick = function () {",
             "            if (party && actorId) party.tellFrom(actorId,",
             "                { kind: 'InstrumentSelected', instrument: { pair: q.pair } });",
             "        };",
-            "        main.appendChild(fdk.el('div', 'color:var(--color-text-primary);font-size:11.5px;', q.reason));",
+            "        main.appendChild(fdk.el(branch, 'cap-2', 'div', fd_caption, q.reason));",
             "        line.appendChild(main);",
             "        function act(label, resultText) {",
             "            var b = document.createElement('button');",
@@ -157,8 +174,8 @@ public final class FeedHealthWidget
             "                + 'border-radius:4px;background:var(--color-surface);color:var(--color-text-primary);cursor:pointer;margin-left:4px;';",
             "            b.onclick = function () {",
             "                while (line.firstChild) line.removeChild(line.firstChild);",
-            "                line.appendChild(fdk.chip('neutral', resultText));",
-            "                line.appendChild(fdk.el('span', 'margin-left:8px;color:var(--color-text-muted);font-size:11.5px;',",
+            "                line.appendChild(fdk.chip(branch, 'chip-2', 'neutral', resultText));",
+            "                line.appendChild(fdk.el('span', 'margin-left:8px;color:var(--color-text-muted);font-size:11.5px;', ",
             "                    q.instrument + ' \\u00b7 reason-captured \\u00b7 journaled (demo)'));",
             "            };",
             "            return b;",
@@ -183,7 +200,7 @@ public final class FeedHealthWidget
             "            for (i = 0; i < d.quarantine.length; i++) queue.appendChild(queueRow(d.quarantine[i]));",
             "        })",
             "        .catch(function (e) {",
-            "            gridSlot.appendChild(fdk.el('div', 'color:#a8502a;',",
+            "            gridSlot.appendChild(fdk.el(branch, 'err-1', 'div', fd_error_text, ",
             "                'feeds load failed: ' + (e && e.message ? e.message : e)));",
             "        });",
             "",

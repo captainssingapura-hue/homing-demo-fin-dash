@@ -6,6 +6,9 @@ import hue.captains.singapura.js.homing.findash.core.kit.FinDashKitModule;
 import hue.captains.singapura.js.homing.findash.core.kit.SmileChartModule;
 import hue.captains.singapura.js.homing.workspace.LifecycleHint;
 import hue.captains.singapura.js.homing.workspace.WorkspaceWidget;
+import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdStatusCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdTextCss;
 
 import java.util.List;
 
@@ -37,25 +40,35 @@ public final class SurfaceManagerWidget
     protected List<ModuleImports<? extends Importable>> bodyImports() {
         return List.of(
                 new ModuleImports<>(List.of(new FinDashKitModule.fdk()), FinDashKitModule.INSTANCE),
-                new ModuleImports<>(List.of(new SmileChartModule.smileChart()), SmileChartModule.INSTANCE));
+                new ModuleImports<>(List.of(new SmileChartModule.smileChart()), SmileChartModule.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdFrameCss.fd_header_row(),
+                        new FdFrameCss.fd_widget_root()),
+                        FdFrameCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdStatusCss.fd_error_text()),
+                        FdStatusCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdTextCss.fd_muted(),
+                        new FdTextCss.fd_title()),
+                        FdTextCss.INSTANCE));
     }
 
     @Override
     protected List<String> constructBodyJs() {
         return List.of(
             "    var root = branch.createElement('root', 'div');",
-            "    root.style.cssText = 'height:100%;overflow:auto;box-sizing:border-box;padding:14px;'",
-            "        + 'font-family:system-ui,sans-serif;font-size:13px;color:var(--color-text-primary);';",
+            "    css.setClass(root, fd_widget_root);",
             "",
-            "    var head = fdk.el('div', 'display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;');",
-            "    var title = fdk.el('span', 'font-weight:700;font-size:14px;letter-spacing:0.3px;', 'SURFACE MANAGER');",
+            "    var head = fdk.el(branch, 'head-1', 'div', fd_header_row);",
+            "    var title = fdk.el(branch, 'title-1', 'span', fd_title, 'SURFACE MANAGER');",
             "    head.appendChild(title);",
             "    var stateSlot = fdk.el('span', 'display:inline-flex;gap:8px;align-items:baseline;');",
             "    head.appendChild(stateSlot);",
             "    root.appendChild(head);",
             "    var tabs = fdk.el('div', 'display:flex;gap:6px;margin:8px 0;flex-wrap:wrap;');",
             "    root.appendChild(tabs);",
-            "    var body = fdk.el('div', '');",
+            "    var body = fdk.el(branch, 'slot-1', 'div', null);",
             "    root.appendChild(body);",
             "",
             "    var current = { pair: 'EURUSD', tenorIdx: -1, data: null, override: null };",
@@ -74,7 +87,7 @@ public final class SurfaceManagerWidget
             "    function renderTenor(d, idx) {",
             "        current.tenorIdx = idx;",
             "        var t = d.tenors[idx];",
-            "        var pane = fdk.el('div', '');",
+            "        var pane = fdk.el(branch, 'slot-2', 'div', null);",
             "",
             "        var strip = fdk.el('div', 'display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;');",
             "        for (var i = 0; i < d.tenors.length; i++) {",
@@ -109,18 +122,18 @@ public final class SurfaceManagerWidget
             "        for (var p = 0; p < t.pillars.length; p++) {",
             "            var pr = t.pillars[p];",
             "            var isOv = over && over.tenor === t.tenor && over.name === pr.name;",
-            "            tbl.appendChild(fdk.el('span', 'color:var(--color-text-primary);', pr.name));",
-            "            tbl.appendChild(fdk.el('span', '', pr.mkt.toFixed(2)));",
-            "            tbl.appendChild(fdk.el('span', '', pr.fit.toFixed(2)));",
+            "            tbl.appendChild(fdk.el(branch, 'txt-1', 'span', null, pr.name));",
+            "            tbl.appendChild(fdk.el(branch, 'slot-3', 'span', null, pr.mkt.toFixed(2)));",
+            "            tbl.appendChild(fdk.el(branch, 'slot-4', 'span', null, pr.fit.toFixed(2)));",
             "            tbl.appendChild(isOv",
             "                ? fdk.el('span', 'color:#9a6b1f;font-weight:600;', '\\u25b2 ' + over.value)",
-            "                : fdk.el('span', 'color:var(--color-text-muted);', '\\u2014'));",
+            "                : fdk.el(branch, 'muted-1', 'span', fd_muted, '\\u2014'));",
             "        }",
             "        pane.appendChild(tbl);",
             "",
             "        pane.appendChild(fdk.sectionTitle('Override \\u2014 Ring 3 \\u00b7 audited \\u00b7 expiring'));",
             "        var ov = fdk.el('div', 'display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:12px;');",
-            "        ov.appendChild(fdk.el('span', 'color:var(--color-text-primary);', 'RR25 \\u2192'));",
+            "        ov.appendChild(fdk.el(branch, 'txt-2', 'span', null, 'RR25 \\u2192'));",
             "        var ovVal = document.createElement('input');",
             "        ovVal.type = 'text'; ovVal.value = '\\u22121.10'; ovVal.style.cssText =",
             "            'width:64px;padding:3px 6px;font-family:' + fdk.tokens.mono + ';font-size:12px;'",
@@ -138,24 +151,24 @@ public final class SurfaceManagerWidget
             "            + 'background:#2a78d6;border:none;border-radius:5px;cursor:pointer;';",
             "        ov.appendChild(apply);",
             "        pane.appendChild(ov);",
-            "        var audit = fdk.el('div', 'margin-top:5px;font-size:11px;color:var(--color-text-muted);',",
+            "        var audit = fdk.el('div', 'margin-top:5px;font-size:11px;color:var(--color-text-muted);', ",
             "            'expires 17:00 SGT \\u00b7 flags 3 consumers \\u00b7 audit record shown on commit');",
             "        pane.appendChild(audit);",
             "        apply.onclick = function () {",
             "            current.override = { tenor: t.tenor, name: 'RR25', value: ovVal.value };",
             "            clear(audit);",
-            "            audit.appendChild(fdk.chip('warn', 'OVERRIDE live'));",
-            "            audit.appendChild(fdk.el('span', 'margin-left:8px;',",
+            "            audit.appendChild(fdk.chip(branch, 'chip-1', 'warn', 'OVERRIDE live'));",
+            "            audit.appendChild(fdk.el('span', 'margin-left:8px;', ",
             "                'RR25 \\u2192 ' + ovVal.value + ' \\u00b7 reason: ' + reason.value",
             "                + ' \\u00b7 expires 17:00 SGT \\u00b7 flags 3 consumers  (demo \\u2014 not journaled)'));",
             "            clear(body); body.appendChild(renderTenor(d, idx));",
             "        };",
             "",
-            "        pane.appendChild(fdk.sectionTitle('Surface facts'));",
-            "        pane.appendChild(fdk.kv('quote provenance', d.provenance));",
-            "        pane.appendChild(fdk.kv('event vols', d.eventVols));",
-            "        pane.appendChild(fdk.kv('arb gates', d.arbGates));",
-            "        pane.appendChild(fdk.kv('anchor drift', d.anchorDrift));",
+            "        pane.appendChild(fdk.sectionTitle(branch, 'sect-1', 'Surface facts'));",
+            "        pane.appendChild(fdk.kv(branch, 'kv-1', 'quote provenance', d.provenance));",
+            "        pane.appendChild(fdk.kv(branch, 'kv-2', 'event vols', d.eventVols));",
+            "        pane.appendChild(fdk.kv(branch, 'kv-3', 'arb gates', d.arbGates));",
+            "        pane.appendChild(fdk.kv(branch, 'kv-4', 'anchor drift', d.anchorDrift));",
             "        return pane;",
             "    }",
             "",
@@ -163,8 +176,8 @@ public final class SurfaceManagerWidget
             "        current.data = d;",
             "        title.textContent = 'SURFACE MANAGER \\u2014 ' + d.pair;",
             "        clear(stateSlot);",
-            "        stateSlot.appendChild(fdk.stamp({ slice: d.slice, surface: d.epoch, model: d.model }));",
-            "        stateSlot.appendChild(d.stale ? fdk.chip('warn', 'stale \\u2014 ' + d.staleNote) : fdk.chip('live'));",
+            "        stateSlot.appendChild(fdk.stamp(branch, 'stamp-1', { slice: d.slice, surface: d.epoch, model: d.model }));",
+            "        stateSlot.appendChild(d.stale ? fdk.chip(branch, 'chip-2', 'warn', 'stale \\u2014 ' + d.staleNote) : fdk.chip(branch, 'chip-3', 'live'));",
             "        var start = 0;",
             "        for (var i = 0; i < d.tenors.length; i++) { if (d.tenors[i].tenor === '3M') start = i; }",
             "        clear(body); body.appendChild(renderTenor(d, start));",
@@ -177,7 +190,7 @@ public final class SurfaceManagerWidget
             "            .then(render)",
             "            .catch(function (e) {",
             "                clear(body);",
-            "                body.appendChild(fdk.el('div', 'color:#a8502a;', 'surface load failed: ' + (e && e.message ? e.message : e)));",
+            "                body.appendChild(fdk.el(branch, 'err-1', 'div', fd_error_text, 'surface load failed: ' + (e && e.message ? e.message : e)));",
             "            });",
             "    }",
             "",

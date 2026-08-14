@@ -3,6 +3,9 @@ package hue.captains.singapura.js.homing.findash.book;
 import hue.captains.singapura.js.homing.core.Importable;
 import hue.captains.singapura.js.homing.core.ModuleImports;
 import hue.captains.singapura.js.homing.core.js.TreeRendererModule;
+import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdStatusCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdTextCss;
 import hue.captains.singapura.js.homing.findash.core.kit.FinDashKitModule;
 import hue.captains.singapura.js.homing.workspace.LifecycleHint;
 import hue.captains.singapura.js.homing.workspace.WorkspaceWidget;
@@ -38,28 +41,44 @@ public final class PortfolioTreeWidget
         return List.of(
                 new ModuleImports<>(List.of(new FinDashKitModule.fdk()), FinDashKitModule.INSTANCE),
                 new ModuleImports<>(List.of(new TreeRendererModule.TreeRenderer()),
-                        TreeRendererModule.INSTANCE));
+                        TreeRendererModule.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdFrameCss.fd_widget_root(),
+                        new FdFrameCss.fd_header_row()),
+                        FdFrameCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdTextCss.fd_title(),
+                        new FdTextCss.fd_caption(),
+                        new FdTextCss.fd_muted()),
+                        FdTextCss.INSTANCE),
+                new ModuleImports<>(List.of(new FdStatusCss.fd_error_text()),
+                        FdStatusCss.INSTANCE));
     }
 
     @Override
     protected List<String> constructBodyJs() {
         return List.of(
             "    var root = branch.createElement('root', 'div');",
-            "    root.style.cssText = 'height:100%;overflow:auto;box-sizing:border-box;padding:10px 6px;'",
-            "        + 'font-family:system-ui,sans-serif;font-size:13px;color:var(--color-text-primary);';",
+            "    css.setClass(root, fd_widget_root);",
             "",
-            "    var head = fdk.el('div', 'display:flex;align-items:baseline;gap:8px;padding:0 8px;flex-wrap:wrap;');",
-            "    head.appendChild(fdk.el('span', 'font-weight:700;font-size:13px;letter-spacing:0.3px;', 'PORTFOLIOS'));",
-            "    var selSlot = fdk.el('span', '');",
-            "    head.appendChild(selSlot);",
+            "    var head = fdk.el(branch, 'head', 'div', fd_header_row);",
+            "    head.appendChild(fdk.el(branch, 'head-title', 'span', fd_title, 'PORTFOLIOS'));",
+            "    // The selection chip is built once and re-labelled, rather than rebuilt",
+            "    // per selection: branch element names are unique for the branch's life,",
+            "    // so a chip minted on every arrow-key move would collide on the second one.",
+            "    var selChip = fdk.chip(branch, 'sel-chip', 'neutral', '\\u2014');",
+            "    head.appendChild(selChip);",
             "    root.appendChild(head);",
             "",
             "    var container = branch.createElement('treeContainer', 'div');",
             "    root.appendChild(container);",
-            "    var status = fdk.el('div', 'padding:6px 8px;color:var(--color-text-muted);font-size:12px;', 'Loading portfolios\\u2026');",
+            "    var status = fdk.el(branch, 'status', 'div', fd_caption, 'Loading portfolios\\u2026');",
+            "    css.addClass(status, fd_muted);",
             "    container.appendChild(status);",
-            "    root.appendChild(fdk.el('div', 'color:var(--color-text-muted);font-size:10.5px;padding:6px 8px;',",
-            "        '\\u2191\\u2193 move \\u00b7 \\u2192\\u2190 expand/fold \\u00b7 selection broadcasts at any level'));",
+            "    var hint = fdk.el(branch, 'hint', 'div', fd_caption,",
+            "        '\\u2191\\u2193 move \\u00b7 \\u2192\\u2190 expand/fold \\u00b7 selection broadcasts at any level');",
+            "    css.addClass(hint, fd_muted);",
+            "    root.appendChild(hint);",
             "",
             "    var party = (workspaceCtx && workspaceCtx.deskParty) ? workspaceCtx.deskParty : null;",
             "    var actorId = null;",
@@ -69,14 +88,12 @@ public final class PortfolioTreeWidget
             "    }",
             "",
             "    var index = {};",
-            "    function clear(n) { while (n.firstChild) n.removeChild(n.firstChild); }",
             "",
             "    function broadcast(sel) {",
             "        var id = sel.summary;             // the node's machine field",
             "        var meta = index[id];",
             "        if (!meta) return;",
-            "        clear(selSlot);",
-            "        selSlot.appendChild(fdk.chip('neutral', meta.label + ' \\u00b7 ' + meta.positions + ' pos'));",
+            "        selChip.textContent = '\\u25cb ' + meta.label + ' \\u00b7 ' + meta.positions + ' pos';",
             "        if (party && actorId) {",
             "            party.tellFrom(actorId, { kind: 'PortfolioSelected',",
             "                portfolio: { id: id, label: meta.label, leafIds: meta.leafIds } });",
@@ -103,7 +120,7 @@ public final class PortfolioTreeWidget
             "            });",
             "        })",
             "        .catch(function (err) {",
-            "            status.style.color = '#a8502a';",
+            "            css.addClass(status, fd_error_text);",
             "            status.textContent = 'portfolios load failed: '",
             "                + (err && err.message ? err.message : String(err));",
             "        });",
