@@ -4,6 +4,11 @@ import hue.captains.singapura.js.homing.core.DomModule;
 import hue.captains.singapura.js.homing.core.Exportable;
 import hue.captains.singapura.js.homing.core.ExportsOf;
 import hue.captains.singapura.js.homing.core.ImportsFor;
+import hue.captains.singapura.js.homing.core.ModuleImports;
+import hue.captains.singapura.js.homing.findash.core.css.FdDataCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdStatusCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdTextCss;
 
 import java.util.List;
 
@@ -21,22 +26,37 @@ import java.util.List;
  *       visual language, here the "scaffold" state.</li>
  * </ul>
  *
- * <p>Pure DOM builder: takes a plain info object, returns a detached element
- * the caller appends into branch-owned DOM. No branch access, no lookups, no
- * HTML literals — {@code document.createElement} + {@code textContent} only,
- * so it holds under the PRIMITIVE rule set. Body lives in the co-located
+ * <p>Consumer view code: it builds content, so elements come from the caller's
+ * {@code branch} and styling is typed CSS classes. Body lives in the co-located
  * {@code PersonaCardModule.js} resource.</p>
  */
 public record PersonaCardModule() implements DomModule<PersonaCardModule> {
 
     public static final PersonaCardModule INSTANCE = new PersonaCardModule();
 
-    /** Exported function: {@code personaCard(info)} → detached card element. */
+    /** Exported function: {@code personaCard(branch, info)} → card element. */
     public record personaCard() implements Exportable._Constant<PersonaCardModule> {}
 
     @Override
     public ImportsFor<PersonaCardModule> imports() {
-        return ImportsFor.noImports();
+        return ImportsFor.<PersonaCardModule>builder()
+                .add(new ModuleImports<>(List.of(
+                        new FdFrameCss.fd_stack(),
+                        new FdFrameCss.fd_section()),
+                        FdFrameCss.INSTANCE))
+                .add(new ModuleImports<>(List.of(
+                        new FdTextCss.fd_display(),
+                        new FdTextCss.fd_body(),
+                        new FdTextCss.fd_caption(),
+                        new FdTextCss.fd_muted(),
+                        new FdTextCss.fd_strong()),
+                        FdTextCss.INSTANCE))
+                .add(new ModuleImports<>(List.of(
+                        new FdStatusCss.fd_chip(),
+                        new FdStatusCss.fd_chip_warn()),
+                        FdStatusCss.INSTANCE))
+                .add(new ModuleImports<>(List.of(new FdDataCss.fd_stamp()), FdDataCss.INSTANCE))
+                .build();
     }
 
     @Override

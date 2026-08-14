@@ -4,6 +4,11 @@ import hue.captains.singapura.js.homing.core.DomModule;
 import hue.captains.singapura.js.homing.core.Exportable;
 import hue.captains.singapura.js.homing.core.ExportsOf;
 import hue.captains.singapura.js.homing.core.ImportsFor;
+import hue.captains.singapura.js.homing.core.ModuleImports;
+import hue.captains.singapura.js.homing.findash.core.css.FdControlCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdDataCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdSurfaceCss;
 
 import java.util.List;
 
@@ -23,7 +28,26 @@ public record FinDashGridModule() implements DomModule<FinDashGridModule> {
 
     @Override
     public ImportsFor<FinDashGridModule> imports() {
-        return ImportsFor.noImports();
+        return ImportsFor.<FinDashGridModule>builder()
+                .add(new ModuleImports<>(List.of(new FdFrameCss.fd_scroll()),
+                        FdFrameCss.INSTANCE))
+                .add(new ModuleImports<>(List.of(
+                        new FdDataCss.fd_table(),
+                        new FdDataCss.fd_th(),
+                        new FdDataCss.fd_td(),
+                        new FdDataCss.fd_td_num(),
+                        new FdDataCss.fd_cell_compact(),
+                        new FdDataCss.fd_row_group(),
+                        new FdDataCss.fd_row_indent()),
+                        FdDataCss.INSTANCE))
+                .add(new ModuleImports<>(List.of(new FdSurfaceCss.fd_rule()),
+                        FdSurfaceCss.INSTANCE))
+                .add(new ModuleImports<>(List.of(
+                        new FdControlCss.fd_clickable(),
+                        new FdControlCss.fd_clickable_hover(),
+                        new FdControlCss.fd_selected()),
+                        FdControlCss.INSTANCE))
+                .build();
     }
 
     @Override

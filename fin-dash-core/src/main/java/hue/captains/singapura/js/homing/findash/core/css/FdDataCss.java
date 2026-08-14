@@ -27,12 +27,22 @@ public record FdDataCss() implements CssGroup<FdDataCss> {
         }
     }
 
+    /**
+     * Header cell. Sticky so the column names survive a 30-row scroll — the
+     * blotter's whole point is reading a lot of rows without losing the header.
+     */
     public record fd_th() implements CssClass<FdDataCss> {
         @Override public String body() { return """
                 text-align: left;
                 font-weight: 600;
-                font-size: 12px;
+                font-size: 11px;
+                color: var(--color-text-muted);
+                white-space: nowrap;
+                padding: var(--space-1, 4px) var(--space-2, 8px);
                 border-bottom: 1px solid var(--color-border);
+                position: sticky;
+                top: 0;
+                background: var(--color-surface);
                 """;
         }
     }
@@ -40,9 +50,16 @@ public record FdDataCss() implements CssGroup<FdDataCss> {
     public record fd_td() implements CssClass<FdDataCss> {
         @Override public String body() { return """
                 font-size: 12px;
+                white-space: nowrap;
+                padding: var(--space-1, 4px) var(--space-2, 8px);
                 border-bottom: 1px solid var(--color-border);
                 """;
         }
+    }
+
+    /** Tighter cell padding for dense blotters ({@code compact: true}). */
+    public record fd_cell_compact() implements CssClass<FdDataCss> {
+        @Override public String body() { return "padding: 2px var(--space-2, 8px);\n"; }
     }
 
     /**
@@ -136,6 +153,7 @@ public record FdDataCss() implements CssGroup<FdDataCss> {
                 new fd_table(),
                 new fd_th(),
                 new fd_td(),
+                new fd_cell_compact(),
                 new fd_td_num(),
                 new fd_row_group(),
                 new fd_row_indent(),

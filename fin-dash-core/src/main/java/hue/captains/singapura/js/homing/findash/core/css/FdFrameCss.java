@@ -134,6 +134,11 @@ public record FdFrameCss() implements CssGroup<FdFrameCss> {
         @Override public String body() { return "display: none;\n"; }
     }
 
+    /** A scroll region that is not the widget shell — a grid body, a long list. */
+    public record fd_scroll() implements CssClass<FdFrameCss> {
+        @Override public String body() { return "overflow: auto;\n"; }
+    }
+
     @Override
     public List<CssClass<FdFrameCss>> cssClasses() {
         return List.of(
@@ -147,7 +152,8 @@ public record FdFrameCss() implements CssGroup<FdFrameCss> {
                 new fd_grid_auto(),
                 new fd_spacer(),
                 new fd_section(),
-                new fd_hidden());
+                new fd_hidden(),
+                new fd_scroll());
     }
 
     @Override

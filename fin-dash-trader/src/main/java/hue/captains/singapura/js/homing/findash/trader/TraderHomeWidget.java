@@ -2,6 +2,7 @@ package hue.captains.singapura.js.homing.findash.trader;
 
 import hue.captains.singapura.js.homing.core.Importable;
 import hue.captains.singapura.js.homing.core.ModuleImports;
+import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
 import hue.captains.singapura.js.homing.findash.core.kit.PersonaCardModule;
 import hue.captains.singapura.js.homing.workspace.LifecycleHint;
 import hue.captains.singapura.js.homing.workspace.WorkspaceWidget;
@@ -30,17 +31,19 @@ public final class TraderHomeWidget
 
     @Override
     protected List<ModuleImports<? extends Importable>> bodyImports() {
-        return List.of(new ModuleImports<>(
-                List.of(new PersonaCardModule.personaCard()), PersonaCardModule.INSTANCE));
+        return List.of(
+                new ModuleImports<>(List.of(new PersonaCardModule.personaCard()),
+                        PersonaCardModule.INSTANCE),
+                new ModuleImports<>(List.of(new FdFrameCss.fd_widget_root()),
+                        FdFrameCss.INSTANCE));
     }
 
     @Override
     protected List<String> constructBodyJs() {
         return List.of(
                 "    var root = branch.createElement('root', 'div');",
-                "    root.style.cssText = 'height:100%;overflow:auto;box-sizing:border-box;'",
-                "        + 'padding:20px;font-family:system-ui,sans-serif;font-size:13px;';",
-                "    root.appendChild(personaCard({",
+                "    css.setClass(root, fd_widget_root);",
+                "    root.appendChild(personaCard(branch, {",
                 "        title: 'Trader / market-maker',",
                 "        mission: 'Run the book: price, mark, hedge.',",
                 "        ring: 'Ring 3 — marks, overrides',",
