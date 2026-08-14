@@ -152,7 +152,7 @@ public final class PlatformConsoleWidget
             "            for (var i = 0; i < d.slos.length; i++) if (d.slos[i].budgetFrac >= 0.75) warns++;",
             "            healthSlot.appendChild(warns",
             "                ? fdk.chip(branch, 'health', 'warn', 'healthy, ' + warns + ' warning')",
-            "                : fdk.chip(branch, 'health', 'good'));",
+            "                : fdk.chip(branch, 'health-2', 'good'));",
             "            replayLine.textContent = 'nightly replay determinism: ' + d.replayDeterminism;",
             "            for (i = 0; i < d.slos.length; i++) slos.appendChild(sloRow(i, d.slos[i]));",
             "            journals.appendChild(fdk.el(branch, 'jrn-label', 'span', null,",

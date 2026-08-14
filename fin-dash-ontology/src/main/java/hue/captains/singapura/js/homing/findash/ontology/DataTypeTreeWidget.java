@@ -7,6 +7,8 @@ import hue.captains.singapura.js.homing.findash.core.kit.FinDashKitModule;
 import hue.captains.singapura.js.homing.workspace.LifecycleHint;
 import hue.captains.singapura.js.homing.workspace.WorkspaceWidget;
 import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdStatusCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdTextCss;
 
 import java.util.List;
 
@@ -39,8 +41,18 @@ public final class DataTypeTreeWidget
                 new ModuleImports<>(List.of(new TreeRendererModule.TreeRenderer()),
                         TreeRendererModule.INSTANCE),
                 new ModuleImports<>(List.of(
+                        new FdFrameCss.fd_header_row(),
                         new FdFrameCss.fd_widget_root()),
-                        FdFrameCss.INSTANCE));
+                        FdFrameCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdStatusCss.fd_error_text()),
+                        FdStatusCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdTextCss.fd_caption(),
+                        new FdTextCss.fd_dense(),
+                        new FdTextCss.fd_muted(),
+                        new FdTextCss.fd_title()),
+                        FdTextCss.INSTANCE));
     }
 
     @Override
@@ -49,20 +61,20 @@ public final class DataTypeTreeWidget
             "    var root = branch.createElement('root', 'div');",
             "    css.setClass(root, fd_widget_root);",
             "",
-            "    var head = fdk.el('div', 'display:flex;align-items:baseline;gap:8px;padding:0 8px;flex-wrap:wrap;');",
-            "    head.appendChild(fdk.el('span', 'font-weight:700;font-size:13px;letter-spacing:0.3px;', ",
+            "    var head = fdk.el(branch, 'head-1', 'div', fd_header_row);",
+            "    head.appendChild(fdk.el(branch, 'title-1', 'span', fd_title, ",
             "        'DATA TYPES'));",
             "    var selSlot = fdk.el(branch, 'slot-1', 'span', null);",
             "    head.appendChild(selSlot);",
             "    root.appendChild(head);",
-            "    root.appendChild(fdk.el('div', 'color:var(--color-text-muted);font-size:10.5px;padding:2px 8px 6px;', ",
+            "    root.appendChild(fdk.el(branch, 'cap-1', 'div', [fd_muted, fd_caption], ",
             "        'the ontology, by stratum \\u00b7 a type may reference only strata below its own'));",
             "",
             "    var container = branch.createElement('treeContainer', 'div');",
             "    root.appendChild(container);",
-            "    var status = fdk.el('div', 'padding:6px 8px;color:var(--color-text-muted);font-size:12px;', 'Loading ontology\\u2026');",
+            "    var status = fdk.el(branch, 'txt-1', 'div', [fd_muted, fd_dense], 'Loading ontology\\u2026');",
             "    container.appendChild(status);",
-            "    root.appendChild(fdk.el('div', 'color:var(--color-text-muted);font-size:10.5px;padding:6px 8px;', ",
+            "    root.appendChild(fdk.el(branch, 'cap-2', 'div', [fd_muted, fd_caption], ",
             "        '\\u2191\\u2193 move \\u00b7 \\u2192\\u2190 expand/fold \\u00b7 selection drives the usage pane'));",
             "",
             "    var party = (workspaceCtx && workspaceCtx.deskParty) ? workspaceCtx.deskParty : null;",
@@ -103,7 +115,7 @@ public final class DataTypeTreeWidget
             "            });",
             "        })",
             "        .catch(function (err) {",
-            "            status.style.color = '#a8502a';",
+            "            css.addClass(status, fd_error_text);",
             "            status.textContent = 'ontology load failed: '",
             "                + (err && err.message ? err.message : String(err));",
             "        });",

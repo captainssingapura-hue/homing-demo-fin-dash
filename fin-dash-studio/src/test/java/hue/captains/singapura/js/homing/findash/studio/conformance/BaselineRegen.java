@@ -44,12 +44,17 @@ public final class BaselineRegen {
 
         final var out = new ArrayList<String>();
         out.add("# RFC 0044 conformance baseline — homing-demo-fin-dash.");
-        out.add("# Pre-existing violations, grandfathered to warnings. Anything NOT here");
-        out.add("# (or allowlisted) is a NEW violation and fails the build.");
+        out.add("# Grandfathered violations. Anything NOT here (or allowlisted) is a NEW");
+        out.add("# violation and fails the build. This list may only shrink.");
         out.add("#");
-        out.add("# The no-inline-style entries are a MIGRATION RATCHET, not an exemption:");
-        out.add("# every widget still styles inline, and each one converted to typed CSS");
-        out.add("# classes removes its lines from here. This list may only shrink.");
+        out.add("# The typed-CSS migration is COMPLETE: every widget and kit module now");
+        out.add("# builds branch-owned elements and styles through the CssGroups in");
+        out.add("# findash.core.css. What remains is a single upstream gap —");
+        out.add("# SmileChartModule cannot be made conformant downstream, because");
+        out.add("# branch.createElement has no namespace support while");
+        out.add("# UseDomOpsPartyRule forbids document.createElementNS, so conformant");
+        out.add("# code cannot create SVG at all. These clear when core adds");
+        out.add("# branch.createElementNS; FdChartCss is already written and waiting.");
         out.add("#");
         for (final var e : byRule.entrySet()) {
             out.add("#   " + e.getValue() + " x " + e.getKey());

@@ -8,6 +8,7 @@ import hue.captains.singapura.js.homing.workspace.WorkspaceWidget;
 import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
 import hue.captains.singapura.js.homing.findash.core.css.FdStatusCss;
 import hue.captains.singapura.js.homing.findash.core.css.FdTextCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdSurfaceCss;
 
 import java.util.List;
 
@@ -37,6 +38,7 @@ public final class CalibrationLabWidget
         return List.of(new ModuleImports<>(
                 List.of(new FinDashKitModule.fdk()), FinDashKitModule.INSTANCE),
                 new ModuleImports<>(List.of(
+                        new FdFrameCss.fd_header_row(),
                         new FdFrameCss.fd_section(),
                         new FdFrameCss.fd_widget_root()),
                         FdFrameCss.INSTANCE),
@@ -48,7 +50,11 @@ public final class CalibrationLabWidget
                         new FdTextCss.fd_muted(),
                         new FdTextCss.fd_strongest(),
                         new FdTextCss.fd_title()),
-                        FdTextCss.INSTANCE));
+                        FdTextCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdSurfaceCss.fd_card(),
+                        new FdSurfaceCss.fd_panel()),
+                        FdSurfaceCss.INSTANCE));
     }
 
     @Override
@@ -67,9 +73,8 @@ public final class CalibrationLabWidget
             "    root.appendChild(list);",
             "",
             "    function diagCard(c) {",
-            "        var card = fdk.el('div', 'border:1px solid var(--color-border);border-radius:8px;padding:10px 12px;'",
-            "            + 'margin-bottom:8px;');",
-            "        var head = fdk.el('div', 'display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;');",
+            "        var card = fdk.el(branch, 'el-1', 'div', [fd_card, fd_panel, fd_section]);",
+            "        var head = fdk.el(branch, 'head-1', 'div', fd_header_row);",
             "        head.appendChild(fdk.el(branch, 'strong-1', 'span', fd_strongest, c.pair));",
             "        head.appendChild(fdk.stamp(branch, 'stamp-1', { surface: c.epoch }));",
             "        head.appendChild(fdk.chip(branch, 'chip-1', c.severity, c.severity === 'good' ? 'healthy regime'",

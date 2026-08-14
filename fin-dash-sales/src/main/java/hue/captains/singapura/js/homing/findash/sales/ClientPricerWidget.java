@@ -8,6 +8,7 @@ import hue.captains.singapura.js.homing.workspace.WorkspaceWidget;
 import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
 import hue.captains.singapura.js.homing.findash.core.css.FdStatusCss;
 import hue.captains.singapura.js.homing.findash.core.css.FdTextCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdControlCss;
 
 import java.util.List;
 
@@ -38,6 +39,7 @@ public final class ClientPricerWidget
         return List.of(new ModuleImports<>(
                 List.of(new FinDashKitModule.fdk()), FinDashKitModule.INSTANCE),
                 new ModuleImports<>(List.of(
+                        new FdFrameCss.fd_cluster(),
                         new FdFrameCss.fd_section(),
                         new FdFrameCss.fd_widget_root()),
                         FdFrameCss.INSTANCE),
@@ -45,10 +47,17 @@ public final class ClientPricerWidget
                         new FdStatusCss.fd_error_text()),
                         FdStatusCss.INSTANCE),
                 new ModuleImports<>(List.of(
+                        new FdTextCss.fd_dense(),
+                        new FdTextCss.fd_display(),
+                        new FdTextCss.fd_mono(),
                         new FdTextCss.fd_caption(),
                         new FdTextCss.fd_muted(),
                         new FdTextCss.fd_title()),
-                        FdTextCss.INSTANCE));
+                        FdTextCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdControlCss.fd_btn(),
+                        new FdControlCss.fd_input()),
+                        FdControlCss.INSTANCE));
     }
 
     @Override
@@ -62,12 +71,9 @@ public final class ClientPricerWidget
             "    root.appendChild(fdk.el(branch, 'cap-1', 'div', [fd_caption, fd_section], ",
             "        'read-only projection of the pricing core \\u2014 sales sees prices, never mark inputs'));",
             "",
-            "    var input = document.createElement('input');",
+            "    var input = fdk.el(branch, 'input', 'input', [fd_input, fd_mono]);",
             "    input.type = 'text';",
             "    input.value = 'eurusd 3m 1.0850 ko 1.1200 10';",
-            "    input.style.cssText = 'width:100%;box-sizing:border-box;margin:2px 0 8px;padding:7px 10px;'",
-            "        + 'font-family:' + fdk.tokens.mono + ';font-size:13px;border:1px solid var(--color-border);'",
-            "        + 'border-radius:6px;background:var(--color-surface);';",
             "    root.appendChild(input);",
             "",
             "    var out = fdk.el(branch, 'slot-1', 'div', null);",
@@ -85,12 +91,10 @@ public final class ClientPricerWidget
             "        out.appendChild(fdk.kv(branch, 'kv-2', 'Desk price', 'EUR ' + fdk.fmt.amount(d.pvAmount)",
             "            + '  (' + fdk.fmt.num(d.pvPct, 4) + ' %)'));",
             "",
-            "        var mRow = fdk.el('div', 'display:flex;gap:8px;align-items:center;margin:6px 0;font-size:12.5px;');",
-            "        mRow.appendChild(fdk.el('span', 'color:var(--color-text-muted);min-width:110px;', 'Sales margin'));",
-            "        var m = document.createElement('input');",
+            "        var mRow = fdk.el(branch, 'cluster-1', 'div', [fd_dense, fd_cluster, fd_section]);",
+            "        mRow.appendChild(fdk.el(branch, 'el-1', 'span', fd_muted, 'Sales margin'));",
+            "        var m = fdk.el(branch, 'm', 'input', [fd_input, fd_mono]);",
             "        m.type = 'text'; m.value = String(state.margin);",
-            "        m.style.cssText = 'width:52px;padding:3px 6px;font-family:' + fdk.tokens.mono",
-            "            + ';font-size:12px;border:1px solid var(--color-border);border-radius:4px;';",
             "        m.addEventListener('input', function () {",
             "            var v = parseFloat(m.value); if (!isNaN(v)) { state.margin = v; renderClient(); }",
             "        });",
@@ -104,11 +108,9 @@ public final class ClientPricerWidget
             "        state.clientSlot = clientSlot;",
             "        renderClient();",
             "",
-            "        var btns = fdk.el('div', 'margin-top:10px;display:flex;gap:8px;align-items:center;');",
-            "        var firm = document.createElement('button');",
+            "        var btns = fdk.el(branch, 'cluster-2', 'div', [fd_cluster, fd_section]);",
+            "        var firm = fdk.el(branch, 'firm', 'button', fd_btn);",
             "        firm.textContent = 'Quote FIRM (30s)';",
-            "        firm.style.cssText = 'padding:5px 12px;font-size:12px;font-weight:600;color:var(--color-surface);'",
-            "            + 'background:#2a78d6;border:none;border-radius:6px;cursor:pointer;';",
             "        firm.onclick = function () { state.firmLeft = 30; tick(); };",
             "        btns.appendChild(firm);",
             "        state.firmSlot = fdk.el(branch, 'slot-3', 'span', null);",
@@ -124,7 +126,7 @@ public final class ClientPricerWidget
             "        clear(state.clientSlot);",
             "        var d = state.data;",
             "        var clientPv = d.pvAmount * (1 + state.margin / 10000);",
-            "        state.clientSlot.appendChild(fdk.el('div', 'font-size:20px;font-weight:700;margin-top:4px;', ",
+            "        state.clientSlot.appendChild(fdk.el(branch, 'display-1', 'div', [fd_display, fd_section], ",
             "            'EUR ' + fdk.fmt.amount(clientPv)));",
             "        state.clientSlot.appendChild(fdk.el(branch, 'cap-4', 'div', fd_caption, ",
             "            'client all-in = desk ' + fdk.fmt.amount(d.pvAmount) + ' + margin '",

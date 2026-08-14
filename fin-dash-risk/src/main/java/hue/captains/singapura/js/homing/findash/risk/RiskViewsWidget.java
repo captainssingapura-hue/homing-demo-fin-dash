@@ -85,7 +85,7 @@ public final class RiskViewsWidget
             "    var gridSlot = fdk.el(branch, 'sect-1', 'div', fd_section);",
             "    root.appendChild(gridSlot);",
             "",
-            "    root.appendChild(fdk.sectionTitle(branch, 'sect-1', 'Breach / warning worklist'));",
+            "    root.appendChild(fdk.sectionTitle(branch, 'sect-1-2', 'Breach / warning worklist'));",
             "    var worklist = fdk.el(branch, 'slot-2', 'div', null);",
             "    root.appendChild(worklist);",
             "    root.appendChild(fdk.el(branch, 'cap-1', 'div', [fd_caption, fd_muted, fd_section], ",
