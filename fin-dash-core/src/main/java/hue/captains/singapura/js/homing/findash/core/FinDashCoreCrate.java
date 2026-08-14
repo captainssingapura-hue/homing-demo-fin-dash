@@ -5,6 +5,13 @@ import hue.captains.singapura.js.homing.core.CrateEntry;
 import hue.captains.singapura.js.homing.core.StandardJsModuleType;
 import hue.captains.singapura.js.homing.findash.core.bus.DeskSecretaryModule;
 import hue.captains.singapura.js.homing.findash.core.conformance.RiskModuleType;
+import hue.captains.singapura.js.homing.findash.core.css.FdChartCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdControlCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdDataCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdStatusCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdSurfaceCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdTextCss;
 import hue.captains.singapura.js.homing.findash.core.kit.FinDashGridModule;
 import hue.captains.singapura.js.homing.findash.core.kit.FinDashKitModule;
 import hue.captains.singapura.js.homing.findash.core.kit.PersonaCardModule;
@@ -44,10 +51,30 @@ public final class FinDashCoreCrate implements Crate {
     @Override
     public List<CrateEntry> entries() {
         return List.of(
-                CrateEntry.of(PersonaCardModule.INSTANCE, StandardJsModuleType.PRIMITIVE),
-                CrateEntry.of(FinDashKitModule.INSTANCE, StandardJsModuleType.PRIMITIVE),
-                CrateEntry.of(FinDashGridModule.INSTANCE, StandardJsModuleType.PRIMITIVE),
-                CrateEntry.of(SmileChartModule.INSTANCE, StandardJsModuleType.PRIMITIVE),
+                // Declared CONSUMER by omission (the default, full-discipline
+                // baseline). These four were previously declared PRIMITIVE, which
+                // is for STRUCTURAL primitives — SplitPane, MultiTabPane, the
+                // things that own and mutate layout DOM. A chip factory, a data
+                // grid, a persona card and an SVG chart are content builders:
+                // consumer view code. The declaration was an opt-out of the CSS
+                // discipline that would otherwise have applied by default, which
+                // is why the kit's styling stayed invisible to the gate while
+                // every widget importing it inherited that styling.
+                CrateEntry.of(PersonaCardModule.INSTANCE),
+                CrateEntry.of(FinDashKitModule.INSTANCE),
+                CrateEntry.of(FinDashGridModule.INSTANCE),
+                CrateEntry.of(SmileChartModule.INSTANCE),
+                // The typed CSS vocabulary — seven groups by concern, so a widget
+                // importing charts does not drag in form controls. Theme-token
+                // native: no per-theme CssGroupImpl to keep in step across the
+                // ten registered themes. See docs/css-class-inventory.md.
+                CrateEntry.of(FdFrameCss.INSTANCE),
+                CrateEntry.of(FdTextCss.INSTANCE),
+                CrateEntry.of(FdSurfaceCss.INSTANCE),
+                CrateEntry.of(FdStatusCss.INSTANCE),
+                CrateEntry.of(FdControlCss.INSTANCE),
+                CrateEntry.of(FdDataCss.INSTANCE),
+                CrateEntry.of(FdChartCss.INSTANCE),
                 // The desk selection bus — headless, held to the SECRETARY (no-DOM) set:
                 CrateEntry.of(DeskSecretaryModule.INSTANCE, StandardJsModuleType.SECRETARY),
                 // The downstream extension type, made visible in the studio:

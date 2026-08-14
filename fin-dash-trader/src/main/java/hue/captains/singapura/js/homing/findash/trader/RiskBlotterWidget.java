@@ -2,6 +2,10 @@ package hue.captains.singapura.js.homing.findash.trader;
 
 import hue.captains.singapura.js.homing.core.Importable;
 import hue.captains.singapura.js.homing.core.ModuleImports;
+import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdStatusCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdSurfaceCss;
+import hue.captains.singapura.js.homing.findash.core.css.FdTextCss;
 import hue.captains.singapura.js.homing.findash.core.kit.FinDashGridModule;
 import hue.captains.singapura.js.homing.findash.core.kit.FinDashKitModule;
 import hue.captains.singapura.js.homing.workspace.LifecycleHint;
@@ -18,6 +22,12 @@ import java.util.List;
  * surface manager follow the selection (the UI study's cross-widget flow).
  * Barrier proximity and expiry/pin clusters live in their own widgets
  * ({@link BarrierWatchWidget}, {@link ExpiryClustersWidget}).
+ *
+ * <p><b>Typed-CSS pilot.</b> First widget migrated off inline styling: every
+ * element comes from {@code branch.createElement} with a stable name and is
+ * styled with {@code css.setClass} against the shared vocabulary in
+ * {@code findash.core.css} — no style strings, no literal colours. See
+ * {@code docs/css-class-inventory.md}.</p>
  */
 public final class RiskBlotterWidget
         extends WorkspaceWidget<WorkspaceWidget._None, RiskBlotterWidget> {
@@ -37,15 +47,31 @@ public final class RiskBlotterWidget
     protected List<ModuleImports<? extends Importable>> bodyImports() {
         return List.of(
                 new ModuleImports<>(List.of(new FinDashKitModule.fdk()), FinDashKitModule.INSTANCE),
-                new ModuleImports<>(List.of(new FinDashGridModule.fdGrid()), FinDashGridModule.INSTANCE));
+                new ModuleImports<>(List.of(new FinDashGridModule.fdGrid()), FinDashGridModule.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdFrameCss.fd_widget_root(),
+                        new FdFrameCss.fd_header_row(),
+                        new FdFrameCss.fd_cluster(),
+                        new FdFrameCss.fd_section()),
+                        FdFrameCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdTextCss.fd_title(),
+                        new FdTextCss.fd_caption(),
+                        new FdTextCss.fd_muted(),
+                        new FdTextCss.fd_strong()),
+                        FdTextCss.INSTANCE),
+                new ModuleImports<>(List.of(new FdSurfaceCss.fd_panel()), FdSurfaceCss.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new FdStatusCss.fd_status_warn(),
+                        new FdStatusCss.fd_error_text()),
+                        FdStatusCss.INSTANCE));
     }
 
     @Override
     protected List<String> constructBodyJs() {
         return List.of(
             "    var root = branch.createElement('root', 'div');",
-            "    root.style.cssText = 'height:100%;overflow:auto;box-sizing:border-box;padding:14px;'",
-            "        + 'font-family:system-ui,sans-serif;font-size:13px;color:var(--color-text-primary);';",
+            "    css.setClass(root, fd_widget_root);",
             "",
             "    var party = (workspaceCtx && workspaceCtx.deskParty) ? workspaceCtx.deskParty : null;",
             "    var actorId = null;",
@@ -54,38 +80,71 @@ public final class RiskBlotterWidget
             "        party.joinActor({ id: actorId, parentSecretary: 'desk', reactors: {} });",
             "    }",
             "",
-            "    var head = fdk.el('div', 'display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;');",
-            "    head.appendChild(fdk.el('span', 'font-weight:700;font-size:14px;letter-spacing:0.3px;', 'RISK \\u2014 FXO BOOK'));",
-            "    head.appendChild(fdk.el('span', 'color:var(--color-text-primary);font-size:11.5px;', 'as-of: live'));",
-            "    var stampSlot = fdk.el('span', '');",
+            "    var head = branch.createElement('head', 'div');",
+            "    css.setClass(head, fd_header_row);",
+            "    var titleEl = branch.createElement('title', 'span');",
+            "    css.setClass(titleEl, fd_title);",
+            "    titleEl.textContent = 'RISK \\u2014 FXO BOOK';",
+            "    head.appendChild(titleEl);",
+            "    var asOf = branch.createElement('as-of', 'span');",
+            "    css.setClass(asOf, fd_caption);",
+            "    asOf.textContent = 'as-of: live';",
+            "    head.appendChild(asOf);",
+            "    var stampSlot = branch.createElement('stamp-slot', 'span');",
             "    head.appendChild(stampSlot);",
             "    root.appendChild(head);",
             "",
-            "    var totals = fdk.el('div', 'display:flex;gap:16px;align-items:center;flex-wrap:wrap;'",
-            "        + 'margin:8px 0;padding:8px 10px;background:var(--color-surface-raised);border-radius:8px;font-size:12.5px;');",
+            "    var totals = branch.createElement('totals', 'div');",
+            "    css.setClass(totals, fd_panel);",
+            "    css.addClass(totals, fd_header_row);",
+            "    css.addClass(totals, fd_section);",
             "    root.appendChild(totals);",
             "",
-            "    var gridSlot = fdk.el('div', '');",
+            "    var gridSlot = branch.createElement('grid-slot', 'div');",
             "    root.appendChild(gridSlot);",
-            "    root.appendChild(fdk.el('div', 'color:var(--color-text-muted);font-size:11px;margin:4px 0 0;',",
-            "        'drill: bucket \\u2192 position \\u2192 trade \\u2192 pricing explain (P1) \\u00b7 click a row to broadcast the selection'",
-            "        + ' \\u00b7 barriers + expiries in their own widgets'));",
+            "    var footer = branch.createElement('footer', 'div');",
+            "    css.setClass(footer, fd_caption);",
+            "    css.addClass(footer, fd_muted);",
+            "    footer.textContent = 'drill: bucket \\u2192 position \\u2192 trade \\u2192 pricing explain (P1)'",
+            "        + ' \\u00b7 click a row to broadcast the selection'",
+            "        + ' \\u00b7 barriers + expiries in their own widgets';",
+            "    root.appendChild(footer);",
             "",
-            "    function totalsItem(label, valueNode) {",
-            "        var box = fdk.el('span', 'display:inline-flex;gap:6px;align-items:center;');",
-            "        box.appendChild(fdk.el('span', 'color:var(--color-text-muted);', label));",
+            "    // Each totals item needs its own branch-owned pair, so the name is",
+            "    // keyed rather than positional — stable across re-render.",
+            "    function totalsItem(key, label, valueNode) {",
+            "        var box = branch.createElement('totals-item-' + key, 'span');",
+            "        css.setClass(box, fd_cluster);",
+            "        var lab = branch.createElement('totals-label-' + key, 'span');",
+            "        css.setClass(lab, fd_muted);",
+            "        lab.textContent = label;",
+            "        box.appendChild(lab);",
             "        box.appendChild(valueNode);",
             "        return box;",
+            "    }",
+            "",
+            "    function totalsValue(key, text) {",
+            "        var v = branch.createElement('totals-value-' + key, 'span');",
+            "        css.setClass(v, fd_strong);",
+            "        v.textContent = text;",
+            "        return v;",
             "    }",
             "",
             "    function render(d) {",
             "        stampSlot.appendChild(fdk.stamp({ slice: d.slice, model: d.model }));",
             "        var t = d.totals;",
-            "        totals.appendChild(totalsItem('\\u0394', fdk.el('span', 'font-weight:600;', '\\u20ac' + fdk.fmt.compact(t.delta))));",
-            "        totals.appendChild(totalsItem('Vega', fdk.el('span', 'font-weight:600;', '\\u20ac' + fdk.fmt.compact(t.vega))));",
-            "        totals.appendChild(totalsItem('\\u0398', fdk.el('span', 'font-weight:600;', '\\u2212\\u20ac' + fdk.fmt.compact(Math.abs(t.theta)))));",
-            "        totals.appendChild(totalsItem('vega limit ' + Math.round(t.vegaLimitFrac * 100) + '%', fdk.meter(t.vegaLimitFrac)));",
-            "        totals.appendChild(totalsItem('reval wave ' + Math.round(t.revalWaveFrac * 100) + '%', fdk.meter(t.revalWaveFrac, { warnAt: 2 })));",
+            "        totals.appendChild(totalsItem('delta', '\\u0394',",
+            "            totalsValue('delta', '\\u20ac' + fdk.fmt.compact(t.delta))));",
+            "        totals.appendChild(totalsItem('vega', 'Vega',",
+            "            totalsValue('vega', '\\u20ac' + fdk.fmt.compact(t.vega))));",
+            "        totals.appendChild(totalsItem('theta', '\\u0398',",
+            "            totalsValue('theta', '\\u2212\\u20ac' + fdk.fmt.compact(Math.abs(t.theta)))));",
+            "        totals.appendChild(totalsItem('vega-limit',",
+            "            'vega limit ' + Math.round(t.vegaLimitFrac * 100) + '%',",
+            "            fdk.meter(t.vegaLimitFrac)));",
+            "        totals.appendChild(totalsItem('reval-wave',",
+            "            'reval wave ' + Math.round(t.revalWaveFrac * 100) + '%',",
+            "            fdk.meter(t.revalWaveFrac, { warnAt: 2 })));",
             "",
             "        var rows = [];",
             "        for (var i = 0; i < d.rows.length; i++) {",
@@ -109,10 +168,17 @@ public final class RiskBlotterWidget
             "                { key: 'vBf', label: 'vBF', align: 'right' },",
             "                { key: 'theta', label: '\\u0398', align: 'right' },",
             "                { key: 'freshSecs', label: 'freshness', render: function (v, row) {",
-            "                    var cell = fdk.el('span', 'display:inline-flex;gap:6px;align-items:center;');",
+            "                    var rowKey = row.pair + '-' + row.tenor;",
+            "                    var cell = branch.createElement('fresh-' + rowKey, 'span');",
+            "                    css.setClass(cell, fd_cluster);",
             "                    cell.appendChild(fdk.meter(row.budgetFrac, { width: 44 }));",
-            "                    cell.appendChild(fdk.el('span', 'font-size:11px;color:'",
-            "                        + (v > 10 ? '#9a6b1f' : 'var(--color-text-muted)') + ';', v + 's'));",
+            "                    var age = branch.createElement('fresh-age-' + rowKey, 'span');",
+            "                    // Stale past 10s is a state, not decoration — it reads as a",
+            "                    // warning rather than muted secondary text (P2).",
+            "                    css.setClass(age, fd_caption);",
+            "                    css.addClass(age, v > 10 ? fd_status_warn : fd_muted);",
+            "                    age.textContent = v + 's';",
+            "                    cell.appendChild(age);",
             "                    if (row.note) cell.appendChild(fdk.chip('warn', row.note));",
             "                    return cell;",
             "                } }",
@@ -132,7 +198,10 @@ public final class RiskBlotterWidget
             "        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })",
             "        .then(render)",
             "        .catch(function (e) {",
-            "            gridSlot.appendChild(fdk.el('div', 'color:#a8502a;', 'book load failed: ' + (e && e.message ? e.message : e)));",
+            "            var msg = branch.createElement('load-error', 'div');",
+            "            css.setClass(msg, fd_error_text);",
+            "            msg.textContent = 'book load failed: ' + (e && e.message ? e.message : e);",
+            "            gridSlot.appendChild(msg);",
             "        });",
             "",
             "    return {",

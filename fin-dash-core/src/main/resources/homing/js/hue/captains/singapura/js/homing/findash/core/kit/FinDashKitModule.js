@@ -1,41 +1,34 @@
-// FinDashKitModule — the fin-dash UI kit: theme tokens, element/format helpers,
-// and the two cross-cutting patterns every widget carries (UI study P1 + P2):
-// the status chip (state is visible, never by color alone — icon + label) and
-// the lineage stamp (every number can explain itself).
+// FinDashKitModule — the fin-dash UI kit: format helpers and the two
+// cross-cutting patterns every widget carries (UI study P1 + P2): the status
+// chip (state is visible, never by color alone — icon + label) and the lineage
+// stamp (every number can explain itself).
 //
-// Palette: the dataviz reference instance (validated). Status colors are
-// reserved for state and never used as series colors.
+// Consumer discipline: elements come from the caller's branch, styling is typed
+// CSS classes. Every builder takes (branch, name, …) — the branch owns the
+// element and the name makes it addressable and releasable on dissolve.
 //
-// Pure DOM builders — no branch access, no lookups, no HTML literals.
+// No colour lives here any more. State maps to a chip class in FdStatusCss;
+// the severity ramp maps to the status background classes. The kit knows which
+// STATE something is in, and the theme decides what that looks like.
+//
 // The framework appends the `export { fdk }` from exports().
 var fdk = {
 
-    tokens: {
-        ink:      'var(--color-text-primary)',
-        soft:     'var(--color-text-primary)',
-        muted:    'var(--color-text-muted)',
-        grid:     'var(--color-border)',
-        baseline: 'var(--color-border)',
-        surface:  'var(--color-surface)',
-        panel:    'var(--color-surface-raised)',
-        accent:   'var(--color-accent)',   // categorical slot 1 — the kit's single series hue
-        accentSoft: '#cde2fb',
-        mono: 'ui-monospace, Menlo, Consolas, monospace'
-    },
-
-    // Status palette (reserved; icon + label always — P2, never color alone).
+    // P2 — state is carried by icon + label + class, never by colour alone.
     status: {
-        good:     { icon: '●', color: '#006300', bg: '#e6f4e6', label: 'healthy'  },
-        live:     { icon: '●', color: '#006300', bg: '#e6f4e6', label: 'live'     },
-        warn:     { icon: '▲', color: '#9a6b1f', bg: '#fdf3dc', label: 'degraded' },
-        serious:  { icon: '◆', color: '#a8502a', bg: '#fceee8', label: 'serious'  },
-        critical: { icon: '✕', color: '#a32e2e', bg: '#f9e4e4', label: 'critical' },
-        neutral:  { icon: '○', color: '#52514e', bg: '#efefec', label: 'idle'     }
+        good:     { icon: '●', label: 'healthy',  cls: fd_chip_good     },
+        live:     { icon: '●', label: 'live',     cls: fd_chip_good     },
+        warn:     { icon: '▲', label: 'degraded', cls: fd_chip_warn     },
+        serious:  { icon: '◆', label: 'serious',  cls: fd_chip_serious  },
+        critical: { icon: '✕', label: 'critical', cls: fd_chip_critical },
+        neutral:  { icon: '○', label: 'idle',     cls: fd_chip_neutral  }
     },
 
-    el: function (tag, css, text) {
-        var d = document.createElement(tag);
-        if (css) d.style.cssText = css;
+    // The general builder. `klass` is a CssClass constant the caller imported;
+    // passing null leaves the element unstyled (a slot or a wrapper).
+    el: function (branch, name, tag, klass, text) {
+        var d = branch.createElement(name, tag);
+        if (klass) css.setClass(d, klass);
         if (text != null) d.textContent = text;
         return d;
     },
@@ -64,62 +57,73 @@ var fdk = {
         pct: function (x, dp) { return fdk.fmt.num(x, dp == null ? 1 : dp) + '%'; }
     },
 
-    // P2 — the shared status chip: icon + label, never color alone.
-    chip: function (state, text) {
+    // P2 — the shared status chip: icon + label, never colour alone.
+    chip: function (branch, name, state, text) {
         var s = fdk.status[state] || fdk.status.neutral;
-        return fdk.el('span',
-            'display:inline-block;font-size:11px;font-weight:600;color:' + s.color
-            + ';background:' + s.bg + ';border-radius:999px;padding:2px 10px;'
-            + 'white-space:nowrap;',
-            s.icon + ' ' + (text != null ? text : s.label));
+        var d = branch.createElement(name, 'span');
+        css.setClass(d, fd_chip);
+        css.addClass(d, s.cls);
+        d.textContent = s.icon + ' ' + (text != null ? text : s.label);
+        return d;
     },
 
     // P1 — the lineage stamp: slice / surface epoch / model, always visible.
     // info: { slice, surface, model, note? } — title attr is the hover explain.
-    stamp: function (info) {
+    stamp: function (branch, name, info) {
         var parts = [];
         if (info.slice)   parts.push('slice ' + info.slice);
         if (info.surface) parts.push('surface ' + info.surface);
         if (info.model)   parts.push('model ' + info.model);
-        var d = fdk.el('span', 'color:var(--color-text-muted);font-size:11px;white-space:nowrap;',
-            parts.join(' · '));
+        var d = branch.createElement(name, 'span');
+        css.setClass(d, fd_stamp);
+        d.textContent = parts.join(' · ');
         d.title = 'Lineage (P1 — every number explains itself): '
             + parts.join(', ') + (info.note ? ' — ' + info.note : '');
         return d;
     },
 
-    // Meter: fill carries severity; the unfilled track is a lighter step of the
-    // same ramp so state reads across the whole bar (dataviz spec).
+    // Meter: the track carries severity as a status tint, the fill width comes
+    // from live data via the --fd-meter-frac custom property (the sanctioned
+    // dynamic-value hatch — a class cannot encode a runtime number).
     // frac in [0,1]; thresholds default warn 0.75 / critical 0.9.
-    meter: function (frac, opts) {
+    meter: function (branch, name, frac, opts) {
         opts = opts || {};
         var warnAt = opts.warnAt == null ? 0.75 : opts.warnAt;
         var critAt = opts.critAt == null ? 0.90 : opts.critAt;
-        var fill  = '#2a78d6', track = '#cde2fb';
-        if (frac >= critAt)      { fill = '#d03b3b'; track = '#f9e4e4'; }
-        else if (frac >= warnAt) { fill = '#fab219'; track = '#fdf3dc'; }
-        var w = opts.width || 72;
-        var wrap = fdk.el('span', 'display:inline-block;width:' + w + 'px;height:6px;'
-            + 'background:' + track + ';border-radius:3px;vertical-align:middle;');
+        var tint = fd_status_good_bg;
+        if      (frac >= critAt) tint = fd_status_critical_bg;
+        else if (frac >= warnAt) tint = fd_status_warn_bg;
+        var wrap = branch.createElement(name, 'span');
+        css.setClass(wrap, fd_meter);
+        css.addClass(wrap, tint);
         var f = Math.max(0, Math.min(1, frac));
-        wrap.appendChild(fdk.el('span', 'display:block;width:' + Math.round(f * 100)
-            + '%;height:6px;background:' + fill + ';border-radius:3px;'));
+        var fill = branch.createElement(name + '-fill', 'span');
+        css.setClass(fill, fd_meter_fill);
+        fill.style.setProperty('--fd-meter-frac', String(f));
+        wrap.appendChild(fill);
         wrap.title = Math.round(f * 100) + '%';
         return wrap;
     },
 
     // label: value row for fact panels
-    kv: function (label, value) {
-        var row = fdk.el('div', 'display:flex;gap:8px;font-size:12.5px;line-height:1.6;');
-        row.appendChild(fdk.el('span', 'color:var(--color-text-muted);min-width:110px;', label));
-        var v = fdk.el('span', 'color:var(--color-text-primary);');
+    kv: function (branch, name, label, value) {
+        var row = branch.createElement(name, 'div');
+        css.setClass(row, fd_kv_row);
+        var lab = branch.createElement(name + '-label', 'span');
+        css.setClass(lab, fd_kv_label);
+        lab.textContent = label;
+        row.appendChild(lab);
+        var v = branch.createElement(name + '-value', 'span');
+        css.setClass(v, fd_kv_value);
         if (value && value.nodeType) v.appendChild(value); else v.textContent = value;
         row.appendChild(v);
         return row;
     },
 
-    sectionTitle: function (text) {
-        return fdk.el('div', 'font-weight:600;font-size:12px;color:var(--color-text-primary);'
-            + 'margin:14px 0 6px;letter-spacing:0.2px;', text);
+    sectionTitle: function (branch, name, text) {
+        var d = branch.createElement(name, 'div');
+        css.setClass(d, fd_section_title);
+        d.textContent = text;
+        return d;
     }
 };
