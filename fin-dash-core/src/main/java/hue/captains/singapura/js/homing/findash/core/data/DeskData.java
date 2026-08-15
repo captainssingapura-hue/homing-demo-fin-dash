@@ -615,7 +615,11 @@ public final class DeskData {
                            String vega, String barrierDist, double freshSecs,
                            double budgetFrac, String tradeId) {}
 
-    public static final List<Position> POSITIONS = List.of(
+    /**
+     * Hand-written positions — the spine {@link DeskBook} builds depth around.
+     * Served as {@link #POSITIONS}, which is these plus generated depth.
+     */
+    public static final List<Position> CURATED_POSITIONS = List.of(
             new Position("P-1101", "pf-eur-van", "EURUSD", "1W", "Vanilla Call 1.0900 · 15-Aug NY",
                     "€30M", "+€48k",  "+1.1M", "18k",  null,      2, 0.22, "T-4452"),
             new Position("P-1102", "pf-eur-van", "EURUSD", "1M", "Vanilla Put 1.0800 · 10-Sep NY",
@@ -653,7 +657,13 @@ public final class DeskData {
                         String ticket, String pair, String notional, String pvAtBooking,
                         String stamp, String status, List<Amendment> amendments) {}
 
-    public static final List<Trade> TRADES = List.of(
+    /**
+     * Hand-written trades — these carry the stories other fixtures reference
+     * (the confirm mismatch that ties to a break, the amendment with its
+     * four-eyes record). Served as {@link #TRADES}, which is these plus the
+     * generated book.
+     */
+    public static final List<Trade> CURATED_TRADES = List.of(
             new Trade("T-4471", "pf-eur-exo", "14:28:44", "trader A", "eurusd 3m 1.0850 ko 1.1200 10",
                     "EURUSD", "€10M", "+€142,399", "C204 · S513/87 · VV-2.3", "booked",
                     List.of()),
@@ -756,4 +766,16 @@ public final class DeskData {
     private static double round2(double x) { return Math.round(x * 100.0) / 100.0; }
     private static double round3(double x) { return Math.round(x * 1000.0) / 1000.0; }
     private static double round4(double x) { return Math.round(x * 10000.0) / 10000.0; }
+
+    // ------------------------------------------------------------ the book
+    // The served lists: the curated spine plus generated depth. Built once at
+    // class-init from a fixed seed, so the book is identical on every start —
+    // a demo has to be rehearsable, and TradeLifecycle's per-trade seeding is
+    // only meaningful if the trades themselves do not move.
+
+    /** Every trade the journal serves. Includes one for every position's tradeId. */
+    public static final List<Trade> TRADES = DeskBook.allTrades();
+
+    /** Every position the risk views serve. */
+    public static final List<Position> POSITIONS = DeskBook.allPositions();
 }
