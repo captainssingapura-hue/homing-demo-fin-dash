@@ -1,11 +1,17 @@
-// VolSurface — vendored from js-demos/VolSurface, bundled into one ES module.
-// Source files concatenated in dependency order (colormap -> scene-helpers ->
-// surface-controls -> vol-surface); the inter-file import lines are dropped
-// because the definitions now share a scope. Public surface is unchanged:
-// VolSurface, COLORMAPS, sampleColormap.
+// VolSurface — the 3D implied-vol renderer for the FXO desk.
 //
-// Third-party library: served verbatim as a BundledExternalModule, so it is
-// exempt from the JS rule sets by classification rather than by exception.
+// Seeded from the js-demos/VolSurface sketch (colormap -> scene-helpers ->
+// surface-controls -> vol-surface, concatenated; the inter-file imports are
+// dropped because the definitions now share a scope), then maintained here.
+// js-demos is a sketchbook, not an upstream — this copy is the real one and is
+// free to be reimplemented. It already diverges: resize() is local.
+//
+// Served verbatim as a BundledExternalModule, which classifies it
+// BUNDLED_EXTERNAL and so exempts it from the JS rule sets. The reason is the
+// RENDERING LEAF boundary, not authorship: nothing outside a chart addresses
+// its geometry by name, so DomOpsParty's composition guarantees buy nothing
+// inside it. What the exemption costs is paid back by the widget, which owns
+// the branch-owned mount and calls destroy() from partyDeregister.
 
 // ==================== colormap.js ====================
 /* colormap.js — Colormap definitions and interpolation */

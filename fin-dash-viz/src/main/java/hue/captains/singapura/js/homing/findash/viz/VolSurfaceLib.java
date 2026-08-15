@@ -7,23 +7,31 @@ import hue.captains.singapura.js.homing.core.ExportsOf;
 import java.util.List;
 
 /**
- * VolSurface — the 3D implied-volatility surface renderer, vendored from
- * {@code js-demos/VolSurface} and bundled into a single ES module (its four
+ * VolSurface — the 3D implied-volatility surface renderer. Seeded from the
+ * {@code js-demos/VolSurface} sketch and bundled into a single ES module (four
  * source files concatenated in dependency order: colormap, scene-helpers,
- * surface-controls, vol-surface).
+ * surface-controls, vol-surface), then extended here.
  *
- * <h2>Why this is a bundled external and not a consumer module</h2>
+ * <p><b>This copy is the real one.</b> {@code js-demos} is a sketchbook, not an
+ * upstream: there is no obligation to keep the two in step, and this file is
+ * free to be reimplemented outright. It already diverges — {@code resize()}
+ * exists here and not there.</p>
  *
- * <p>It is a standalone library — its own README, version, and Three.js
- * peer-dependency contract — and it is a <b>rendering leaf</b>: an opaque
- * WebGL surface with a single mount point. DomOpsParty's value is composition,
- * and nothing outside a chart ever addresses its geometry by name. Holding it
- * to the consumer rule set would also be unenforceable in principle, since the
- * same argument applies to any third-party charting library (D3, ECharts,
- * Plotly), none of which will ever call {@code branch.createElement}.</p>
+ * <h2>Why this is exempt from the consumer rule set</h2>
  *
- * <p>Classifying it {@code BUNDLED_EXTERNAL} exempts it by <i>category</i>
- * rather than by exception, which is the honest description of what it is.</p>
+ * <p>Because it is a <b>rendering leaf</b>: an opaque WebGL surface with a
+ * single mount point. DomOpsParty's value is composition, and nothing outside a
+ * chart ever addresses its geometry by name. The same reasoning applies to any
+ * charting library one might swap in — D3, ECharts, Plotly — none of which
+ * would ever call {@code branch.createElement}, so a rule demanding it would be
+ * unenforceable in principle rather than merely inconvenient here.</p>
+ *
+ * <p>{@code BundledExternalModule} is the mechanism that expresses this:
+ * {@code ModuleClassifier} maps it to {@code BUNDLED_EXTERNAL}, whose rule set
+ * is empty. Note the mechanism is named for the common case (third-party code)
+ * while the justification here is the leaf boundary — the code being ours does
+ * not change the argument, and would not have earned the exemption on its
+ * own.</p>
  *
  * <h2>The cleanup contract</h2>
  *
@@ -47,11 +55,15 @@ public record VolSurfaceLib() implements BundledExternalModule<VolSurfaceLib> {
 
     public static final VolSurfaceLib INSTANCE = new VolSurfaceLib();
 
-    @Override public String sourceUrl()    { return "vendored: js-demos/VolSurface (colormap + scene-helpers + surface-controls + vol-surface)"; }
+    /**
+     * Provenance, not a sync source. Nothing fetches from here; the bundle in
+     * {@link #resourcePath()} is maintained directly and has already diverged.
+     */
+    @Override public String sourceUrl()    { return "seeded from js-demos/VolSurface; maintained here"; }
     @Override public String resourcePath() { return "lib/volsurface@1.0.0/vol-surface.module.js"; }
     @Override public String sha512()       {
-        return "5f7b8b83835c01548491ad23b004ee30f7fb56b5f1e476529e9d8e7cbf821b48"
-             + "c5edda08229dfbd0430ec672b5f7cf838e562b820200d982974b436e66619868";
+        return "d4d6f2e303eed13faf2ea414f210e3f86a23b65187cf55d11673f33c465e570c"
+             + "4dffb98451064b8e6b7f63d8102a06b94136c15a4f9ff2bfe9cbb140922e04d1";
     }
 
     /** {@code new VolSurface(container, { THREE })} — the renderer itself. */
