@@ -50,8 +50,8 @@ public record VolSurfaceLib() implements BundledExternalModule<VolSurfaceLib> {
     @Override public String sourceUrl()    { return "vendored: js-demos/VolSurface (colormap + scene-helpers + surface-controls + vol-surface)"; }
     @Override public String resourcePath() { return "lib/volsurface@1.0.0/vol-surface.module.js"; }
     @Override public String sha512()       {
-        return "bfc18a648aac1494113336cfb1d65a7fc35b4bc8bcccb5bb7bd8f0f8e613a4cc"
-             + "2383d5136d080d0b46644cc9fc4863055c92337553ba1e91cf719c6bbab99c9b";
+        return "5f7b8b83835c01548491ad23b004ee30f7fb56b5f1e476529e9d8e7cbf821b48"
+             + "c5edda08229dfbd0430ec672b5f7cf838e562b820200d982974b436e66619868";
     }
 
     /** {@code new VolSurface(container, { THREE })} — the renderer itself. */

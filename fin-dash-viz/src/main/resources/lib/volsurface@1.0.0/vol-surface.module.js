@@ -375,6 +375,31 @@ export class VolSurface {
     if (this._wireframeMesh) this._wireframeMesh.visible = enabled;
   }
 
+  /**
+   * LOCAL ADDITION (not in the upstream js-demos/VolSurface).
+   *
+   * Upstream measures the container once in the constructor and never again,
+   * which is fine for the fixed-size <div> in its own demo but wrong inside a
+   * dockable pane. Without this, the only way to follow a resize is to destroy
+   * and reconstruct — and reconstruction runs _init(), which builds a NEW
+   * WebGLRenderer: a fresh GL context, shader compilation, buffer allocation.
+   * That is far too expensive to run at any interactive rate.
+   *
+   * This is the operation Three.js actually intends for a resize. It touches
+   * no geometry and creates no context, so it is cheap enough to drive
+   * straight from a resize observer.
+   *
+   * @param {number} width
+   * @param {number} height
+   */
+  resize(width, height) {
+    if (!(width > 0 && height > 0)) return;
+    if (!this._renderer || !this._camera) return;
+    this._renderer.setSize(width, height);
+    this._camera.aspect = width / height;
+    this._camera.updateProjectionMatrix();
+  }
+
   on(event, handler) {
     if (this._handlers[event]) this._handlers[event].push(handler);
   }
