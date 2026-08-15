@@ -25,6 +25,7 @@ import hue.captains.singapura.js.homing.findash.ontology.OntologyCrate;
 import hue.captains.singapura.js.homing.findash.middleoffice.MiddleOfficeCrate;
 import hue.captains.singapura.js.homing.findash.platform.PlatformCrate;
 import hue.captains.singapura.js.homing.findash.quant.QuantCrate;
+import hue.captains.singapura.js.homing.findash.viz.FinDashVizCrate;
 import hue.captains.singapura.js.homing.findash.risk.RiskCrate;
 import hue.captains.singapura.js.homing.findash.sales.SalesCrate;
 import hue.captains.singapura.js.homing.findash.summary.SummaryCrate;
@@ -59,6 +60,7 @@ public final class FinDashConformance {
     public static final List<Crate> TOP_LEVEL = List.of(
             FinDashCoreCrate.INSTANCE,
             BookCrate.INSTANCE,
+            FinDashVizCrate.INSTANCE,
             TraderCrate.INSTANCE,
             ETradingCrate.INSTANCE,
             SalesCrate.INSTANCE,

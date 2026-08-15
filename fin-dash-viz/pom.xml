@@ -10,11 +10,10 @@
         <version>LOCAL-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fin-dash-trader</artifactId>
+    <artifactId>fin-dash-viz</artifactId>
 
-    <name>fin-dash-trader</name>
-    <description>Trader / market-maker workspace (kind "trader"): Pricer W1, Surface
-        Manager W2, Position &amp; Risk Blotter W4. One crate: TraderCrate.</description>
+    <name>fin-dash-viz</name>
+    <description>Heavyweight visualisation: the 3D implied-vol surface. Isolated in its own module so the ~600KB Three.js bundle stays out of fin-dash-core, which every workspace depends on. One crate: FinDashVizCrate.</description>
 
     <dependencies>
         <dependency>
@@ -24,18 +23,6 @@
         <dependency>
             <groupId>io.github.captainssingapura-hue.homing.findash</groupId>
             <artifactId>fin-dash-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.github.captainssingapura-hue.homing.findash</groupId>
-            <artifactId>fin-dash-book</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <!-- The 3D vol surface. Heavy (Three.js), so it lives in its own module
-             and only the workspaces that actually show it take the dependency. -->
-        <dependency>
-            <groupId>io.github.captainssingapura-hue.homing.findash</groupId>
-            <artifactId>fin-dash-viz</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

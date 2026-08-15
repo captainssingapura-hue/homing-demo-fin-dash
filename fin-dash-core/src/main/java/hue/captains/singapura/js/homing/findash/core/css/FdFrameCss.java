@@ -139,6 +139,26 @@ public record FdFrameCss() implements CssGroup<FdFrameCss> {
         @Override public String body() { return "overflow: auto;\n"; }
     }
 
+    /**
+     * Mount point for a rendering leaf — a WebGL canvas, a charting library's
+     * subtree. {@code position: relative} is required by anything that absolutely
+     * positions a tooltip or legend against its own container, which most
+     * charting libraries do.
+     *
+     * <p>The element carrying this class is <b>branch-owned</b>; the library's
+     * DOM lives inside it and is detached with it on dissolve. That containment
+     * is what makes exempting the library from the DOM rules safe.</p>
+     */
+    public record fd_render_target() implements CssClass<FdFrameCss> {
+        @Override public String body() { return """
+                position: relative;
+                width: 100%;
+                min-height: 360px;
+                flex: 1;
+                """;
+        }
+    }
+
     /** Label/value pairs in columns — the greeks block, fact tables. */
     public record fd_grid_pairs() implements CssClass<FdFrameCss> {
         @Override public String body() { return """
@@ -174,6 +194,7 @@ public record FdFrameCss() implements CssGroup<FdFrameCss> {
                 new fd_section(),
                 new fd_hidden(),
                 new fd_scroll(),
+                new fd_render_target(),
                 new fd_grid_pairs(),
                 new fd_split_row());
     }
