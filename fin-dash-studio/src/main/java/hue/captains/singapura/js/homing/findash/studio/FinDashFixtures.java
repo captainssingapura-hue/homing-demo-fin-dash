@@ -11,6 +11,7 @@ import hue.captains.singapura.js.homing.findash.book.data.PortfoliosGetAction;
 import hue.captains.singapura.js.homing.findash.core.theme.FinDashThemes;
 import hue.captains.singapura.js.homing.server.ThemeRegistry;
 import hue.captains.singapura.js.homing.findash.book.data.PositionsGetAction;
+import hue.captains.singapura.js.homing.findash.book.data.TradeLifecycleGetAction;
 import hue.captains.singapura.js.homing.findash.book.data.TradesGetAction;
 import hue.captains.singapura.js.homing.findash.ipv.data.PnlGetAction;
 import hue.captains.singapura.js.homing.findash.middleoffice.data.LifecycleGetAction;
@@ -143,6 +144,8 @@ public record FinDashFixtures(Umbrella<FinDashStudio> umbrella, List<Crate> topL
         actions.put("/fx/portfolios", new PortfoliosGetAction());
         actions.put("/fx/positions", new PositionsGetAction());
         actions.put("/fx/trades", new TradesGetAction());
+        // One trade's simulated post-execution life; seeded from the trade itself.
+        actions.put("/fx/trade-lifecycle", new TradeLifecycleGetAction());
         // The ontology catalogue — the demo's own data model, browsable.
         actions.put("/fx/data-types", new DataTypesGetAction());
         return Map.copyOf(actions);
