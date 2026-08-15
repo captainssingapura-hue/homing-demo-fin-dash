@@ -31,7 +31,9 @@ var fdk = {
     el: function (branch, name, tag, klass, text) {
         var d = branch.createElement(name, tag);
         if (klass) {
-            if (klass.length !== undefined) css.setClass.apply(null, [d].concat(klass));
+            // Array.isArray, not `.length !== undefined` — a string has a length
+            // too, and would be spread one character per class.
+            if (Array.isArray(klass)) css.setClass.apply(null, [d].concat(klass));
             else css.setClass(d, klass);
         }
         if (text != null) d.textContent = text;

@@ -40,6 +40,7 @@ public final class PnlExplainWidget
         return List.of(new ModuleImports<>(
                 List.of(new FinDashKitModule.fdk()), FinDashKitModule.INSTANCE),
                 new ModuleImports<>(List.of(
+                        new FdFrameCss.fd_hidden(),
                         new FdFrameCss.fd_section(),
                         new FdFrameCss.fd_split_row(),
                         new FdFrameCss.fd_cluster(),
@@ -51,6 +52,7 @@ public final class PnlExplainWidget
                         new FdStatusCss.fd_error_text()),
                         FdStatusCss.INSTANCE),
                 new ModuleImports<>(List.of(
+                        new FdTextCss.fd_strongest(),
                         new FdTextCss.fd_dense(),
                         new FdTextCss.fd_display(),
                         new FdTextCss.fd_muted(),
@@ -92,8 +94,10 @@ public final class PnlExplainWidget
             "    root.appendChild(marks);",
             "",
             "    function termRow(rk, t, tol) {",
-            "        var row = fdk.el(branch, 'row-1-' + rk, 'div', [fd_split_row, fd_rule, fd_dense]",
-            "            + (t.emphasis ? 'font-weight:700;' : ''));",
+            "        var row = fdk.el(branch, 'row-1-' + rk, 'div', [fd_split_row, fd_rule, fd_dense]);",
+            "        // The unexplained term is the one that starts an argument, so it",
+            "        // carries weight rather than blending into the attribution list.",
+            "        if (t.emphasis) css.addClass(row, fd_strongest);",
             "        row.appendChild(fdk.el(branch, 'txt-1-' + rk, 'span', null, t.term",
             "            + (t.emphasis ? '  (tol ' + tol + ')' : '')));",
             "        var amt = fdk.el(branch, 'slot-3-' + rk, 'span', null, t.amount);",
