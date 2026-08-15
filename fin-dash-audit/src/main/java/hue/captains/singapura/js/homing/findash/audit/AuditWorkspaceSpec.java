@@ -3,6 +3,7 @@ package hue.captains.singapura.js.homing.findash.audit;
 import hue.captains.singapura.js.homing.findash.book.PortfolioTreeWidget;
 import hue.captains.singapura.js.homing.findash.book.TradeBlotterWidget;
 import hue.captains.singapura.js.homing.findash.core.bus.DeskSecretaryModule;
+import hue.captains.singapura.js.homing.findash.core.bus.TradeSecretaryModule;
 import hue.captains.singapura.js.homing.studio.workspace.NavigatorSecretaryModule;
 import hue.captains.singapura.js.homing.workspace.WidgetEntry;
 import hue.captains.singapura.js.homing.workspace.WidgetGroup;
@@ -58,6 +59,9 @@ public final class AuditWorkspaceSpec implements WorkspaceSpec {
                      .build(),
             PartyDecl.of("desk", DeskSecretaryModule.INSTANCE, "DeskSecretary")
                      .exposedAs("deskParty")
+                     .build(),
+            PartyDecl.of("trade", TradeSecretaryModule.INSTANCE, "TradeSecretary")
+                     .exposedAs("tradeParty")
                      .build()
         );
     }

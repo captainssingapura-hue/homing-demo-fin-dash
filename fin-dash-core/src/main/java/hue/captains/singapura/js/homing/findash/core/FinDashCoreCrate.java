@@ -4,6 +4,7 @@ import hue.captains.singapura.js.homing.core.Crate;
 import hue.captains.singapura.js.homing.core.CrateEntry;
 import hue.captains.singapura.js.homing.core.StandardJsModuleType;
 import hue.captains.singapura.js.homing.findash.core.bus.DeskSecretaryModule;
+import hue.captains.singapura.js.homing.findash.core.bus.TradeSecretaryModule;
 import hue.captains.singapura.js.homing.findash.core.conformance.RiskModuleType;
 import hue.captains.singapura.js.homing.findash.core.css.FdChartCss;
 import hue.captains.singapura.js.homing.findash.core.css.FdControlCss;
@@ -75,8 +76,12 @@ public final class FinDashCoreCrate implements Crate {
                 CrateEntry.of(FdControlCss.INSTANCE),
                 CrateEntry.of(FdDataCss.INSTANCE),
                 CrateEntry.of(FdChartCss.INSTANCE),
-                // The desk selection bus — headless, held to the SECRETARY (no-DOM) set:
+                // The two selection buses — headless, held to the SECRETARY (no-DOM)
+                // set. desk carries scope (portfolio / instrument / scenario),
+                // trade carries the entity (one trade). See TradeSecretaryModule
+                // for why that is two buses and not one.
                 CrateEntry.of(DeskSecretaryModule.INSTANCE, StandardJsModuleType.SECRETARY),
+                CrateEntry.of(TradeSecretaryModule.INSTANCE, StandardJsModuleType.SECRETARY),
                 // The downstream extension type, made visible in the studio:
                 CrateEntry.of(VarModel.INSTANCE, RiskModuleType.RISK_MODEL));
     }
