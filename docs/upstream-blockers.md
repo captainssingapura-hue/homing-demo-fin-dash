@@ -77,20 +77,66 @@ through `--color-*` tokens.
 
 ---
 
-## Related, previously raised
+## 3. `SplitPaneModule` hardcodes its divider colour
 
-`SplitPaneModule` hardcodes its divider colour —
-`.hsp-divider{…background:rgba(0,0,0,0.08)…}` at line 57 and `rgba(0,0,0,0.22)`
-on hover at line 60. Same class of problem: a framework primitive whose colour
-no theme can reach. This repo currently works around it by overriding
-`.hsp-divider` from its own theme, which is exactly the kind of reach into
-framework internals that a `no-foreign-selector` rule ought to forbid.
+**Severity: low effort, high annoyance.** Previously raised; now with evidence
+that makes the fix obvious rather than a judgement call.
 
-**The pattern.** All three are framework primitives that style themselves
-inline while the rule set requires consumers not to. Worth a sweep of the
-primitives rather than three point fixes — the consumer-side discipline is now
-proven achievable at scale (39 widgets, ~576 style fragments, zero left), so
-the same standard is reasonable to hold the framework's own view code to.
+`.hsp-divider{…background:rgba(0,0,0,0.08)…}` at line 57, `rgba(0,0,0,0.22)` on
+hover at line 60, injected via a `<style>` element the module builds itself. No
+theme can reach either value. This repo works around it by overriding
+`.hsp-divider` from its own theme — precisely the reach into framework
+internals a `no-foreign-selector` rule ought to forbid.
+
+**It is the only module in its own package that does this.** Its sibling
+`MultiTabPaneModule` injects a `<style>` block the same way and is entirely
+token-based:
+
+```css
+.hmtp-leaf   { background: var(--color-surface); color: var(--color-text-primary); }
+.hmtp-strip  { background: var(--color-surface-raised);
+               border-bottom: 1px solid var(--color-border); }
+.hmtp-chip   { color: var(--color-text-muted); }
+```
+
+So this is not a missing convention — it is one module out of step with the
+convention its neighbour already follows. The minimal fix is two substitutions:
+`rgba(0,0,0,0.08)` → `var(--color-border)`, `rgba(0,0,0,0.22)` →
+`var(--color-border-emphasis)`. That alone retires this repo's `.hsp-divider`
+override.
+
+### A stronger option, with a working reference
+
+`js-demos/split_pane/SplitPane.js` — the standalone original the framework
+module derives from — does not own its dividers at all. They are **injected by
+the caller** (`opts.dividers.vertical`, `opts.dividers.horizontal`); the library
+only measures them (`offsetWidth`) and binds drag behaviour, toggling an
+`sp-active` class. Measured against the framework copy:
+
+| | demo `SplitPane.js` | framework `SplitPaneModule.js` |
+|---|---|---|
+| `createElement` calls | **0** | creates dividers (lines 269, 438) |
+| colour literals | **0** | 2, injected via `<style>` |
+| divider ownership | caller supplies | library owns and styles |
+
+The framework version **regressed** from that design when it took over divider
+creation. Restoring caller-injected dividers removes the whole class of problem
+rather than recolouring it — the consumer supplies an element it already styles
+through its own CssGroup, and the library never has an opinion about colour.
+
+More invasive than the two substitutions, so worth treating as the follow-up
+rather than the immediate fix; recorded here because the reference
+implementation exists and works.
+
+**The pattern.** All three are framework primitives that style themselves while
+the rule set requires consumers not to. Worth a sweep of the primitives rather
+than three point fixes — the consumer-side discipline is now proven achievable
+at scale (39 widgets, ~576 style fragments, zero left), so the same standard is
+reasonable to hold the framework's own view code to.
+
+Note that the sweep is smaller than it looks: `MultiTabPaneModule` already
+passes, and `SplitPaneModule` needs two substitutions to join it. The real work
+is `TreeRendererModule` (10 sites) and the SVG factory.
 
 ---
 
