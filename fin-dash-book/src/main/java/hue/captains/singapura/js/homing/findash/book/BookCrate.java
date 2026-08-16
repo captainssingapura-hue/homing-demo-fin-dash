@@ -34,6 +34,7 @@ public final class BookCrate implements Crate {
         return List.of(
                 CrateEntry.of(PortfolioWidget.INSTANCE),
                 CrateEntry.of(TradeBlotterWidget.INSTANCE),
+                CrateEntry.of(TradeRowModule.INSTANCE),
                 CrateEntry.of(PortfolioTreeWidget.INSTANCE));
     }
 }

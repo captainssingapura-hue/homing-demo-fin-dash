@@ -8,7 +8,12 @@
 //
 // Message kinds:
 //   InstrumentSelected { instrument: { pair, tenor?, ref? } }
-//       -> broadcast InstrumentChanged (same payload) to all members
+//       -> broadcast InstrumentChanged { instrument, by } to all members.
+//          `by` is the actor that made the selection. A member that both
+//          publishes and follows a selection needs it to tell a genuine
+//          change from the echo of its own: the trade blotter publishes the
+//          pair of the trade you picked and also narrows to a pair picked
+//          elsewhere, and without `by` the second would undo the first.
 //   PortfolioSelected { portfolio: { id, label, leafIds: [..] } }
 //       -> broadcast PortfolioChanged to all members. The tree resolves a
 //          node at ANY level to its leaf-portfolio ids before publishing,
@@ -48,7 +53,8 @@ var DeskSecretary = {
                     },
                     actions: [{
                         kind:    "BroadcastToMembers",
-                        message: { kind: "InstrumentChanged", instrument: msg.instrument }
+                        message: { kind: "InstrumentChanged", instrument: msg.instrument,
+                                   by: envelope.from }
                     }]
                 };
             }
@@ -106,7 +112,8 @@ var DeskSecretary = {
                     actions: [{
                         kind:    "SendToMember",
                         to:      envelope.from,
-                        message: { kind: "InstrumentChanged", instrument: state.instrument }
+                        message: { kind: "InstrumentChanged", instrument: state.instrument,
+                                   by: state.lastChangedBy }
                     }]
                 };
             }
