@@ -1,0 +1,22 @@
+# RFC 0044 conformance baseline — homing-demo-fin-dash.
+# Grandfathered violations. Anything NOT here (or allowlisted) is a NEW
+# violation and fails the build. This list may only shrink.
+#
+# The typed-CSS migration is COMPLETE: every widget and kit module now
+# builds branch-owned elements and styles through the CssGroups in
+# findash.core.css. What remains is a single upstream gap —
+# SmileChartModule cannot be made conformant downstream, because
+# branch.createElement has no namespace support while
+# UseDomOpsPartyRule forbids document.createElementNS, so conformant
+# code cannot create SVG at all. These clear when core adds
+# branch.createElementNS; FdChartCss is already written and waiting.
+#
+#   1 x no-inline-style
+#   3 x no-literal-color
+#   1 x use-dom-ops-party
+#
+hue.captains.singapura.js.homing.findash.core.kit.SmileChartModule [no-inline-style] inline style write (use a typed css class via css.addClass, not element.style): svg.style.cssText = 'display:block;background:' + SURF + ';border:1px solid ' + GRID
+hue.captains.singapura.js.homing.findash.core.kit.SmileChartModule [no-literal-color] literal colour (use a theme token var(--...), not a baked hex/rgb): SURF = '#fcfcfb', INK = '#52514e', WARN = '#9a6b1f';
+hue.captains.singapura.js.homing.findash.core.kit.SmileChartModule [no-literal-color] literal colour (use a theme token var(--...), not a baked hex/rgb): fill: overridden ? '#fab219' : INK, stroke: SURF, 'stroke-width': 2 }));
+hue.captains.singapura.js.homing.findash.core.kit.SmileChartModule [no-literal-color] literal colour (use a theme token var(--...), not a baked hex/rgb): var BLUE = '#2a78d6', MUTED = '#898781', GRID = '#e1e0d9',
+hue.captains.singapura.js.homing.findash.core.kit.SmileChartModule [use-dom-ops-party] raw DOM factory (use branch.createElement via the DomOpsParty, not document.create*): var e = document.createElementNS(NS, tag);

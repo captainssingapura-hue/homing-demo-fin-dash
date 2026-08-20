@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.github.captainssingapura-hue.homing.findash</groupId>
+        <artifactId>homing-demo-fin-dash</artifactId>
+        <version>LOCAL-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>fin-dash-book</artifactId>
+
+    <name>fin-dash-book</name>
+    <description>The shared book widgets — the two anchor "driving" widgets used across
+        workspaces: the Portfolio view (position level) and the Trade Blotter (trade
+        journal with amendment history). The middle rungs of the universal drill chain
+        (aggregate → position → trade → explain). One crate: BookCrate.</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.github.captainssingapura-hue.homing.js</groupId>
+            <artifactId>homing-studio-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.captainssingapura-hue.homing.findash</groupId>
+            <artifactId>fin-dash-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+</project>

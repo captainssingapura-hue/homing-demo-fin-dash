@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.github.captainssingapura-hue.homing.findash</groupId>
+        <artifactId>homing-demo-fin-dash</artifactId>
+        <version>LOCAL-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>fin-dash-quant</artifactId>
+
+    <name>fin-dash-quant</name>
+    <description>Quant / methodology workspace (kind "quant"): calibration lab, replay lab, champion/challenger. One crate: QuantCrate.</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.github.captainssingapura-hue.homing.js</groupId>
+            <artifactId>homing-studio-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.captainssingapura-hue.homing.findash</groupId>
+            <artifactId>fin-dash-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+</project>

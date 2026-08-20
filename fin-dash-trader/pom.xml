@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.github.captainssingapura-hue.homing.findash</groupId>
+        <artifactId>homing-demo-fin-dash</artifactId>
+        <version>LOCAL-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>fin-dash-trader</artifactId>
+
+    <name>fin-dash-trader</name>
+    <description>Trader / market-maker workspace (kind "trader"): Pricer W1, Surface
+        Manager W2, Position &amp; Risk Blotter W4. One crate: TraderCrate.</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.github.captainssingapura-hue.homing.js</groupId>
+            <artifactId>homing-studio-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.captainssingapura-hue.homing.findash</groupId>
+            <artifactId>fin-dash-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.captainssingapura-hue.homing.findash</groupId>
+            <artifactId>fin-dash-book</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- The 3D vol surface. Heavy (Three.js), so it lives in its own module
+             and only the workspaces that actually show it take the dependency. -->
+        <dependency>
+            <groupId>io.github.captainssingapura-hue.homing.findash</groupId>
+            <artifactId>fin-dash-viz</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+</project>

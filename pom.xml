@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.github.captainssingapura-hue.homing.findash</groupId>
+    <artifactId>homing-demo-fin-dash</artifactId>
+    <version>LOCAL-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>homing-demo-fin-dash</name>
+    <description>FX options risk-management demo on the homing workspace, with RFC 0044 conformance.
+        Multi-module: one Maven module (one Crate, one workspace kind) per human actor in the
+        UI Requirements Study, plus fin-dash-core (shared primitives + headless models) and
+        fin-dash-studio (the umbrella server + conformance gate/studio).</description>
+
+    <properties>
+        <maven.compiler.release>21</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- The homing framework version. A published release; RFC 0044 conformance
+             ships from 0.7.0 onwards. Set to LOCAL-SNAPSHOT to build against the
+             framework working tree instead (run `mvn -o install` in homing-ssjs-core
+             first) — needed when validating an unreleased core change downstream. -->
+        <homing.core.version>0.7.0</homing.core.version>
+        <junit.version>5.11.3</junit.version>
+        <jontology.version>0.0.1</jontology.version>
+    </properties>
+
+    <modules>
+        <module>fin-dash-core</module>
+        <module>fin-dash-data</module>
+        <module>fin-dash-ontology</module>
+        <module>fin-dash-book</module>
+        <module>fin-dash-viz</module>
+        <module>fin-dash-trader</module>
+        <module>fin-dash-etrading</module>
+        <module>fin-dash-sales</module>
+        <module>fin-dash-marketdata</module>
+        <module>fin-dash-quant</module>
+        <module>fin-dash-risk</module>
+        <module>fin-dash-governance</module>
+        <module>fin-dash-middleoffice</module>
+        <module>fin-dash-ipv</module>
+        <module>fin-dash-platform</module>
+        <module>fin-dash-audit</module>
+        <module>fin-dash-summary</module>
+        <module>fin-dash-studio</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.github.captainssingapura-hue.homing.js</groupId>
+                <artifactId>homing-studio-starter</artifactId>
+                <version>${homing.core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.captainssingapura-hue.homing.js</groupId>
+                <artifactId>homing-conformance-rules</artifactId>
+                <version>${homing.core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.captainssingapura-hue.homing.js</groupId>
+                <artifactId>homing-conformance-studio</artifactId>
+                <version>${homing.core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.2.5</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>3.5.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+</project>

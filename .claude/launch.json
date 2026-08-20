@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "fx-options-desk",
+      "runtimeExecutable": "mvn",
+      "runtimeArgs": [
+        "-o",
+        "-pl",
+        "fin-dash-studio",
+        "exec:java",
+        "-Dexec.mainClass=hue.captains.singapura.js.homing.findash.studio.FinDashServer"
+      ],
+      "port": 8100
+    },
+    {
+      "name": "conformance-studio",
+      "runtimeExecutable": "mvn",
+      "runtimeArgs": [
+        "-o",
+        "-pl",
+        "fin-dash-studio",
+        "exec:java",
+        "-Dexec.mainClass=hue.captains.singapura.js.homing.findash.studio.conformance.FinDashConformanceStudioServer"
+      ],
+      "port": 8101
+    }
+  ]
+}

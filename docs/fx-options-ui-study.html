@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FX Options Stack — UI Requirements Study</title>
+<style>
+  :root {
+    --ink: #1a2332;
+    --ink-soft: #4a5568;
+    --ink-faint: #8494a8;
+    --paper: #fdfdfc;
+    --panel: #f4f6f8;
+    --line: #dde3ea;
+    --accent: #1f5f8b;
+    --accent-soft: #e8f1f7;
+    --warn: #9a6b1f;
+    --warn-soft: #faf3e3;
+    --mono: "SF Mono", "Cascadia Code", Consolas, "Liberation Mono", monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 15.5px;
+    line-height: 1.65;
+  }
+  .page { max-width: 980px; margin: 0 auto; padding: 48px 32px 96px; }
+  h1 { font-size: 30px; line-height: 1.25; margin: 0 0 6px; letter-spacing: -0.5px; }
+  .subtitle { color: var(--ink-soft); font-size: 16px; margin-bottom: 4px; }
+  .meta { color: var(--ink-faint); font-size: 13px; margin-bottom: 36px; }
+  h2 {
+    font-size: 21px; margin: 48px 0 12px; padding-top: 20px;
+    border-top: 1px solid var(--line); letter-spacing: -0.3px;
+  }
+  h2 .num { color: var(--accent); margin-right: 8px; font-variant-numeric: tabular-nums; }
+  h3 { font-size: 16.5px; margin: 26px 0 8px; }
+  h3 .persona-tag {
+    display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: 0.4px;
+    color: var(--accent); background: var(--accent-soft);
+    border-radius: 999px; padding: 2px 9px; margin-left: 10px; vertical-align: 2px;
+  }
+  p { margin: 0 0 14px; }
+  strong { font-weight: 600; }
+  code {
+    font-family: var(--mono); font-size: 0.86em;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 4px; padding: 1px 5px;
+  }
+  table { border-collapse: collapse; width: 100%; margin: 14px 0 20px; font-size: 13.5px; }
+  th, td { border: 1px solid var(--line); padding: 7px 11px; text-align: left; vertical-align: top; }
+  th { background: var(--panel); font-weight: 600; }
+  .callout {
+    background: var(--accent-soft); border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 18px 0; font-size: 14.5px;
+  }
+  .wire {
+    background: #fff; border: 1px solid var(--line); border-radius: 10px;
+    padding: 16px; margin: 20px 0; overflow-x: auto;
+  }
+  .wire .caption {
+    color: var(--ink-faint); font-size: 13px; margin-top: 8px;
+    border-top: 1px dashed var(--line); padding-top: 8px;
+  }
+  .wire svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+  .toc {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+    padding: 18px 24px; font-size: 14px; columns: 2; column-gap: 40px;
+  }
+  .toc a { color: var(--accent); text-decoration: none; display: block; padding: 2.5px 0; }
+  .toc a:hover { text-decoration: underline; }
+  @media print { .page { max-width: none; padding: 0; } .wire { break-inside: avoid; } }
+  /* wireframe SVG vocabulary */
+  .wire svg { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wire svg text { white-space: pre; }
+  .wf-frame { fill: #ffffff; stroke: #b9c4d0; }
+  .wf-p { fill: #f4f6f8; stroke: #cfd8e2; }
+  .wf-w { fill: #ffffff; stroke: #cfd8e2; }
+  .wf-a { fill: #e8f1f7; stroke: #1f5f8b; }
+  .wf-warnb { fill: #faf3e3; stroke: #c9a04a; }
+  .wf-redb { fill: #f9ece9; stroke: #a8402a; }
+  .wf-meter { fill: #1f5f8b; }
+  .wf-meterw { fill: #c9a04a; }
+  text.t  { font-size: 11px; fill: #4a5568; }
+  text.th { font-size: 11px; fill: #1a2332; font-weight: 600; }
+  text.tt { font-size: 12.5px; fill: #1a2332; font-weight: 700; letter-spacing: 0.3px; }
+  text.tf { font-size: 9.5px; fill: #8494a8; }
+  text.ta { font-size: 10.5px; fill: #1f5f8b; font-weight: 600; }
+  text.tw { font-size: 10.5px; fill: #9a6b1f; font-weight: 600; }
+  text.tr { font-size: 10.5px; fill: #a8402a; font-weight: 600; }
+  text.big { font-size: 20px; fill: #1a2332; font-weight: 700; }
+  line.sep { stroke: #dde3ea; }
+  .wf-fit { fill: none; stroke: #1f5f8b; stroke-width: 1.6; }
+  .wf-dot { fill: #4a5568; }
+  .wf-dotr { fill: #a8402a; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>FX Options Stack — UI Requirements Study</h1>
+<div class="subtitle">Screens, workflows, and entitlements for every participant in the production system, organized by persona, with governance integral</div>
+<div class="meta">Draft v1 · August 2026 · Companion documents: <em>Live FX Options Pricing &amp; Risk Engine</em> · <em>Near Real-Time Ticking Multi-Curve Framework</em> · <em>On Configuration</em> (Papers I–II)</div>
+
+<div class="toc">
+  <a href="#principles">1. Cross-cutting UI principles</a>
+  <a href="#map">2. The participant map</a>
+  <a href="#trader">3. Trader / market-maker</a>
+  <a href="#etops">4. e-Trading supervisor</a>
+  <a href="#sales">5. Sales &amp; structuring</a>
+  <a href="#mdo">6. Market data operations</a>
+  <a href="#quant">7. Quant / methodology owner</a>
+  <a href="#risk">8. Market risk manager</a>
+  <a href="#mv">9. Model validation &amp; governance</a>
+  <a href="#mo">10. Middle office / trade support</a>
+  <a href="#pc">11. Product control / IPV</a>
+  <a href="#sre">12. Platform operations (SRE)</a>
+  <a href="#audit">13. Audit, compliance &amp; management</a>
+  <a href="#nfr">14. Non-functional requirements</a>
+  <a href="#build">15. Build order</a>
+</div>
+
+<h2 id="principles"><span class="num">1</span>Cross-cutting UI principles</h2>
+<p>Five principles apply to every screen in the stack; persona sections state only what is specific to them.</p>
+<p><strong>P1 — Every number can explain itself.</strong> Every displayed price, Greek, vol, or P&amp;L figure is stamped with its lineage — <code>MarketSlice</code>, surface epoch and sub-version, curve-set epoch, model name and version — reachable by hover or click. The engine's <em>explain</em> capability is a UI affordance, not a batch tool: "why is this number what it is" costs one gesture, everywhere. This single principle eliminates the largest category of production support traffic.</p>
+<p><strong>P2 — State is visible, and degraded state is loud.</strong> The quality flags that flow through the engine (degraded surface, stale forward, overridden pillar, tier disagreement, error-budget breach) render as a consistent visual language across all screens: same colors, same iconography, same semantics on a trader blotter as on an ops console. A number derived from flagged inputs inherits the flag visibly. Nothing degrades silently, and nothing shouts when healthy.</p>
+<p><strong>P3 — The rings are visible in the chrome.</strong> Every interactive control belongs to a ring, and the UI renders the difference structurally. Ring-3 operational actions (override, widen, pull, kill) are immediate but framed: entitlement-gated, reason-captured, auto-expiring, with the audit record shown as it is created. Ring-2 changes (pair definitions, model selection, tolerances) are never direct edits — the UI drives a promotion workflow: draft → semantic diff → golden-replay impact report → approvals → staged activation. Ring-1 items (models, strategies) surface read-only: name, version, link to documentation. A user can tell what kind of thing they are touching by how the control looks.</p>
+<p><strong>P4 — Time travel is universal.</strong> Every screen accepts an as-of: flip any blotter, surface view, or risk matrix to its exact state at 14:32:07 last Tuesday, reconstructed from journals and epochs. Incident review, dispute resolution, and audit all reduce to "open the screen, set the clock." Live mode is simply as-of = now, continuously advancing.</p>
+<p><strong>P5 — UIs are consumers, not calculators.</strong> No screen computes its own truth: every UI subscribes to the same epochs, slices, and journals as any other consumer. Two screens showing the same number at the same as-of show the same value, bit-for-bit, or one of them is wrong in a way the platform can detect. Screen-side computation is limited to presentation (sorting, bucketing for display, chart scaling).</p>
+
+<h2 id="map"><span class="num">2</span>The participant map</h2>
+<table>
+  <tr><th>Persona</th><th>Mission in one line</th><th>Primary surfaces</th><th>Ring writes</th><th>Cadence</th></tr>
+  <tr><td>Trader / market-maker</td><td>Run the book: price, mark, hedge</td><td>Pricer, surface manager, risk blotter</td><td>Ring 3 (marks, overrides)</td><td>Ticking</td></tr>
+  <tr><td>e-Trading supervisor</td><td>Keep auto-quoting safe and competitive</td><td>Quoting console, RFQ tape</td><td>Ring 3 (spreads, kills)</td><td>Ticking</td></tr>
+  <tr><td>Sales / structuring</td><td>Price for clients, capture margin</td><td>Client pricer, RFQ workflow</td><td>None (requests only)</td><td>Per-deal</td></tr>
+  <tr><td>Market data operations</td><td>Guarantee clean inputs</td><td>Feed health, quote quality, override inventory</td><td>Ring 3 (source switches)</td><td>Ticking</td></tr>
+  <tr><td>Quant / methodology</td><td>Own calibration quality and evolution</td><td>Calibration lab, replay lab, champion/challenger</td><td>Ring 2 (proposals)</td><td>Daily / per-change</td></tr>
+  <tr><td>Market risk manager</td><td>Independent view of exposures vs limits</td><td>Risk views, scenarios, limits</td><td>Limits (own system)</td><td>Intraday snapshots</td></tr>
+  <tr><td>Model validation</td><td>Approve what may price and mark</td><td>Model inventory, change console</td><td>Ring 2 (approvals)</td><td>Per-change</td></tr>
+  <tr><td>Middle office</td><td>Every trade correct through its lifecycle</td><td>Trade blotter, lifecycle events, breaks</td><td>Trade amendments (journaled)</td><td>Intraday</td></tr>
+  <tr><td>Product control / IPV</td><td>P&amp;L is right and marks are independent</td><td>P&amp;L explain, IPV workbench, marks sign-off</td><td>Official marks approval</td><td>Daily</td></tr>
+  <tr><td>Platform ops (SRE)</td><td>The system itself is healthy</td><td>System console, epochs, failover</td><td>Ring 3 (freeze, failover)</td><td>Ticking</td></tr>
+  <tr><td>Audit / compliance</td><td>Reconstruct and attest anything</td><td>Audit explorer (read-only, time-travel)</td><td>None</td><td>Ad hoc</td></tr>
+  <tr><td>Desk head / management</td><td>Situational awareness, escalation</td><td>Summary dashboard</td><td>Escalation approvals</td><td>Continuous glance</td></tr>
+</table>
+
+<h2 id="trader"><span class="num">3</span>Trader / market-maker<span class="persona-tag" style="display:none"></span></h2>
+<p><strong>Mission.</strong> Price incoming interest, keep the surface marked where the market is, and know the book's risk at all times. The trader's screens are the only ones where sub-second update latency is a hard requirement and keyboard-first operation is non-negotiable: a pricer that requires a mouse is a pricer that loses the trade.</p>
+<h3>Screen: Pricer / deal ticket</h3>
+<p>Single-instrument pricing with full first-gen coverage. Requirements: instrument entry in desk shorthand (typed, parsed, echoed back in full — <code>eurusd 3m 1.0850 ko 1.1200 10</code> should price without a mouse); live PV and Greeks off the current slice with the price ticking as the market moves; the model badge (P3: which named model, which version, per the selection matrix) and the slice stamp (P1) always visible; bid/offer construction shown decomposed — mid, spread, skew adjustment — never as an unexplained number; what-if panel with spot/vol/date bumps computed against the same contracts as risk, not a screen-side approximation (P5); one-keystroke booking into the trade journal with the priced slice attached, so the risk system and the eventual P&amp;L explain agree with what the trader saw at execution (wireframe W1).</p>
+<div class="wire">
+<svg viewBox="0 0 880 420" width="880" height="420">
+  <rect class="wf-frame" x="1" y="1" width="878" height="418" rx="8"/>
+  <rect class="wf-p" x="1" y="1" width="878" height="34" rx="8"/>
+  <text class="tt" x="16" y="23">PRICER — EURUSD</text>
+  <rect class="wf-a" x="560" y="8" width="196" height="20" rx="10"/>
+  <text class="ta" x="570" y="22">slice C204 · S513/87 · model VV-2.3</text>
+  <rect class="wf-w" x="766" y="8" width="100" height="20" rx="10"/>
+  <text class="tf" x="776" y="22">explain (P1) on hover</text>
+
+  <rect class="wf-p" x="16" y="48" width="296" height="352" rx="6"/>
+  <text class="th" x="28" y="68">Deal ticket</text>
+  <rect class="wf-w" x="28" y="78" width="272" height="24" rx="4"/>
+  <text class="t" x="36" y="94" style="font-family:monospace">eurusd 3m 1.0850 ko 1.1200 10</text>
+  <text class="tf" x="28" y="116">parsed ↓ (desk shorthand, keyboard-first)</text>
+  <text class="t" x="28" y="140">Type</text><text class="th" x="150" y="140">Barrier KO Call</text>
+  <text class="t" x="28" y="162">Strike / Barrier</text><text class="th" x="150" y="162">1.0850 / 1.1200</text>
+  <text class="t" x="28" y="184">Monitoring</text><text class="th" x="150" y="184">Continuous</text>
+  <text class="t" x="28" y="206">Expiry / Cut</text><text class="th" x="150" y="206">10-Nov-26 · NY 10am</text>
+  <text class="t" x="28" y="228">Notional</text><text class="th" x="150" y="228">EUR 10,000,000</text>
+  <text class="t" x="28" y="250">Direction</text><text class="th" x="150" y="250">Client buys</text>
+  <line class="sep" x1="28" y1="266" x2="300" y2="266"/>
+  <text class="tf" x="28" y="286">premium ccy · delta convention · ATM type</text>
+  <text class="tf" x="28" y="302">inherited from PairDef (Ring 2, read-only)</text>
+  <rect class="wf-a" x="28" y="356" width="130" height="28" rx="5"/>
+  <text class="ta" x="46" y="374">Book trade ⏎</text>
+  <text class="tf" x="170" y="374">journals with priced slice</text>
+
+  <rect class="wf-p" x="326" y="48" width="300" height="352" rx="6"/>
+  <text class="th" x="338" y="68">Price</text>
+  <text class="big" x="338" y="100">EUR 142,380</text>
+  <text class="t" x="338" y="120">1.4238 % EUR · vol used 7.85 (3M smile)</text>
+  <line class="sep" x1="338" y1="132" x2="612" y2="132"/>
+  <text class="t" x="338" y="152">bid 1.398</text><text class="t" x="430" y="152">offer 1.449</text>
+  <text class="tf" x="338" y="168">mid 1.4238 · spread ±0.020 · inventory skew +0.005</text>
+  <line class="sep" x1="338" y1="180" x2="612" y2="180"/>
+  <text class="th" x="338" y="200">Greeks</text>
+  <text class="t" x="338" y="222">Δ 34.2 % (spot, prem-adj)</text><text class="t" x="480" y="222">Γ 1.2 %/fig</text>
+  <text class="t" x="338" y="244">Vega EUR 12.4k</text><text class="t" x="480" y="244">Vanna −2.1k</text>
+  <text class="t" x="338" y="266">Volga 0.8k</text><text class="t" x="480" y="266">Θ −0.42k/day</text>
+  <text class="tf" x="338" y="290">provenance: analytic (VV-2.3) · ticks with market</text>
+  <line class="sep" x1="338" y1="304" x2="612" y2="304"/>
+  <text class="tf" x="338" y="324">barrier 3.5 figs away · KO band monitor: quiet</text>
+
+  <rect class="wf-p" x="640" y="48" width="224" height="352" rx="6"/>
+  <text class="th" x="652" y="68">What-if (same contracts as risk)</text>
+  <text class="tf" x="652" y="86">spot ladder × vol shift</text>
+  <text class="t" x="652" y="110">spot −1%</text><text class="t" x="760" y="110">PV 98.1k</text>
+  <text class="t" x="652" y="132">spot −0.5%</text><text class="t" x="760" y="132">PV 119.6k</text>
+  <text class="th" x="652" y="154">spot 0</text><text class="th" x="760" y="154">PV 142.4k</text>
+  <text class="t" x="652" y="176">spot +0.5%</text><text class="t" x="760" y="176">PV 161.0k</text>
+  <text class="t" x="652" y="198">spot +1%</text><text class="t" x="760" y="198">PV 168.2k ⚠KO</text>
+  <line class="sep" x1="652" y1="214" x2="852" y2="214"/>
+  <text class="t" x="652" y="236">vol +1.0 → 171.9k</text>
+  <text class="t" x="652" y="258">vol −1.0 → 112.6k</text>
+  <line class="sep" x1="652" y1="276" x2="852" y2="276"/>
+  <text class="tf" x="652" y="298">date roll · fwd bump · cross-greeks</text>
+  <text class="tf" x="652" y="314">on demand (batch path, stamped)</text>
+</svg>
+<div class="caption">W1 — Trader pricer. Shorthand-in, decomposed bid/offer, model badge and slice stamp always on, what-if computed by the same pricing contracts as risk. Booking journals the trade with the slice it was priced on.</div>
+</div>
+
+<h3>Screen: Surface manager</h3>
+<p>The desk's view of every pair's smile: fitted surface against raw market quotes per pillar, fit residuals, arb-gate status per tenor, and the re-anchor/recalibration state (which regime, per P2, is always visible). Ring-3 mark actions live here: override a pillar's ATM/RR/BF with mandatory reason, automatic expiry, and immediate downstream flag propagation — the trader sees, at entry time, the same override banner every consumer will see (wireframe W2). Event-vol editing (weights on identified dates) is Ring 3 with tight bounds; changing the event calendar itself is Ring 2 and routes to the promotion workflow. Requirements: side-by-side compare of any two epochs or any epoch vs live; per-pillar quote provenance (which sources, which composite weights); explicit display of what recalibration is waiting on when the surface is stale.</p>
+
+<div class="wire">
+<svg viewBox="0 0 880 440" width="880" height="440">
+  <rect class="wf-frame" x="1" y="1" width="878" height="438" rx="8"/>
+  <rect class="wf-p" x="1" y="1" width="878" height="34" rx="8"/>
+  <text class="tt" x="16" y="23">SURFACE MANAGER — EURUSD</text>
+  <rect class="wf-a" x="290" y="8" width="150" height="20" rx="10"/>
+  <text class="ta" x="300" y="22">epoch 513 · sub-v 87 (live)</text>
+  <text class="tf" x="460" y="22">tabs: EURUSD · USDJPY · EURJPY · +</text>
+  <rect class="wf-w" x="700" y="8" width="166" height="20" rx="10"/>
+  <text class="tf" x="710" y="22">compare: live ▾ vs epoch 512 ▾</text>
+
+  <rect class="wf-p" x="16" y="48" width="96" height="300" rx="6"/>
+  <text class="th" x="28" y="68">Tenors</text>
+  <text class="t" x="28" y="92">ON</text>
+  <text class="t" x="28" y="114">1W</text>
+  <rect class="wf-warnb" x="22" y="124" width="84" height="20" rx="4"/>
+  <text class="tw" x="28" y="138">1M ⚠ BF</text>
+  <text class="th" x="28" y="162">3M ◂</text>
+  <text class="t" x="28" y="184">6M</text>
+  <text class="t" x="28" y="206">1Y</text>
+  <text class="t" x="28" y="228">2Y</text>
+  <text class="tf" x="24" y="330">⚠ = gate/quality flag</text>
+
+  <rect class="wf-w" x="126" y="48" width="400" height="300" rx="6"/>
+  <text class="th" x="138" y="68">3M smile — fit vs market quotes</text>
+  <line class="sep" x1="150" y1="310" x2="500" y2="310"/>
+  <line class="sep" x1="150" y1="90" x2="150" y2="310"/>
+  <path class="wf-fit" d="M 155 130 C 230 200, 280 235, 330 232 C 385 228, 440 190, 495 140"/>
+  <circle class="wf-dot" cx="170" cy="138" r="3.5"/>
+  <circle class="wf-dot" cx="240" cy="205" r="3.5"/>
+  <circle class="wf-dot" cx="330" cy="233" r="3.5"/>
+  <circle class="wf-dotr" cx="420" cy="196" r="4.5"/>
+  <circle class="wf-dot" cx="480" cy="148" r="3.5"/>
+  <text class="tr" x="400" y="182">resid 0.42 &gt; tol</text>
+  <text class="tf" x="150" y="326">10ΔP · 25ΔP · ATM · 25ΔC · 10ΔC (delta space)</text>
+  <text class="tf" x="360" y="86">● market · — fit (SABR-3M v1.4)</text>
+
+  <rect class="wf-p" x="540" y="48" width="324" height="300" rx="6"/>
+  <text class="th" x="552" y="68">3M pillars</text>
+  <text class="tf" x="552" y="86">        Mkt      Fit      Ovr</text>
+  <text class="t" x="552" y="108">ATM   7.85    7.85     —</text>
+  <text class="t" x="552" y="130">RR25  −1.20  −1.18    —</text>
+  <text class="t" x="552" y="152">BF25  0.32    0.31     —</text>
+  <line class="sep" x1="552" y1="166" x2="850" y2="166"/>
+  <rect class="wf-a" x="552" y="178" width="298" height="112" rx="6"/>
+  <text class="ta" x="564" y="198">OVERRIDE — Ring 3 · audited · expiring</text>
+  <text class="t" x="564" y="220">RR25 → −1.10   reason: stale broker run ▾</text>
+  <text class="t" x="564" y="242">expires 17:00 SGT · flags 3 consumers</text>
+  <rect class="wf-w" x="564" y="254" width="86" height="24" rx="5"/>
+  <text class="ta" x="580" y="270">Apply ⏎</text>
+  <text class="tf" x="662" y="270">audit record shown on commit</text>
+  <text class="tf" x="552" y="312">quote provenance: 3 sources, composite 40/40/20</text>
+  <text class="tf" x="552" y="330">event vols: NFP 05-Sep w=2.1 · FOMC 17-Sep w=3.0</text>
+
+  <rect class="wf-p" x="16" y="362" width="848" height="42" rx="6"/>
+  <text class="t" x="28" y="388">Arb gates: butterfly ✓ · calendar ✓ · wings ✓ (margins in lab)</text>
+  <text class="t" x="360" y="388">anchor drift: 0.3 of band</text>
+  <rect class="wf-w" x="560" y="370" width="140" height="26" rx="5"/>
+  <text class="ta" x="572" y="387">Force recalibrate</text>
+  <text class="tf" x="712" y="387">Ring 3 · reason req'd</text>
+</svg>
+<div class="caption">W2 — Surface manager. Fit vs market with residual flags, per-pillar override entry that shows its audit consequence at entry time, arb-gate status, and the two-speed state (epoch + sub-version) always visible.</div>
+</div>
+<h3>Screen: Position &amp; risk blotter</h3>
+<p>The book, bucketed the way the desk thinks: by pair, then tenor bucket, with delta / gamma / smile-bucket vega (ATM, RR, BF per tenor) / vanna / volga / theta columns, drill-down to position level, and the two-speed machinery made honest (P2): each row shows its revaluation freshness — error-budget consumption as a small meter, last full reval time — so the trader knows which numbers are Taylor-tracked and which are freshly exact (wireframe W4). Barrier proximity is a first-class display: positions within a configured band of their trigger sort to the top with distance-to-level and the tightened budget state. Spot-ladder × vol matrix per pair on demand, computed by the batch path, stamped with its slice.</p>
+
+<div class="wire">
+<svg viewBox="0 0 880 430" width="880" height="430">
+  <rect class="wf-frame" x="1" y="1" width="878" height="428" rx="8"/>
+  <rect class="wf-p" x="1" y="1" width="878" height="34" rx="8"/>
+  <text class="tt" x="16" y="23">RISK — FXO BOOK</text>
+  <text class="tf" x="180" y="22">as-of: live ▾</text>
+  <rect class="wf-a" x="250" y="8" width="170" height="20" rx="10"/>
+  <text class="ta" x="260" y="22">reval wave 43% ▓▓▓▓░░░░░</text>
+  <text class="tf" x="440" y="22">Δ €+12.4M · Vega €486k · Θ −€38k · vega limit 61% ▓▓▓░░</text>
+
+  <rect class="wf-p" x="16" y="48" width="560" height="280" rx="6"/>
+  <text class="th" x="28" y="68">Book (pair ▸ tenor)</text>
+  <text class="tf" x="28" y="86">            Δ         vATM    vRR     vBF     Θ        freshness</text>
+  <text class="th" x="28" y="110">▼ EURUSD   +8.2M   212k   −38k   11k   −21k</text>
+  <rect class="wf-w" x="480" y="98" width="60" height="12" rx="3"/><rect class="wf-meter" x="480" y="98" width="18" height="12" rx="3"/>
+  <text class="tf" x="546" y="108">2s</text>
+  <text class="t" x="44" y="134">1W        +1.1M    18k     −2k     1k     −6k</text>
+  <text class="t" x="44" y="158">1M        +3.4M    92k    −21k    6k     −9k</text>
+  <text class="t" x="44" y="182">3M        +3.7M   102k   −15k    4k     −6k</text>
+  <rect class="wf-warnb" x="24" y="196" width="544" height="24" rx="4"/>
+  <text class="tw" x="28" y="212">▼ USDJPY   −2.1M   148k   +22k   9k   −11k    budget 92% — wave queued</text>
+  <text class="t" x="44" y="244">1M        −0.8M    61k    +9k     4k     −5k</text>
+  <text class="t" x="44" y="268">6M        −1.3M    87k   +13k    5k     −6k</text>
+  <text class="t" x="28" y="292">▶ EURJPY   +0.4M    41k    −6k     3k     −4k</text>
+  <text class="tf" x="28" y="316">drill: bucket → position → trade → pricing explain (P1)</text>
+
+  <rect class="wf-p" x="590" y="48" width="274" height="280" rx="6"/>
+  <text class="th" x="602" y="68">Barrier watch (sorted by proximity)</text>
+  <rect class="wf-redb" x="602" y="80" width="250" height="46" rx="5"/>
+  <text class="tr" x="612" y="98">USDJPY NT 152.00 — 12 pips</text>
+  <text class="tf" x="612" y="116">€40M notional · budget tightened ×8</text>
+  <rect class="wf-warnb" x="602" y="134" width="250" height="46" rx="5"/>
+  <text class="tw" x="612" y="152">EURUSD KO 1.1200 — 38 pips</text>
+  <text class="tf" x="612" y="170">€25M · gamma flips at level</text>
+  <rect class="wf-w" x="602" y="188" width="250" height="40" rx="5"/>
+  <text class="t" x="612" y="206">GBPUSD OT 1.3550 — 96 pips</text>
+  <text class="tf" x="612" y="222">€8M · quiet</text>
+  <text class="th" x="602" y="256">Expiry / pin clusters</text>
+  <text class="t" x="612" y="278">today NY cut: €120M vanillas</text>
+  <text class="tf" x="612" y="296">pin candidates: 1.0900 (€45M)</text>
+
+  <rect class="wf-p" x="16" y="342" width="848" height="66" rx="6"/>
+  <text class="th" x="28" y="362">EURUSD spot × vol matrix</text>
+  <text class="tf" x="240" y="362">slice C204 · S513 · batch path</text>
+  <text class="t" x="28" y="384">        −1%     −0.5%     0     +0.5%    +1%</text>
+  <text class="t" x="28" y="400">σ+1:  −41k   +102k  +148k  +121k   −86k ⚠KO</text>
+</svg>
+<div class="caption">W4 — Position &amp; risk blotter. Smile-bucket vega columns, per-row freshness meters exposing the Taylor/full-reval regime, barrier proximity as a first-class panel, and drill-through to any number's explain.</div>
+</div>
+
+<h2 id="etops"><span class="num">4</span>e-Trading supervisor</h2>
+<p><strong>Mission.</strong> Keep automatic quoting competitive when the world is normal and safe when it is not. This persona's UI is dominated by Ring-3 controls and by the mechanical couplings of decision D6: the console's job is to make the automatic behavior legible and the manual overrides immediate.</p>
+<h3>Screen: Quoting console</h3>
+<p>One row per pair (wireframe W3): streaming state (streaming / auto-widened / pulled, with the <em>reason</em> when automatic — "surface degraded", "forward stale"), current spread vs base, inventory skew direction, quote age, hit ratio and volume this session. Controls, all Ring 3 — entitled, reason-captured, expiring: widen by factor, pull pair, size cap, master kill. The master kill is deliberately prominent and deliberately unceremonious: it must be pressable in under a second at 3&nbsp;a.m. — ceremony is for the un-kill, which requires a reason and, above a duration threshold, a second pair of eyes. Requirements: every automatic state change (quality-flag-driven widening) appears in the same event stream as manual actions, so "why were we wide for 40 minutes" has a scrollable answer; RFQ tape with per-quote slice stamps and win/loss against the eventual print where known.</p>
+
+<div class="wire">
+<svg viewBox="0 0 880 400" width="880" height="400">
+  <rect class="wf-frame" x="1" y="1" width="878" height="398" rx="8"/>
+  <rect class="wf-p" x="1" y="1" width="878" height="34" rx="8"/>
+  <text class="tt" x="16" y="23">E-TRADING CONSOLE</text>
+  <text class="ta" x="200" y="22">master: STREAMING</text>
+  <rect class="wf-redb" x="740" y="6" width="126" height="24" rx="6"/>
+  <text class="tr" x="756" y="22">MASTER KILL ⏻</text>
+
+  <rect class="wf-warnb" x="16" y="44" width="600" height="26" rx="5"/>
+  <text class="tw" x="26" y="61">14:31:07 — USDJPY surface degraded (1M BF quarantined) → auto-widened ×2.0 · rule QW-3</text>
+
+  <rect class="wf-p" x="16" y="80" width="600" height="264" rx="6"/>
+  <text class="tf" x="28" y="100">Pair       State              Spread      Skew     Age     Hit%    Today       Actions</text>
+  <line class="sep" x1="24" y1="108" x2="606" y2="108"/>
+  <text class="t" x="28" y="130">EURUSD</text><text class="ta" x="100" y="130">streaming</text>
+  <text class="t" x="205" y="130">0.05</text><text class="t" x="268" y="130">+0.2Δ</text><text class="t" x="330" y="130">0.3s</text><text class="t" x="384" y="130">23%</text><text class="t" x="438" y="130">€340M</text>
+  <text class="tf" x="512" y="130">[widen][pull]</text>
+  <text class="t" x="28" y="158">USDJPY</text><text class="tw" x="100" y="158">auto-widened</text>
+  <text class="t" x="205" y="158">0.06→0.12</text><text class="t" x="268" y="158">−0.4Δ</text><text class="t" x="330" y="158">0.4s</text><text class="t" x="384" y="158">9%</text><text class="t" x="438" y="158">€185M</text>
+  <text class="tf" x="512" y="158">[widen][pull]</text>
+  <text class="t" x="28" y="186">EURJPY</text><text class="tr" x="100" y="186">pulled (manual)</text>
+  <text class="t" x="205" y="186">—</text><text class="t" x="330" y="186">412s</text><text class="t" x="438" y="186">€22M</text>
+  <text class="tf" x="512" y="186">[resume*]</text>
+  <text class="t" x="28" y="214">GBPUSD</text><text class="ta" x="100" y="214">streaming</text>
+  <text class="t" x="205" y="214">0.07</text><text class="t" x="268" y="214">0</text><text class="t" x="330" y="214">0.5s</text><text class="t" x="384" y="214">18%</text><text class="t" x="438" y="214">€96M</text>
+  <text class="tf" x="512" y="214">[widen][pull]</text>
+  <text class="t" x="28" y="242">AUDUSD</text><text class="ta" x="100" y="242">streaming</text>
+  <text class="t" x="205" y="242">0.08</text><text class="t" x="268" y="242">+0.1Δ</text><text class="t" x="330" y="242">0.7s</text><text class="t" x="384" y="242">21%</text><text class="t" x="438" y="242">€41M</text>
+  <text class="tf" x="512" y="242">[widen][pull]</text>
+  <line class="sep" x1="24" y1="256" x2="606" y2="256"/>
+  <text class="tf" x="28" y="278">* resume requires reason; &gt; 30 min pulled requires second approver (four-eyes)</text>
+  <text class="tf" x="28" y="296">all actions Ring 3: entitled · reason-captured · auto-expiring · journaled</text>
+  <text class="tf" x="28" y="314">automatic state changes appear in the same event stream as manual actions</text>
+
+  <rect class="wf-p" x="630" y="80" width="234" height="264" rx="6"/>
+  <text class="th" x="642" y="100">RFQ tape</text>
+  <rect class="wf-w" x="642" y="110" width="210" height="52" rx="5"/>
+  <text class="t" x="650" y="126">14:32:07 · bank client A</text>
+  <text class="tf" x="650" y="140">EURUSD 1M 25ΔP €25M</text>
+  <text class="ta" x="650" y="155">7.91 / 8.03 → WON · S513/87</text>
+  <rect class="wf-w" x="642" y="170" width="210" height="52" rx="5"/>
+  <text class="t" x="650" y="186">14:31:44 · platform RFQ</text>
+  <text class="tf" x="650" y="200">USDJPY 3M ATM $40M</text>
+  <text class="tw" x="650" y="215">wide (degraded) → LOST</text>
+  <rect class="wf-w" x="642" y="230" width="210" height="52" rx="5"/>
+  <text class="t" x="650" y="246">14:30:12 · bank client B</text>
+  <text class="tf" x="650" y="260">EURUSD 2W KO RKO €15M</text>
+  <text class="ta" x="650" y="275">quoted manual (desk) · WON</text>
+  <text class="tf" x="642" y="330">every quote stamped with its slice</text>
+</svg>
+<div class="caption">W3 — e-Trading console. Automatic quality-driven state changes are legible (state + reason + rule), kill is one gesture while un-kill carries ceremony, and the RFQ tape ties every quote to the slice that priced it.</div>
+</div>
+
+<h2 id="sales"><span class="num">5</span>Sales &amp; structuring</h2>
+<p><strong>Mission.</strong> Price and present to clients without being able to move the desk's marks. Sales sees prices, never mark inputs: the persona is read-only against the pricing core plus a workflow of its own. Requirements: client-terms pricer (premium in either currency, client-convention deltas, strategy packages priced as packages); sales margin entry on top of the desk price, with margin visible to the desk and to product control but not blended invisibly into "the price"; RFQ workflow — request to desk, desk response, client-facing presentation — with the full chain journaled; indicative vs firm state made explicit on every displayed price, with firm prices carrying expiry countdowns. Entitlement note: sales entitlements are the template for external-facing surfaces later (client portal), so the read-only projection of the pricing core is designed once, here.</p>
+
+<h2 id="mdo"><span class="num">6</span>Market data operations</h2>
+<p><strong>Mission.</strong> The inputs are clean, or the right people know they are not. This persona owns the layer that everything else depends on, and their console is the system's early-warning radar.</p>
+<h3>Screen: Feed &amp; quality console</h3>
+<p>Per-pair, per-quote-kind health grid (spot, forwards, each vol pillar × source): freshness against class tolerances, composite dispersion across sources, quarantine counts with reason codes, CIP-residual and triangulation monitors with trend sparklines (wireframe W5 shares the pattern). Ring-3 actions: demote/promote a source in a composite, force-quarantine an instrument, relax a staleness tolerance for a declared window (bounded, expiring — the illiquid-session case). Requirements: the override inventory — every live Ring-3 mark and data action across the whole stack, who, why, when it expires — lives here as a single queryable view, because scattered overrides that nobody can enumerate are how yesterday's judgment becomes next year's mystery; quarantine review queue with one-gesture release/extend; direct pivot from any alert to the affected downstream objects ("this stale forward feeds these three surfaces, these two are already degraded").</p>
+
+<h2 id="quant"><span class="num">7</span>Quant / methodology owner</h2>
+<p><strong>Mission.</strong> Know that calibration is healthy today and make it better tomorrow, without either activity endangering production. The quant's surfaces split cleanly along that line: diagnostics (read-only, live) and evolution (Ring-2 proposals, sandboxed).</p>
+<h3>Screen: Calibration lab</h3>
+<p>Fit diagnostics per pair per epoch: residuals by pillar, arb-gate margins (not just pass/fail — <em>how close</em>), solver iteration trends (the early-warning signal for a deteriorating regime), fast-path vs slow-path agreement over time, model basis (stream vs official model) by instrument class. Requirements: full history, not just current — every diagnostic is a time series; cross-pair comparison; export to the quant's research environment with lineage preserved.</p>
+<h3>Screen: Replay lab &amp; champion/challenger</h3>
+<p>The replay harness with a UI: pick any window, rerun it under a candidate configuration or strategy version, and see the semantic diff — surfaces, prices, risk — against what production did. Challenger strategies run continuously against live inputs in shadow (no publication), with standing dashboards of challenger-vs-champion divergence. When a challenger graduates, the same screen produces the Ring-2 promotion package: the diff, the impact report, the evidence — feeding directly into the change console (§9, wireframe W6). Requirement: the lab is the <em>only</em> path by which candidate methodology touches market data, and it is structurally incapable of publishing — the sandbox is an architecture property surfaced as a UI property.</p>
+
+<h2 id="risk"><span class="num">8</span>Market risk manager</h2>
+<p><strong>Mission.</strong> An independent, complete view of exposures against limits, on their own cadence, with the power to ask any what-if. Risk consumes the same epochs as everyone (P5) but views them on snapshot cadence: coherent slices at fixed times, plus on-demand. Requirements: the trader's risk blotter, re-cut by risk's hierarchies (desk, book, currency, tenor) with limits and utilization inline, breaches and warnings driving a worklist with acknowledgment workflow; scenario workbench — spot/vol matrices, historical stress dates, custom scenario authoring saved as governed definitions (scenario definitions are Ring 2: reviewed, versioned, shared); concentration views FX risk actually needs: barrier-density maps (notional of triggers within bands of current spot, per pair — where does the book's gamma flip), event-date vega concentration, pin risk at expiry clusters; full drill from any aggregate to positions to a single trade's pricing explain (P1) without leaving the screen. The risk manager explicitly does <em>not</em> get mark or model controls — independence of the view is the point — but does get annotation: attach a note to any number, visible to the desk, journaled.</p>
+
+<h2 id="mv"><span class="num">9</span>Model validation &amp; governance</h2>
+<p><strong>Mission.</strong> Control what is allowed to price, mark, and hedge — with evidence. This persona's primary surface is the <strong>change console</strong> (wireframe W6): the Ring-2 promotion workflow rendered as a queue. Each pending change — model selection matrix edit, pair definition change, strategy version bump, tolerance adjustment — presents as a package: the semantic diff in domain terms ("barriers on G10 pairs: VV-2.3 → SLV-1.0 for official"), the golden-replay impact report (P&amp;L impact distribution across the live book, positions breaching materiality flagged), the requester's rationale, and the approval chain state. Approvals are structural four-eyes minimum, with the approval itself journaled and the activation staged (effective from the named epoch, never "now"). Requirements: the model inventory — every named strategy, version, approval status, where the matrix uses it, links to validation documents; scheduled revalidation as a worklist with aging; and the reverse query, which auditors always ask and systems rarely answer: "show me everything priced by model X version Y between these dates" — answerable because every <code>PricingResult</code> carries its model stamp (P1).</p>
+
+<div class="wire">
+<svg viewBox="0 0 880 400" width="880" height="400">
+  <rect class="wf-frame" x="1" y="1" width="878" height="398" rx="8"/>
+  <rect class="wf-p" x="1" y="1" width="878" height="34" rx="8"/>
+  <text class="tt" x="16" y="23">CHANGE CONSOLE — Ring-2 promotions</text>
+  <text class="tf" x="330" y="22">queue: 3 pending · 1 aging &gt; 5 d</text>
+
+  <rect class="wf-p" x="16" y="48" width="230" height="336" rx="6"/>
+  <text class="th" x="28" y="68">Pending</text>
+  <rect class="wf-a" x="24" y="80" width="214" height="58" rx="5"/>
+  <text class="ta" x="32" y="98">#412 · selection matrix</text>
+  <text class="tf" x="32" y="114">barriers × official, G10:</text>
+  <text class="tf" x="32" y="128">VV-2.3 → SLV-1.0</text>
+  <rect class="wf-w" x="24" y="146" width="214" height="44" rx="5"/>
+  <text class="t" x="32" y="164">#413 · PairDef EURJPY</text>
+  <text class="tf" x="32" y="180">add 18M pillar · impl blend wt</text>
+  <rect class="wf-w" x="24" y="198" width="214" height="44" rx="5"/>
+  <text class="t" x="32" y="216">#414 · staleness tolerance</text>
+  <text class="tf" x="32" y="232">NDF pairs, Asia session ⚠ 6 d</text>
+  <text class="tf" x="28" y="270">model inventory →</text>
+  <text class="tf" x="28" y="288">revalidation worklist (2 due) →</text>
+  <text class="tf" x="28" y="306">reverse query: "everything</text>
+  <text class="tf" x="28" y="320">priced by model X vY" →</text>
+
+  <rect class="wf-p" x="260" y="48" width="604" height="336" rx="6"/>
+  <text class="th" x="272" y="68">Package #412 — model selection matrix change</text>
+
+  <rect class="wf-w" x="272" y="80" width="284" height="96" rx="6"/>
+  <text class="th" x="282" y="98">Semantic diff</text>
+  <text class="t" x="282" y="118">SelectionMatrix[barriers, official]</text>
+  <text class="t" x="282" y="136">VV-2.3 → SLV-1.0 · 12 pairs</text>
+  <text class="tf" x="282" y="154">stream/RFQ and risk rows unchanged;</text>
+  <text class="tf" x="282" y="168">model basis becomes monitored quantity</text>
+
+  <rect class="wf-w" x="568" y="80" width="284" height="96" rx="6"/>
+  <text class="th" x="578" y="98">Golden replay impact</text>
+  <text class="t" x="578" y="118">1,842 positions repriced (5 d replay)</text>
+  <rect class="wf-meter" x="578" y="128" width="8" height="18"/><rect class="wf-meter" x="590" y="134" width="8" height="12"/><rect class="wf-meter" x="602" y="124" width="8" height="22"/><rect class="wf-meter" x="614" y="138" width="8" height="8"/><rect class="wf-meterw" x="626" y="130" width="8" height="16"/>
+  <text class="tf" x="648" y="140">ΔPV distribution</text>
+  <text class="tw" x="578" y="166">42 positions &gt; $10k impact → list</text>
+
+  <rect class="wf-w" x="272" y="188" width="580" height="54" rx="6"/>
+  <text class="th" x="282" y="206">Rationale (requester: quant desk)</text>
+  <text class="tf" x="282" y="224">VV mispricing on long-dated RKOs vs street; SLV calibration farm live since Phase 4;</text>
+  <text class="tf" x="282" y="236">validation doc MV-2026-081 attached · challenger shadow: 60 d, divergence within bounds</text>
+
+  <rect class="wf-a" x="272" y="254" width="580" height="66" rx="6"/>
+  <text class="th" x="282" y="274">Approval chain — structural four-eyes · journaled · staged activation</text>
+  <text class="ta" x="282" y="296">Quant owner ✓ signed 08-Aug</text>
+  <text class="tw" x="470" y="296">Model validation ◻ pending (you)</text>
+  <text class="tf" x="282" y="312">activation: staged, effective SOD 15-Aug epoch — never "now"</text>
+
+  <rect class="wf-w" x="272" y="334" width="100" height="28" rx="6"/>
+  <text class="ta" x="292" y="352">Approve</text>
+  <rect class="wf-w" x="384" y="334" width="100" height="28" rx="6"/>
+  <text class="tr" x="408" y="352">Reject</text>
+  <rect class="wf-w" x="496" y="334" width="130" height="28" rx="6"/>
+  <text class="t" x="512" y="352">Request info</text>
+  <text class="tf" x="640" y="352">this approval will be journaled</text>
+</svg>
+<div class="caption">W6 — Change console. Every Ring-2 promotion arrives as a package: semantic diff in domain terms, golden-replay impact with materiality flags, rationale and evidence, four-eyes approval chain, epoch-staged activation.</div>
+</div>
+
+<h2 id="mo"><span class="num">10</span>Middle office / trade support</h2>
+<p><strong>Mission.</strong> Every booked trade is right, and every lifecycle event happens exactly once. Requirements: trade blotter over the trade journal with full amendment history visible per trade (the journal <em>is</em> the audit trail — the UI just renders it); a lifecycle workstation for the events FX options generate — expiries with exercise decisions (auto vs manual per configuration, with cut-time countdowns), <strong>barrier and touch monitoring</strong> (proximity watchlist, then a determination workflow when a level trades: the fixing source, the print, the determination, and the resulting booking, all journaled — barrier disputes are won and lost on this record), fixings for settlement, delivery vs cash flows; breaks dashboard reconciling internal state against confirmations and settlement systems, with aging and ownership; bulk operations (portfolio expiry processing at cuts like NY&nbsp;10&nbsp;am / Tokyo&nbsp;3&nbsp;pm) with preview-then-commit semantics. Amendments are journaled events under entitlement, with materiality-based four-eyes: a notional correction re-prices and re-explains automatically, and the P&amp;L impact of the amendment is shown <em>before</em> commit.</p>
+
+<h2 id="pc"><span class="num">11</span>Product control / IPV</h2>
+<p><strong>Mission.</strong> Sign the P&amp;L and prove the marks. Two surfaces. <strong>P&amp;L explain:</strong> daily and intraday attribution — delta, gamma, vega by smile bucket, theta, rates, new trades, amendments, model basis, unexplained — where every attribution term is computed from the same journaled slices the desk traded on (P5), and unexplained above tolerance opens a drill-down, not an argument: the explain decomposes per position, and P1 takes it from there. <strong>IPV workbench:</strong> month-end (and spot-check) comparison of desk marks against independent sources — consensus services, broker quotes — with variance by pair/tenor/parameter, materiality-weighted worklists, adjustment proposals with their P&amp;L impact precomputed, and the sign-off record. The official EOD marks workflow lives with this persona: the candidate official epoch (snapped by configured rules), diffs against yesterday and against live, exceptions flagged, then a journaled approval that stamps the epoch <em>official</em> — the same epoch machinery, with a governance bit only this persona can set.</p>
+
+<h2 id="sre"><span class="num">12</span>Platform operations (SRE)</h2>
+<p><strong>Mission.</strong> The machine is healthy, and when it is not, the blast radius is chosen deliberately. The system console (wireframe W5): end-to-end latency SLOs per path (spot→grid, RFQ, vol→epoch, reval-wave lag) as live percentile meters with budget-burn alerts; epoch flow per pair (surface epoch age, expected vs actual cadence, curve-set epoch consumption lag); journal health (append rates, replication lag, replay-determinism spot checks — the nightly replay-and-compare rendered as a scoreboard); component topology with the dependency graph live-colored by state. Ring-3 controls with the heaviest framing in the stack: freeze publication (per pair / global), promote secondary (the deterministic-twin failover), enter degraded mode, halt reval waves. Freeze and failover are four-eyes above configured scope. Requirement discipline: every control here states its blast radius in consumer terms before commit — "freezing EURUSD publication stalls 2 auto-quoting pairs and 3 dependent crosses" — because 3&nbsp;a.m. decisions are made at the level of what the button says.</p>
+
+<div class="wire">
+<svg viewBox="0 0 880 420" width="880" height="420">
+  <rect class="wf-frame" x="1" y="1" width="878" height="418" rx="8"/>
+  <rect class="wf-p" x="1" y="1" width="878" height="34" rx="8"/>
+  <text class="tt" x="16" y="23">PLATFORM CONSOLE</text>
+  <text class="ta" x="220" y="22">● healthy, 1 warning</text>
+  <text class="tf" x="600" y="22">nightly replay determinism: PASS (6/6 days bit-identical)</text>
+
+  <rect class="wf-p" x="16" y="48" width="270" height="220" rx="6"/>
+  <text class="th" x="28" y="68">Latency SLOs (p99, live)</text>
+  <text class="t" x="28" y="94">spot → grid</text><text class="th" x="150" y="94">4.1 ms</text>
+  <rect class="wf-w" x="200" y="84" width="70" height="12" rx="3"/><rect class="wf-meter" x="200" y="84" width="38" height="12" rx="3"/>
+  <text class="t" x="28" y="122">RFQ vanilla</text><text class="th" x="150" y="122">0.9 ms</text>
+  <rect class="wf-w" x="200" y="112" width="70" height="12" rx="3"/><rect class="wf-meter" x="200" y="112" width="24" height="12" rx="3"/>
+  <text class="t" x="28" y="150">vol → epoch</text><text class="th" x="150" y="150">240 ms</text>
+  <rect class="wf-w" x="200" y="140" width="70" height="12" rx="3"/><rect class="wf-meter" x="200" y="140" width="46" height="12" rx="3"/>
+  <text class="t" x="28" y="178">reval-wave lag</text><text class="tw" x="150" y="178">3.8 s ⚠</text>
+  <rect class="wf-w" x="200" y="168" width="70" height="12" rx="3"/><rect class="wf-meterw" x="200" y="168" width="61" height="12" rx="3"/>
+  <text class="tf" x="28" y="204">budget-burn alerts at 75% · trends in lab</text>
+  <text class="th" x="28" y="232">Journals</text>
+  <text class="tf" x="28" y="252">append ok · replication lag 40 ms · quota 62%</text>
+
+  <rect class="wf-p" x="300" y="48" width="280" height="220" rx="6"/>
+  <text class="th" x="312" y="68">Epoch flow</text>
+  <text class="tf" x="312" y="86">pair        surface     age       expected</text>
+  <text class="t" x="312" y="110">EURUSD   S513       1.2 s      ✓</text>
+  <rect class="wf-warnb" x="306" y="122" width="268" height="22" rx="4"/>
+  <text class="tw" x="312" y="137">USDJPY   S498       45 s       ~5 s ⚠</text>
+  <text class="t" x="312" y="162">EURJPY   S 204      2.1 s      ✓ (cross)</text>
+  <text class="t" x="312" y="186">GBPUSD  S471       0.9 s      ✓</text>
+  <line class="sep" x1="312" y1="200" x2="568" y2="200"/>
+  <text class="t" x="312" y="222">curve-set C204 · consumed lag 0.8 s ✓</text>
+  <text class="tf" x="312" y="244">click-through: waiting on 1M BF quarantine</text>
+  <text class="tf" x="312" y="258">→ affected: USDJPY surface, EURJPY cross</text>
+
+  <rect class="wf-p" x="594" y="48" width="270" height="220" rx="6"/>
+  <text class="th" x="606" y="68">Controls — Ring 3, heavy framing</text>
+  <rect class="wf-w" x="606" y="80" width="246" height="52" rx="6"/>
+  <text class="ta" x="618" y="100">Freeze publication ▸ scope: USDJPY ▾</text>
+  <text class="tf" x="618" y="120">blast radius: 1 quoting pair · 1 cross · 2 books</text>
+  <rect class="wf-w" x="606" y="140" width="246" height="52" rx="6"/>
+  <text class="ta" x="618" y="160">Promote secondary (failover)</text>
+  <text class="tf" x="618" y="180">four-eyes: requires 2nd approver · twin at epoch −1</text>
+  <rect class="wf-w" x="606" y="196" width="246" height="40" rx="6"/>
+  <text class="ta" x="618" y="214">Halt reval waves · Enter degraded mode</text>
+  <text class="tf" x="606" y="256">every control states consumer impact before commit</text>
+
+  <rect class="wf-p" x="16" y="282" width="848" height="118" rx="6"/>
+  <text class="th" x="28" y="302">Feed health (source × kind)</text>
+  <text class="tf" x="28" y="320">            spot     fwd     volATM   volRR    volBF</text>
+  <text class="t" x="28" y="342">vendor A   ●         ●         ●            ●           ●</text>
+  <text class="t" x="28" y="364">vendor B   ●         ●         ●            ●           ○ stale 41s</text>
+  <text class="t" x="28" y="386">broker C   ●         —         ●            ●           ✕ quarantined (jump filter) → review queue</text>
+  <text class="tf" x="560" y="342">override inventory: 4 live</text>
+  <text class="tf" x="560" y="364">oldest: EURJPY corr mark, 3 d ⚠</text>
+  <text class="tf" x="560" y="386">→ full list (who · why · expiry)</text>
+</svg>
+<div class="caption">W5 — Platform console (shared pattern with the market-data quality console). Latency budgets, epoch flow with click-through to root cause, feed health, and Ring-3 controls that state their blast radius in consumer terms before commit.</div>
+</div>
+
+<h2 id="audit"><span class="num">13</span>Audit, compliance &amp; management</h2>
+<p><strong>Audit &amp; compliance</strong> get one read-only surface: the audit explorer — cross-journal search (quotes, trades, overrides, config promotions, approvals, operational actions) with the time-travel affordance (P4) as its core interaction: reconstruct any screen any participant saw at any moment, from journals, with the reconstruction itself evidential. Entitlement reporting (who can do what, who did what, exceptions) is a standing report, not an annual archaeology project. <strong>Management</strong> (desk head, COO delegates) get a glanceable summary: P&amp;L, risk vs limits, quoting posture per pair, open overrides past a threshold age, pending Ring-2 approvals aging, system health rollup — every tile a door into the owning persona's screen, no numbers computed specially for management (P5 again: the summary is a projection, not a parallel truth).</p>
+
+<h2 id="nfr"><span class="num">14</span>Non-functional requirements</h2>
+<table>
+  <tr><th>Concern</th><th>Requirement</th></tr>
+  <tr><td>Update latency, trading screens</td><td>Tick-to-glass ≤ 250 ms for pricer/blotter/quoting console; visible-value conflation (a cell repaints at most ~4×/s, always showing latest) rather than event queues per P5.</td></tr>
+  <tr><td>Update latency, control screens</td><td>Snapshot cadence 5–60 s, configurable; explicit "as-of" timestamp on every control-function screen — control personas must never mistake a snapshot for live.</td></tr>
+  <tr><td>Keyboard &amp; density</td><td>Trader and MO screens: full keyboard operation, desk-shorthand entry, high-density grids (30+ rows without scrolling on desk monitors). Control screens optimize for comprehension over density.</td></tr>
+  <tr><td>Multi-monitor &amp; layout</td><td>Detachable panels, saved named layouts per user, layouts follow entitlements (a screen you lose access to disappears from your layout, with notice).</td></tr>
+  <tr><td>Follow-the-sun</td><td>All times zone-explicit (desk default, UTC on hover); cut-time logic (NY 10am, Tokyo 3pm) rendered in both local and desk time; handover view: open overrides, pending approvals, degraded state, annotated for the incoming region.</td></tr>
+  <tr><td>Entitlements</td><td>Single entitlement service for all surfaces; UI renders only what the user may do (no disabled-button archaeology); every write action carries user, reason where required, and entitlement context into the journal.</td></tr>
+  <tr><td>Resilience</td><td>UIs are stateless against the bus: reconnect and replay-to-current on any disconnect; a UI restart never loses an in-flight Ring-3 action ambiguously — actions are acknowledged journaled or visibly failed.</td></tr>
+  <tr><td>Accessibility &amp; theming</td><td>Status semantics never carried by color alone (P2 iconography); light/dark themes with identical semantics; font scaling without layout collapse.</td></tr>
+</table>
+
+<h2 id="build"><span class="num">15</span>Build order</h2>
+<p>UI phases track the engine's phases, with control surfaces deliberately early rather than last: <strong>Phase 1</strong> — surface viewer and calibration diagnostics (read-only), because the first thing built needs eyes on it; the explain affordance (P1) built into the component library from the first screen, not retrofitted. <strong>Phase 2</strong> — trader pricer, surface manager with Ring-3 marks, quoting console, feed console: the minimum set for a desk to stream safely. <strong>Phase 3</strong> — risk blotter with two-speed honesty, MO lifecycle workstation, replay lab, change console: the governance spine goes live with the first-gen book, not after it. <strong>Phase 4</strong> — P&amp;L explain and IPV workbench, audit explorer, management summary, follow-the-sun handover. The principle: a persona whose screens arrive late will have built spreadsheets in the gap, and the spreadsheets will still be there in five years — screen debt is config debt's front-office cousin.</p>
+
+</div>
+</body>
+</html>
