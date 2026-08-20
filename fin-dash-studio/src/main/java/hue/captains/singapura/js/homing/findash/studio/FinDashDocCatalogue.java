@@ -9,6 +9,7 @@ import hue.captains.singapura.js.homing.studio.base.Doc;
 import hue.captains.singapura.js.homing.studio.base.DocProvider;
 import hue.captains.singapura.js.homing.studio.base.app.Entry;
 import hue.captains.singapura.js.homing.studio.base.app.L1_Catalogue;
+import hue.captains.singapura.js.homing.studio.base.app.L2_Catalogue;
 
 import java.util.List;
 
@@ -30,6 +31,12 @@ public record FinDashDocCatalogue()
     @Override public String summary() { return "The design docs this desk is built from, and the user guide."; }
     @Override public String badge()   { return "DOC"; }
     @Override public String icon()    { return "📖"; }
+
+    /** The participant map, as one page per persona. */
+    @Override
+    public List<? extends L2_Catalogue<FinDashDocCatalogue, ?>> subCatalogues() {
+        return List.of(WorkspaceIntrosCatalogue.INSTANCE);
+    }
 
     @Override
     public List<Entry<FinDashDocCatalogue>> leaves() {
