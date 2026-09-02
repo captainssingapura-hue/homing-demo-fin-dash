@@ -30,7 +30,8 @@ public interface HtmlResourceDoc extends Doc {
 
     @Override default String contentType()   { return "text/html; charset=utf-8"; }
     @Override default String fileExtension() { return ".html"; }
-    @Override default String url()           { return "/doc?id=" + uuid(); }
+    // No url(): RFC 0053 removed it from Doc — "a doc no longer knows how it is
+    // viewed". The catalogue entry names the viewer app instead.
 
     @Override
     default String contents() {

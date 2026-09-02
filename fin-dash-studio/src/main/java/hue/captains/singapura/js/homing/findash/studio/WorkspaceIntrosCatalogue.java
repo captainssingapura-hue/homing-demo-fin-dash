@@ -6,6 +6,7 @@ import hue.captains.singapura.js.homing.studio.base.DocProvider;
 import hue.captains.singapura.js.homing.studio.base.app.Entry;
 import hue.captains.singapura.js.homing.studio.base.app.L2_Catalogue;
 import hue.captains.singapura.js.homing.studio.base.composed.ComposedDoc;
+import hue.captains.singapura.js.homing.studio.base.composed.ComposedViewer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,10 +35,18 @@ public record WorkspaceIntrosCatalogue()
     @Override public String badge()   { return "INTRO"; }
     @Override public String icon()    { return "🧭"; }
 
+    /**
+     * RFC 0053: the entry names the viewer. Every intro is a {@code ComposedDoc},
+     * so they all route through {@code ComposedViewer} — the doc itself no longer
+     * carries a url.
+     */
     @Override
     public List<Entry<WorkspaceIntrosCatalogue>> leaves() {
         var entries = new ArrayList<Entry<WorkspaceIntrosCatalogue>>();
-        for (ComposedDoc d : WorkspaceIntroDocs.ALL) entries.add(Entry.of(this, d));
+        for (ComposedDoc d : WorkspaceIntroDocs.ALL) {
+            entries.add(Entry.of(this, ComposedViewer.INSTANCE,
+                    new ComposedViewer.Params(d.uuid().toString()), d));
+        }
         return List.copyOf(entries);
     }
 
