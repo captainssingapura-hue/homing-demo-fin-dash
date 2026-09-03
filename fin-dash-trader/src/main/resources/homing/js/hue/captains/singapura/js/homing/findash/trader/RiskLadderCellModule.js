@@ -80,12 +80,26 @@ LadderCell.prototype._paint = function (value) {
         if (value.leaf) css.addClass(el, fd_row_indent);
         text = value.text;
     } else if (value.kind === 'fresh') {
-        // P2 — past its budget, staleness is a state with a mark, never a tint
-        // alone. The number stays visible so the desk can see how stale.
-        if (value.state === 'over') css.addClass(el, fd_status_serious);
-        else if (value.state === 'warn') css.addClass(el, fd_status_warn);
-        else css.addClass(el, fd_muted);
-        text = (value.state === 'ok' ? '' : '▲ ') + value.text;
+        // Freshness is the column that says whether the rest of the row can be
+        // trusted, so all three states are marked — including the good one. A
+        // blank cell is ambiguous: it reads as "no reading" as easily as "fine".
+        //
+        // The marks are the kit's own status vocabulary (● healthy, ▲ degraded,
+        // ◆ serious), not a set this widget invented — a ▲ means the same thing
+        // here as on every chip in the desk.
+        //
+        // Only the degraded states take colour. Eleven of fifteen rows are
+        // healthy, and tinting them all would spend the eye's attention on the
+        // rows that do not need it — and compete with the ◆ breach marks in the
+        // number columns, which are what a trader is actually scanning for
+        // (P2: degraded is loud, not everything is loud).
+        if (value.state === 'stale') {
+            css.addClass(el, fd_status_warn);
+            text = '▲ ' + value.text;
+        } else {
+            css.addClass(el, fd_muted);
+            text = '● ' + value.text;
+        }
     } else {
         // Numbers. A breach carries a mark as well as a class, same reason.
         if (value.state === 'over')      css.addClass(el, fd_status_serious);
