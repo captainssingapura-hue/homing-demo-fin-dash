@@ -2,6 +2,7 @@ package hue.captains.singapura.js.homing.findash.studio;
 
 import hue.captains.singapura.js.homing.findash.studio.docs.DemoDataRequirementsDoc;
 import hue.captains.singapura.js.homing.findash.studio.docs.EngineArchitectureDoc;
+import hue.captains.singapura.js.homing.findash.studio.docs.RelationGridCaseStudyDoc;
 import hue.captains.singapura.js.homing.findash.studio.docs.ThemeGuideDoc;
 import hue.captains.singapura.js.homing.findash.studio.docs.UiStudyDoc;
 import hue.captains.singapura.js.homing.findash.studio.docs.UserGuideDoc;
@@ -62,7 +63,10 @@ public record FinDashDocCatalogue()
                         DemoDataRequirementsDoc.INSTANCE),
                 Entry.of(this, DocReader.INSTANCE,
                         new DocReader.Params(ThemeGuideDoc.INSTANCE.uuid().toString()),
-                        ThemeGuideDoc.INSTANCE)
+                        ThemeGuideDoc.INSTANCE),
+                Entry.of(this, DocReader.INSTANCE,
+                        new DocReader.Params(RelationGridCaseStudyDoc.INSTANCE.uuid().toString()),
+                        RelationGridCaseStudyDoc.INSTANCE)
         );
     }
 
@@ -70,6 +74,6 @@ public record FinDashDocCatalogue()
     public List<Doc> docs() {
         return List.of(UserGuideDoc.INSTANCE, UiStudyDoc.INSTANCE,
                 EngineArchitectureDoc.INSTANCE, DemoDataRequirementsDoc.INSTANCE,
-                ThemeGuideDoc.INSTANCE);
+                ThemeGuideDoc.INSTANCE, RelationGridCaseStudyDoc.INSTANCE);
     }
 }
