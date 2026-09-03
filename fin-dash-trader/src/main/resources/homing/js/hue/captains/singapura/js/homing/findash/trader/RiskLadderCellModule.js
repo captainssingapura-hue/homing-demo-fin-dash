@@ -50,15 +50,28 @@ LadderCell.prototype._paint = function (value) {
     css.removeClass(el, fd_strongest);
     css.removeClass(el, fd_muted);
     css.removeClass(el, fd_row_indent);
+    css.removeClass(el, fd_total_row);
+    css.removeClass(el, fd_grand_row);
+
+    // The ROW treatment goes on EVERY cell of an aggregate row. The grid owns
+    // the <tr>, so a band across the row is drawn by its cells agreeing — and
+    // because .hgr-td carries padding:0, this element fills the cell exactly.
+    // Weight alone was not enough: with only the label emboldened, a subtotal
+    // read as one more tenor once the eye was in the numbers.
+    if (value != null && value.rowKind === 'subtotal') css.addClass(el, fd_total_row);
+    else if (value != null && value.rowKind === 'grand') css.addClass(el, fd_grand_row);
 
     // The text is computed, then assigned once. A cell holds no child
     // elements, so there is nothing to clear first — and clearing by
     // assigning '' is a wholesale DOM wipe the rules (rightly) refuse.
     var text;
 
-    if (value == null) {
+    if (value == null || value.kind === 'none') {
+        // A column the desk does not publish. The dash is the honest answer —
+        // the ladder will not sum the rows to fill it (P5) — and the cell still
+        // wears its row band, so a partial total does not read as a broken one.
         css.addClass(el, fd_muted);
-        text = '—';
+        text = value == null ? '—' : value.text;
     } else if (value.kind === 'label') {
         // An aggregate announces itself by weight; a leaf sits indented under
         // the block it belongs to. Neither relies on position alone, because a
@@ -77,7 +90,7 @@ LadderCell.prototype._paint = function (value) {
         // Numbers. A breach carries a mark as well as a class, same reason.
         if (value.state === 'over')      css.addClass(el, fd_status_serious);
         else if (value.state === 'warn') css.addClass(el, fd_status_warn);
-        if (value.emphasis)              css.addClass(el, fd_strongest);
+        // (the row treatment above already carries the aggregate weight)
         text = (value.state === 'over' ? '◆ ' : '') + value.text;
     }
 

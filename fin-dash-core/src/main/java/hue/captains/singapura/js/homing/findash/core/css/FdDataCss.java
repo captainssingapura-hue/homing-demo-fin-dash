@@ -84,6 +84,39 @@ public record FdDataCss() implements CssGroup<FdDataCss> {
         @Override public String body() { return "padding-left: var(--space-3, 12px);\n"; }
     }
 
+    /**
+     * A subtotal cell — one per cell of an aggregate row, which is what draws a
+     * band across a grid that owns its own {@code <tr>}.
+     *
+     * <p>The rule sits on <b>top</b>: a subtotal closes the block above it, so
+     * the line belongs between the last leaf and the total, not under it. The
+     * fill is deliberately translucent — a grid may tint the cell behind this
+     * one to show selection, and an opaque band would swallow it.</p>
+     */
+    public record fd_total_row() implements CssClass<FdDataCss> {
+        @Override public String body() {
+            return """
+                   border-top: 1px solid var(--color-border);
+                   background: color-mix(in srgb, var(--color-surface-raised) 60%, transparent);
+                   font-weight: 600;
+                   """;
+        }
+    }
+
+    /**
+     * A grand-total cell — the same idea one step louder, so the book total is
+     * not mistaken for one more subtotal at a glance.
+     */
+    public record fd_grand_row() implements CssClass<FdDataCss> {
+        @Override public String body() {
+            return """
+                   border-top: 2px solid var(--color-text-muted);
+                   background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+                   font-weight: 700;
+                   """;
+        }
+    }
+
     // ---- meter ----------------------------------------------------------
 
     /** The track. Pair with a {@code fd-status-*-bg} for severity. */
@@ -157,6 +190,8 @@ public record FdDataCss() implements CssGroup<FdDataCss> {
                 new fd_td_num(),
                 new fd_row_group(),
                 new fd_row_indent(),
+                new fd_total_row(),
+                new fd_grand_row(),
                 new fd_meter(),
                 new fd_meter_fill(),
                 new fd_kv_row(),

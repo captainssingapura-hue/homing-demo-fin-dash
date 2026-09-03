@@ -51,7 +51,9 @@ public record RiskLadderCellModule() implements DomModule<RiskLadderCellModule> 
                         new FdStatusCss.fd_status_warn()),
                         FdStatusCss.INSTANCE))
                 .add(new ModuleImports<>(List.of(
-                        new FdDataCss.fd_row_indent()),
+                        new FdDataCss.fd_row_indent(),
+                        new FdDataCss.fd_total_row(),
+                        new FdDataCss.fd_grand_row()),
                         FdDataCss.INSTANCE))
                 .build();
     }
