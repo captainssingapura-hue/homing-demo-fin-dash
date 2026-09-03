@@ -27,23 +27,37 @@
 // never changes for a given row — and not of whatever the value happens to be
 // at first render.
 //
+// `opts.onToggleSection(scope)` — folding. The grid listens for `click` on its
+// own <td> and for nothing else, so a dblclick handler on OUR element competes
+// with nobody: the fold gesture is app-owned, like the cell it hangs on.
+//
 // The framework appends the `export { ladderCell }` from exports().
-var ladderCell = function (column, value) {
-    if (value && value.kind === 'void') return new VoidCell();
-    return new LadderCell(column);
+var ladderCell = function (column, value, opts) {
+    if (value && value.kind === 'void') return new VoidCell(opts);
+    return new LadderCell(column, opts);
 };
+
+/** Fold on double-click, anywhere along the header row — not just its label. */
+function foldable(host, value, opts) {
+    if (!value || value.rowKind !== 'section' || !opts || !opts.onToggleSection) return;
+    host.addEventListener('dblclick', function (ev) {
+        ev.preventDefault();
+        opts.onToggleSection(value.scope);
+    });
+}
 
 /**
  * A cell that is structurally present and semantically absent. It renders the
  * section band so the header reads as one strip, answers the contract, and
  * contributes nothing: no text, no value, no copy.
  */
-function VoidCell() { this._el = null; }
+function VoidCell(opts) { this._el = null; this._opts = opts || null; }
 
-VoidCell.prototype.render = function (host) {
+VoidCell.prototype.render = function (host, value) {
     this._el = host;
     css.setClass(host, fd_dense);
     css.addClass(host, fd_section_row);
+    foldable(host, value, this._opts);
     return this;
 };
 VoidCell.prototype.update         = function () { return this; };
@@ -58,8 +72,9 @@ VoidCell.prototype.getEditValue   = function () { return null; };
 VoidCell.prototype.getValueToCopy = function () { return ''; };
 VoidCell.prototype.dispose        = function () { this._el = null; };
 
-function LadderCell(column) {
+function LadderCell(column, opts) {
     this._column = column;
+    this._opts = opts || null;
     this._el = null;
     this._value = null;
 }
@@ -69,6 +84,7 @@ LadderCell.prototype.render = function (host, value) {
     // The grid mints a bare div; the fin-dash type scale is applied here.
     css.setClass(host, fd_dense);
     if (this._column !== 'tenor') css.addClass(host, fd_num);
+    foldable(host, value, this._opts);
     this._paint(value);
     return this;
 };
