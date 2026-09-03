@@ -16,10 +16,47 @@
 // The cell renders a decision someone else made. That is the right split: the
 // adapter is the seam onto the domain, the cell is presentation.
 //
+// The factory picks the CELL CLASS per cell, which is where a void cell comes
+// from — the grid needs no notion of one. A section-header row has a name and
+// nothing else: "EURUSD ▸ vATM" is not a missing measurement, it is not a
+// measurement at all, and a dash there would misreport not-applicable as
+// not-available.
+//
+// Note the choice is permanent: GridCells.ensure mints a cell once per (pk,
+// column) and caches it, so voidness must be a property of the ROW KIND — which
+// never changes for a given row — and not of whatever the value happens to be
+// at first render.
+//
 // The framework appends the `export { ladderCell }` from exports().
 var ladderCell = function (column, value) {
+    if (value && value.kind === 'void') return new VoidCell();
     return new LadderCell(column);
 };
+
+/**
+ * A cell that is structurally present and semantically absent. It renders the
+ * section band so the header reads as one strip, answers the contract, and
+ * contributes nothing: no text, no value, no copy.
+ */
+function VoidCell() { this._el = null; }
+
+VoidCell.prototype.render = function (host) {
+    this._el = host;
+    css.setClass(host, fd_dense);
+    css.addClass(host, fd_section_row);
+    return this;
+};
+VoidCell.prototype.update         = function () { return this; };
+VoidCell.prototype.onSelect       = function (mode) {};
+VoidCell.prototype.effectiveType  = function () { return null; };
+VoidCell.prototype.beginEdit      = function () {};
+VoidCell.prototype.commitEdit     = function () {};
+VoidCell.prototype.cancelEdit     = function () {};
+VoidCell.prototype.preview        = function (text) {};
+VoidCell.prototype.getValue       = function () { return null; };
+VoidCell.prototype.getEditValue   = function () { return null; };
+VoidCell.prototype.getValueToCopy = function () { return ''; };
+VoidCell.prototype.dispose        = function () { this._el = null; };
 
 function LadderCell(column) {
     this._column = column;
@@ -52,13 +89,15 @@ LadderCell.prototype._paint = function (value) {
     css.removeClass(el, fd_row_indent);
     css.removeClass(el, fd_total_row);
     css.removeClass(el, fd_grand_row);
+    css.removeClass(el, fd_section_row);
 
     // The ROW treatment goes on EVERY cell of an aggregate row. The grid owns
     // the <tr>, so a band across the row is drawn by its cells agreeing — and
     // because .hgr-td carries padding:0, this element fills the cell exactly.
     // Weight alone was not enough: with only the label emboldened, a subtotal
     // read as one more tenor once the eye was in the numbers.
-    if (value != null && value.rowKind === 'subtotal') css.addClass(el, fd_total_row);
+    if (value != null && value.rowKind === 'section') css.addClass(el, fd_section_row);
+    else if (value != null && value.rowKind === 'subtotal') css.addClass(el, fd_total_row);
     else if (value != null && value.rowKind === 'grand') css.addClass(el, fd_grand_row);
 
     // The text is computed, then assigned once. A cell holds no child

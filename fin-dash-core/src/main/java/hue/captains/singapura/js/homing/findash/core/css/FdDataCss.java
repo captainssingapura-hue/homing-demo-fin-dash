@@ -85,6 +85,26 @@ public record FdDataCss() implements CssGroup<FdDataCss> {
     }
 
     /**
+     * A section-header cell — the row that OPENS a block, as against
+     * {@link fd_total_row} which closes it.
+     *
+     * <p>Quieter than a total on purpose: it carries a name, not a number, and
+     * the eye should read it as a label rather than as one more figure to
+     * check. The top rule is what separates one block from the last.</p>
+     */
+    public record fd_section_row() implements CssClass<FdDataCss> {
+        @Override public String body() {
+            return """
+                   border-top: 1px solid var(--color-border);
+                   background: color-mix(in srgb, var(--color-surface-raised) 35%, transparent);
+                   color: var(--color-text-muted);
+                   font-weight: 600;
+                   letter-spacing: 0.04em;
+                   """;
+        }
+    }
+
+    /**
      * A subtotal cell — one per cell of an aggregate row, which is what draws a
      * band across a grid that owns its own {@code <tr>}.
      *
@@ -190,6 +210,7 @@ public record FdDataCss() implements CssGroup<FdDataCss> {
                 new fd_td_num(),
                 new fd_row_group(),
                 new fd_row_indent(),
+                new fd_section_row(),
                 new fd_total_row(),
                 new fd_grand_row(),
                 new fd_meter(),
