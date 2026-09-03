@@ -5,6 +5,7 @@ import hue.captains.singapura.js.homing.core.Exportable;
 import hue.captains.singapura.js.homing.core.ExportsOf;
 import hue.captains.singapura.js.homing.core.ImportsFor;
 import hue.captains.singapura.js.homing.core.ModuleImports;
+import hue.captains.singapura.js.homing.findash.core.css.FdDataCss;
 import hue.captains.singapura.js.homing.findash.core.css.FdStatusCss;
 import hue.captains.singapura.js.homing.findash.core.css.FdTextCss;
 
@@ -49,6 +50,9 @@ public record RiskLadderCellModule() implements DomModule<RiskLadderCellModule> 
                         new FdStatusCss.fd_status_serious(),
                         new FdStatusCss.fd_status_warn()),
                         FdStatusCss.INSTANCE))
+                .add(new ModuleImports<>(List.of(
+                        new FdDataCss.fd_row_indent()),
+                        FdDataCss.INSTANCE))
                 .build();
     }
 

@@ -49,6 +49,7 @@ LadderCell.prototype._paint = function (value) {
     css.removeClass(el, fd_status_serious);
     css.removeClass(el, fd_strongest);
     css.removeClass(el, fd_muted);
+    css.removeClass(el, fd_row_indent);
 
     // The text is computed, then assigned once. A cell holds no child
     // elements, so there is nothing to clear first — and clearing by
@@ -59,8 +60,11 @@ LadderCell.prototype._paint = function (value) {
         css.addClass(el, fd_muted);
         text = '—';
     } else if (value.kind === 'label') {
-        // The subtotal row announces itself rather than relying on position.
-        if (value.emphasis) css.addClass(el, fd_strongest);
+        // An aggregate announces itself by weight; a leaf sits indented under
+        // the block it belongs to. Neither relies on position alone, because a
+        // filtered view can put any row first.
+        if (value.agg) css.addClass(el, fd_strongest);
+        if (value.leaf) css.addClass(el, fd_row_indent);
         text = value.text;
     } else if (value.kind === 'fresh') {
         // P2 — past its budget, staleness is a state with a mark, never a tint
@@ -96,6 +100,12 @@ LadderCell.prototype.getValue        = function () {
 };
 LadderCell.prototype.getEditValue    = function () { return this.getValue(); };
 LadderCell.prototype.getValueToCopy  = function () {
-    return this._value ? String(this._value.text) : '';
+    if (!this._value) return '';
+    // An aggregate's NUMBER never leaves as data. A ladder copied into a mail
+    // or a sheet is a real desk gesture, and a subtotal pasted alongside the
+    // rows it totals is a column that sums to twice the book. The label still
+    // copies, so the block stays readable — it just cannot be added up wrong.
+    if (this._value.agg && this._value.kind !== 'label') return '';
+    return String(this._value.text);
 };
 LadderCell.prototype.dispose         = function () { this._el = null; };
