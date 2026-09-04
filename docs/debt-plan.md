@@ -49,11 +49,16 @@ and the runtime sweep green on every widget the step touched.
 
 ### Step 3 — #8 baseline regeneration
 
-- `BaselineRegen` writes `risk-conformance-baseline.txt` itself, UTF-8, and
-  prints a summary only.
-- Delete KT.md §9.3.
-- **Verify:** regenerate on Windows; the loaded baseline count equals the
-  written count; build green.
+- Found on reading the source: `BaselineRegen` **already** writes the file
+  itself, UTF-8, with a summary — the register's evidence was wrong. What was
+  stale was KT.md §9.3, which still told the reader to "have a probe write
+  fingerprints" as though the class did not exist, and led with the hazard
+  rather than the procedure.
+- KT.md §9.3 rewritten: the command first, the hazard as the reason it
+  exists, the verification tip kept for the case where anything else touches
+  the file.
+- **Verify:** the documented command is the one the class's own javadoc
+  gives; build unaffected (docs only).
 
 ### Step 4 — #5 actor identity
 
@@ -98,8 +103,8 @@ and the runtime sweep green on every widget the step touched.
 |---|---|---|---|
 | 1 | #2 swallowed exceptions | **done** | "Debt #2: no swallowed exceptions" |
 | 2 | #3 risk judgement in the UI | **done** | "Debt #3: the desk judges, the UI renders" |
-| 3 | #8 baseline regeneration | next | |
-| 4 | #5 actor identity | | |
+| 3 | #8 baseline regeneration | **done** (docs; the class already existed) | "Debt #8: the baseline procedure is the class, not the redirect" |
+| 4 | #5 actor identity | next | |
 | 5 | #4 fetch and failure | | |
 | 6 | #7 stubs and `onCopy` | | |
 | 7 | #6 runtime sweep | | |

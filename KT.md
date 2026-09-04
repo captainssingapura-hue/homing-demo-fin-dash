@@ -351,13 +351,19 @@ light/dark + the named themes you'll see in the top bar).
    `risk-conformance-baseline.txt` under `src/main/resources` (the gate test still
    sees it — test classpath includes main resources).
 
-3. **Never regenerate the baseline by piping console output to a file on Windows.**
-   The console mangles UTF‑8 (e.g. an em‑dash `—` in a rule message becomes a lone
-   `0x97` byte → invalid UTF‑8 → `Files.readAllLines` throws → the **whole** baseline
-   loads empty → "0 baselined"). Instead, have a probe write fingerprints via Java
-   (`Files.writeString(..., UTF_8)`) or edit the file with a UTF‑8‑safe editor. Verify
-   with `LC_ALL=C grep -c $'\x97' <file>` (must be 0). Also delete any stale
-   `target/**/…-baseline.txt` that could shadow the source copy.
+3. **Regenerate the baseline with `BaselineRegen`, never by hand.**
+   ```bash
+   mvn -o -pl fin-dash-studio exec:java -Dexec.classpathScope=test -Dexec.mainClass=hue.captains.singapura.js.homing.findash.studio.conformance.BaselineRegen
+   ```
+   It writes `src/main/resources/risk-conformance-baseline.txt` itself, UTF‑8, and
+   prints a per‑rule summary. The reason it exists: piping console output to a file
+   on Windows mangles UTF‑8 (an em‑dash `—` in a rule message becomes a lone `0x97`
+   byte → invalid UTF‑8 → `Files.readAllLines` throws → the **whole** baseline loads
+   empty → "0 baselined" and every grandfathered finding silently becomes a new
+   error). The class is the safe path; a redirect is not a procedure. If the file is
+   ever touched by anything else, verify with `LC_ALL=C grep -c $'\x97' <file>`
+   (must be 0), and delete any stale `target/**/…-baseline.txt` that could shadow
+   the source copy.
 
 4. **Companion resources move with the class's package.** A module's served
    `.js`/`.svg`/`.css` resource path mirrors its Java package

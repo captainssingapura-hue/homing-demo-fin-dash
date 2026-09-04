@@ -73,7 +73,6 @@ grep over `src/main`, `lib/` excluded.
 | 5 | actor identity from `Math.random()` | 20 widgets | medium | small ×20 |
 | 6 | the runtime sweep is a manual protocol | — | high | large |
 | 7 | contract methods stubbed; copy guard unreachable | 1 adapter | medium | small |
-| 8 | baseline regeneration depends on shell piping | 1 test class | medium | tiny |
 | 9 | a standing baseline of grandfathered findings | 5 findings, 1 module | medium | upstream |
 | 10 | widget view state lost on reconstruction | 1 widget known | low | small |
 | 11 | a vendored library four years old | 1 file, 600 KB | low | small |
@@ -142,17 +141,6 @@ polling or push feed (the case study's §8 path). For a read-only adapter,
 `deleteRows` and `update` should refuse loudly, not silently. **Acceptance:**
 `Ctrl+C` in the ladder copies with aggregates blank; a fixture feed ticks
 the ladder.
-
-## 8. Baseline regeneration depends on shell piping
-
-**Copy risk: medium.** KT.md §9.3 warns *never* to regenerate the baseline by
-piping console output to a file on Windows, because UTF-8 mangling makes the
-whole baseline load empty and every violation pass. A procedure with a
-footgun in its knowledge-transfer notes is a procedure that will be run
-wrong.
-
-**Fix.** `BaselineRegen` writes the file itself, in UTF-8, and prints only a
-summary. **Acceptance:** KT.md §9.3 deleted because it no longer applies.
 
 ## 9. A standing baseline of grandfathered findings
 
