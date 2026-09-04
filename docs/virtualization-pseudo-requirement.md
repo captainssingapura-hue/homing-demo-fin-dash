@@ -19,10 +19,12 @@ pseudo-requirement is.
 
 There are two capacities in play and they are not close.
 
-The **browser's** limit is DOM. A table of seven columns builds and lays out
-five thousand rows in about six tenths of a second on a current machine, and
-twenty thousand in three and a half; scrolling either is effectively free.
-Virtualization exists for the region past that — the tens of thousands.
+The **browser's** limit is DOM. A table of seven columns of bare cells — a
+div, a class, a text node — builds and lays out five thousand rows in about
+six tenths of a second on a current machine, and twenty thousand in three and
+a half; scrolling either is effectively free. Virtualization exists for the
+region past that — the tens of thousands. (Hold on to "bare cells"; §3 comes
+back to it.)
 
 The **reader's** limit is attention. A person can hold perhaps seven things in
 mind, scan perhaps thirty to fifty rows for a pattern, and read one screen.
@@ -69,7 +71,45 @@ So the question inverts. A user scrolls a large set *because the UI failed to
 offer the navigation the task needed*. Virtualization treats the symptom —
 makes the scrolling fast — and leaves the cause in place.
 
-## 3. What the scrollbar is for, and when it stops being for it
+## 3. The two deficits it compensates for
+
+Set the honest exceptions (§7) aside and ask a plainer question: when is
+virtualization *actually deployed*? There are two cases, and each is a
+compensation for a deficit somewhere else.
+
+**Upstream: the domain offers no breakdown.** No find, no fold, no summary,
+no time window — so the UI is handed the whole set and the reader is handed a
+scrollbar. This is §2's fifth case seen from the other side: the fallback was
+not a choice the user made but a gap the domain left. Virtualization makes the
+gap survivable at scale, and in doing so removes the pressure to close it.
+
+**Downstream: the rendering is too heavy for moderate sizes.** This is the
+case the checklists never state, and the one that explains the feature's
+ubiquity. Nobody reaches for virtualization because of a million rows. They
+reach for it because *three hundred* rows stutter — a component tree per cell,
+a reconciliation pass on every tick, styles computed per cell per render. The
+grid is virtualized not to cope with the data but to cope with itself. The
+popular stacks need it at sizes a bare table would not notice; so the feature
+is everywhere; so it is on every checklist; so it is a requirement.
+
+Read §1's numbers again with the second deficit in view. Bare cells build and
+lay out two thousand rows in about a quarter of a second, sweep a new value
+through all two thousand of one column in thirty milliseconds, and hide ninety
+percent of them in twenty. That is a table with no downstream deficit, and it
+needs no window at any size a reader can use. Make the cell a component and
+those numbers go up by an order of magnitude, and the window becomes
+necessary — not because the data grew, but because the cell did.
+
+So the diagnosis is two questions, asked before the feature is considered:
+
+1. *Does the domain give the reader a way to the rows they need?*
+2. *Does a row cost more to draw than it should?*
+
+"Yes" and "no" leave virtualization with nothing to compensate for. "No" or
+"yes" names the thing to fix — and fixing it is cheaper than the feature,
+because the feature must be paid for again at every gesture in §6.
+
+## 4. What the scrollbar is for, and when it stops being for it
 
 A scrollbar's thumb encodes *position in the set* and its length encodes *how
 much there is*. Both affordances are real at fifty rows. At a hundred thousand
@@ -82,7 +122,7 @@ affordance it preserves has already stopped working. It keeps the scrollbar
 honest about a quantity the scrollbar can no longer express. A count expresses
 it better in six characters: `40 of 57,214`.
 
-## 4. The tell: a UI that has become a store
+## 5. The tell: a UI that has become a store
 
 There is a second reason the requirement is a pseudo one, and it is about
 where the data lives.
@@ -102,7 +142,7 @@ the grid drawing a scrollbar over rows it does not have. The feature, in its
 mature form, has already conceded the point. The windowing is domain work; the
 grid keeps the illusion.
 
-## 5. What it breaks, and then rebuilds
+## 6. What it breaks, and then rebuilds
 
 Rows that are not in the DOM are not in the DOM. Every gesture that reads the
 page rather than the model breaks, and a virtualizing grid must then
@@ -122,7 +162,7 @@ a blotter. Each rebuild is a place where the grid's copy of a browser feature
 is a little worse than the browser's, and each is a cost paid so that a
 quantity no one reads can be scrolled.
 
-## 6. The honest exceptions, and where they resolve
+## 7. The honest exceptions, and where they resolve
 
 It would be too neat to say there is never a case. There are three that come
 up, and it is worth following each to where it ends.
@@ -144,10 +184,11 @@ regulator has never scrolled one.
 Each exception resolves to a case for *having* N on the server and *seeing* a
 domain-chosen window. None resolves to a case for scrolling N.
 
-## 7. What the ladder already does instead
+## 8. What the ladder already does instead
 
-The risk ladder in this desk never virtualizes and never needs to, because its
-domain code answers the five questions of §2 directly:
+The risk ladder in this desk never virtualizes and never needs to, because
+neither deficit of §3 is present. Upstream, its domain code answers the five
+questions of §2 directly:
 
 - **find** — selecting a pair anywhere on the desk focuses the ladder to it
   (the filter predicate, driven by the bus);
@@ -163,13 +204,23 @@ hidden rows rather than disposing them — means the domain's reduction of the
 set is the DOM's reduction too, for free. The grid did not need a window.
 The domain made one.
 
-## 8. Why the number is on every checklist anyway
+Downstream, the deficit is absent by construction. A ladder cell is a div, a
+class and a text node — the weight of the cells §1 was measured with — and the
+grid's update batch coalesces a hot feed to one `update()` per cell per frame.
+Nothing reconciles a tree; nothing computes a style per render. That is not an
+optimisation applied to the ladder; it is what "cells are ours" costs, which
+is to say nothing.
 
-Because it is a number. "Handles a million rows" can be benchmarked, screen-
-recorded and put on a pricing page; "reduces the set to what the reader can
-use" cannot. Requirements that are easy to measure crowd out requirements that
-are true — the same mechanism by which a line count becomes a code-quality
-metric.
+## 9. Why the number is on every checklist anyway
+
+Because it is a number, and because the stacks that dominate the market need
+it. "Handles a million rows" can be benchmarked, screen-recorded and put on a
+pricing page; "reduces the set to what the reader can use" cannot. And a grid
+whose cells are components must virtualize at three hundred rows or stutter
+(§3), so every such grid ships the feature, and a feature every product ships
+becomes a line every checklist copies. Requirements that are easy to measure
+crowd out requirements that are true — the same mechanism by which a line
+count becomes a code-quality metric.
 
 Which is where this study and the 250-line rule meet. Both are numbers in the
 machine's units. One is a joke that knows it (past 250 lines the *author* can
@@ -177,14 +228,16 @@ no longer hold the module — 二百五). The other is a boast that does not: pa
 fifty rows the *reader* can no longer hold the table, and a grid proud of
 rendering a million of them is proud of a capacity no one can use.
 
-## 9. The conclusion, as a rule
+## 10. The conclusion, as a rule
 
-**A requirement stated in rows-the-grid-can-render is a requirement on the
-domain that has been misfiled.** Read it as "what does the user need to see,
-and how do they get to it?" — and answer with find, fold, summarise, window by
-time, and count. If, after all of that, the set on screen is still too large
-for the browser, the domain has not finished; it has not become the grid's
-problem.
+**A requirement stated in rows-the-grid-can-render is either a requirement on
+the domain that has been misfiled, or a bill for the rendering stack that has
+been misaddressed.** Read it as "what does the user need to see, and how do
+they get to it?" — and answer with find, fold, summarise, window by time, and
+count. Then ask what a row costs to draw, and if the answer is "a component",
+answer that instead. If, after all of that, the set on screen is still too
+large for the browser, the domain has not finished; it has not become the
+grid's problem.
 
 Virtualization is what you build when you decide not to answer that question.
 It is very well engineered. It is still the wrong question.
