@@ -53,6 +53,6 @@ the one part of the ladder that was pleasant to edit.
 a minute per change) is the demo's other tax and a separate item when someone
 takes it; a serve-from-source mode for `.js` resources would be its shape.
 
-**Origin.** Named as the first of two genuine taxes in
-[`react-rewrite-cost.md`](react-rewrite-cost.md) §5 and §8 — the honest half
-of a study that otherwise found little in React's favour here.
+**Origin.** Named in [`react-rewrite-cost.md`](react-rewrite-cost.md) §7 and
+§9 as the place where React's cost is lowest and this repository's highest —
+a tax on the existing answer, not on its premise.

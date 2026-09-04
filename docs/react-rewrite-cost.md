@@ -1,278 +1,211 @@
-# The desk in React: a cold-start comparison
+# The desk in React: the cost of a cold start
 
-**A study, and a protocol.** The previous two studies costed one widget
-against AG Grid and took one grid feature apart. This one asks the whole
-question — and finds that the obvious way to ask it, *what would a rewrite
-cost?*, is the wrong way. A rewrite prices translation, and nobody would ever
-do the translation. The comparison that would mean something is a **cold
-start**: the same requirements, two teams, two stacks, neither having seen the
-other's answer.
+**A study.** The comparison that would mean something is a cold start: the
+same papers this desk was built from, handed to a React team who build a
+workable desk on whatever backend they are fluent in, and who never see this
+repository. This study is the React side of that ledger — what such a team
+would pay, in which currencies, and how the experiment that settles it would
+be run.
 
-So this study does three things. It prices the rewrite anyway, as a bound
-(§3). It designs the cold start, as the experiment (§4). And it states what it
-expects, as hypotheses written so they can be wrong (§4, §7).
+It is not a rewrite costing. A rewrite carries this desk's design over and
+prices its translation; the design is the thing in question, and a team
+starting from the papers would arrive at their own.
 
 ---
 
-## 1. What "the demo" is
+## 1. The size of the requirement
 
-Measured from the repository on 2026-09-04, so the costing is of a thing and
-not an impression of one:
+The papers — the UI study with its five principles, the engine architecture,
+the demo-data requirements, and the user guide read as acceptance — have one
+existing answer, and its size is the floor on what any answer must contain.
+Measured from the repository on 2026-09-04:
 
 | | |
 |---|---|
-| workspaces (one per persona) | 13 |
+| workspaces, one per persona | 13 |
 | widgets | 41 |
-| served JS modules beyond the widgets | 17 (8 authored in Java, 9 as co-located `.js`) |
-| typed CSS classes, in groups | 82, in 7 |
-| data actions (server endpoints) | 21 |
-| themes | 10, one desk-authored |
+| data endpoints | 21 |
+| themes | 10 |
 | conformance rules the build enforces | 12 |
-| docs served from the repo | 9 |
-| Java, main / test | ≈16,200 / ≈700 lines |
-| JavaScript | ≈4,600 lines (≈3,650 authored as Java string arrays, ≈930 co-located) |
-| history | 76 commits over 25 calendar days |
+| docs served from source | 9 |
+| server-side code | ≈16,200 lines of Java |
+| client-side code | ≈4,600 lines of JavaScript |
 
-And what the framework underneath supplies, none of which the demo wrote: the
-workspace shell (panes, splits, tabs, persistence, the RFC 0048 focus model),
-the party bus and secretaries, the tree views, the relation grid, the studio
-catalogue and doc readers, the theme system, and the conformance engine with
-its baseline ratchet.
+A React team pays for at least this. What they pay with is the rest of the
+study.
 
-The build resolves **65 runtime artifacts** for the studio module — the whole
-server, HTTP stack included — of which 41 are the framework's, 17 are the
-desk's, and the remaining two dozen are third-party in seven groups (Jackson,
-Vert.x, Netty, and two small libraries from the same author as the framework).
+## 2. Currency one: the stack they must source
 
-## 2. What React is, and what it leaves you to source
+React is a view library. Of what the papers need, it supplies the components
+and nothing else. Every other capability this desk gets from its framework, a
+React team sources from a package — and the choice of package is itself work,
+made before a single workspace exists:
 
-React is a view library. It replaces exactly one layer of this demo: the
-authoring of DOM-owning modules and the party that composes them. Everything
-else the framework supplies has to be sourced from somewhere, and in the React
-ecosystem "somewhere" is a package:
+| the papers need | a React build sources from |
+|---|---|
+| a docking shell — panes, splits, tabs, persistence | `dockview`, `flexlayout-react` |
+| shallow / deep focus across panes | hand-written on the layout's API; no library has an opinion |
+| a message bus between widgets | `zustand`, `redux`, or a hand-rolled emitter |
+| tree views (portfolios, ontology) | `react-arborist` |
+| a grid (blotters, the ladder) | AG Grid, TanStack Table |
+| typed styling and ten themes | CSS Modules and CSS variables |
+| a catalogue, doc readers, diagrams | `react-router`, `react-markdown`, `remark-gfm`, `mermaid` |
+| a 3D surface | `three` |
+| enforcement of the papers' rules | ESLint with custom rules, partially |
+| a runtime sweep | Playwright |
+| a build | Vite, and whatever marries it to the backend's |
+| a backend | the team's choice — Node, Spring, .NET |
 
-| this demo has | from | a React build needs | typical source |
+Fourteen decisions, each with its own upgrade cadence, before the first
+persona is served.
+
+## 3. Currency two: the dependency tree
+
+This is the measured part. Two lockfiles were resolved on 2026-09-04 with
+`npm install --package-lock-only`, no scripts run, from current versions of
+well-maintained libraries:
+
+| stack | direct | resolved packages | advisories open that day |
 |---|---|---|---|
-| widgets that own named DOM | `DomModule` + `DomOpsParty` | components | React |
-| panes, splits, tabs, persistence | workspace shell | a docking layout | `dockview`, `flexlayout-react` |
-| shallow / deep focus (RFC 0048) | shell | reimplemented on the layout's API | hand-written |
-| party bus, secretaries | core | a store with message semantics | `zustand`, `redux` |
-| tree views | `homing-tree-views` | a tree | `react-arborist` |
-| grid | `RelationGrid` | a grid | AG Grid, TanStack |
-| typed CSS classes | `CssGroup` / `CssClass` | class typing | CSS Modules + d.ts, `vanilla-extract` |
-| ten themes as CSS variables | theme system | the same variables | unchanged — the one free transfer |
-| catalogue, doc readers | studio base | a router and a renderer | `react-router`, `react-markdown`, `remark-gfm`, `mermaid` |
-| 12 conformance rules over the *served artifact* | conformance engine | rules over *source* | ESLint + custom rules; partial |
-| the runtime sweep | a browser and a protocol | end-to-end tests | Playwright |
-| one build | Maven | two builds | Maven + Vite, and a plugin to marry them |
+| the floor — React, React DOM, TypeScript, Vite, the React plugin | 5 | **111** | 2 (1 moderate, 1 high) |
+| the stack of §2 — the floor plus AG Grid, dockview, react-arborist, zustand, react-markdown, remark-gfm, mermaid, three, ESLint and its React rules, Vitest, Testing Library, jsdom, Playwright | 21 | **552** | 5 (3 moderate, 1 high, 1 critical) |
+| for scale: this desk's *entire server*, HTTP stack included, runtime scope | — | **65** artifacts, ≈24 third-party | — |
 
-The data layer — 21 actions, the deterministic book, the lifecycle model — is
-Java and stays Java. React changes nothing there except that the JSON
-contract, which today is an internal detail, becomes an API surface.
+Three things about that table. The 552 is the front end alone; the backend
+the team chooses is added to it, not replaced by it. The advisory counts are a
+snapshot and will differ next week, which is the point: they are not a number
+a team fixes but a number it *attends to*, on every build, indefinitely. And
+the critical one was open on a tree assembled that morning — an ordinary tree,
+not a neglected one. That is the resting state.
 
-## 3. The wrong comparison: a rewrite, line by line
+## 4. Currency three: build systems
 
-It is still worth pricing, because it bounds the answer. Developer-days for
-someone fluent in the React ecosystem, given the Java server as it stands:
+A React front end is a second build: its own resolver, lockfile, cache, CI
+lane and failure modes, married to the backend's build by a plugin or kept in
+a second repository. It is not an install. It is a system, owned for the life
+of the product.
 
-| work | days | note |
-|---|---|---|
-| 41 widgets as components | 40–80 | one to two each; the pricer and calibration lab are the expensive ones, the fact panels the cheap ones |
-| docking shell on `dockview` | 5–8 | panes, splits, tabs, persistence to IndexedDB |
-| the focus model on top of it | 3–5 | shallow vs deep entry, `setActive`, keyboard scoping — none of which a layout library has an opinion about |
-| bus → store | 2–3 | `DeskSecretary` is already a pure `(state, envelope) → Step`; it transfers as a reducer almost verbatim |
-| tree views | 2–3 | |
-| the ladder and blotters on a grid | 4–6 | costed in the RelationGrid study |
-| 82 classes → CSS Modules | 3–5 | typing survives via generated declarations; the *gate* does not |
-| themes | 1–2 | the variables are runtime CSS and carry over |
-| catalogue, docs, mermaid | 5–8 | |
-| conformance as ESLint | 5, partial | line limits, CDN imports, inline styles and literal colours have analogues; crate integrity, DOM ownership and the baseline ratchet do not |
-| runtime sweep as Playwright | 5 | |
-| Vite, and marrying it to Maven | 3–5, then forever | `frontend-maven-plugin` or a split repository; either way a second CI lane |
-| **total** | **≈ 80–135** | four to six months of one developer, or two to three of a pair |
+The papers' one existing answer builds and runs from source on a clean
+machine with one tool. Whether the React answer can — and how many tools it
+takes — is one of the experiment's measurements, because it is the cost that
+is paid by everyone who ever clones the thing.
 
-Two honesty notes on the number. First, the current demo's 25 calendar days
-of commits are not comparable developer-days — the framework was being
-finished alongside it, by its own author, with the desk as the test case — so
-the table is a costing of *what must be built*, not a race. Second, the
-estimate assumes competent humans and no tooling advantage on either side;
-whatever accelerates one column accelerates the other.
+## 5. Currency four: enforcement
 
-And the larger problem, which is why this is the wrong comparison: a rewrite
-carries this desk's design over intact — its row kinds, its party, its
-boundary between what the server publishes and what the UI shows — and prices
-only the *translation* of it into another vocabulary. But that design is the
-thing in question. A React team starting from the same papers would not
-arrive at this design; they would arrive at theirs, and the interesting
-differences are exactly the ones a translation preserves. The 80–135 days is
-what it would cost to get a React app that is secretly this one. It is a
-ceiling on the wrong quantity.
+The papers carry rules — no literal colours, no inline styles, no wholesale
+DOM destruction, a line ceiling, a theme-token vocabulary — and this desk
+enforces twelve of them at build time, over the JavaScript the browser
+actually receives, with a baseline that lets a rule land before every
+violation is fixed.
 
-## 4. The right comparison: a cold start
+A React team enforces over *source*, because the bundle is what ships and a
+toolchain stands between the two. Line limits, CDN imports, inline styles and
+literal colours have ESLint and Stylelint analogues. Crate integrity — every
+module served is one the crate declares — has none, because the bundler is
+the crate. The baseline ratchet has none. And DOM ownership cannot be
+enforced at all, because of the next currency.
 
-**The requirement set.** The papers this desk was built from, and nothing
-else: the UI study with its five principles, the engine architecture, the
-demo-data requirements, and the user guide read as acceptance criteria —
-thirteen workspaces, each with its intro naming who it is for and what they
-do there. No access to this repository. The papers are the specification; the
-desk is one answer to it, and the experiment asks for another.
+## 6. Currency five: ownership
 
-**Two cold starts, not one.** A React team builds it on whatever backend they
-are fluent in — Node, Spring, .NET; the choice is theirs and is part of the
-result. And, because this is what makes it fair, a *homing* team that has
-never seen homing builds it too. The 25 calendar days in §1 are not a cold
-start: the framework's author built the desk as the framework's test case,
-finishing the one alongside the other. Whatever that was worth, a cold start
-removes it from both sides rather than pretending it was not there.
+React's premise is that the framework owns the DOM. That is not a cost in the
+sense the others are; it is a change of terms.
+
+A cell in this desk is a div, a class and a text node, owned by the domain
+code that made it. In React a cell is a component, reconciled by the
+framework on every change — which is precisely the downstream deficit the
+virtualization study found makes a grid need a window at three hundred rows.
+"Cells are ours", the finding both prior studies rest on, is not available
+to a React team at any price; the ecosystem's grids exist to compensate for
+its absence.
+
+For most products this is simply the deal, taken without a second thought.
+For the papers' P5 — the UI is a consumer, not a calculator — it is the
+currency in which the boundary erodes: when the grid offers to compute the
+totals, someone lets it.
+
+## 7. Where React's cost is lowest
+
+A ledger with only one column is not a ledger.
+
+**Authoring.** The papers' existing answer writes most of its JavaScript as
+Java string arrays — escaped, unhighlighted, gated by line count. JSX in an
+editor that understands it is simply better, and it is not close. (This is
+now the first item on this repository's backlog; it is a tax on the existing
+answer, not on its premise.)
+
+**The inner loop.** Hot reload in under a second against a build-and-restart
+on the order of a minute. Over a project that is hours; over a team it is the
+difference in how often anyone tries something.
+
+**State-heavy widgets.** The pricer, the calibration lab, the override
+inventory — forms with derived values — are what "UI as a function of state"
+was invented for. A React team should reach acceptance on those workspaces
+first, and the experiment expects them to.
+
+**People.** Every React developer can read a component on day one. Devtools,
+testing libraries and answered questions already exist.
+
+## 8. The experiment
+
+**The requirement set.** The papers, and nothing else. No access to this
+repository. The user guide is the acceptance, workspace by workspace, each
+with its intro naming who it is for.
+
+**Two cold starts.** A React team on the backend of their choice — and, so
+the comparison is fair, a homing team that has never seen homing. The
+existing answer was built by the framework's author as the framework's test
+case; a cold start removes that from both sides rather than pretending it
+was not there.
 
 **Rules.** Same clock. Same AI-assistance policy on both sides, whichever it
-is. No framework author on either team, and no author of the papers either. A
-third party applies the acceptance, workspace by workspace, against the user
-guide; partial credit is reported per workspace and never averaged into a
-score.
+is. No framework author and no paper author on either team. A third party
+judges acceptance; partial credit is reported per workspace and never
+averaged into a score.
 
 **What is measured.**
 
 | dimension | how |
 |---|---|
 | time | calendar days and developer-days to each workspace's acceptance |
-| size | lines by language; the count of things authored — components or modules, classes, endpoints |
+| size | lines by language; the count of things authored |
 | dependency tree | resolved packages or artifacts from a lockfile; advisories open on acceptance day |
-| build | number of build systems; a cold build from empty caches on a clean machine — the README's portability promise, applied to both |
-| enforcement | which of the desk's twelve conformance rules have an *enforced* equivalent on each side, and which are policy only |
+| build | number of build systems; a cold build from empty caches on a clean machine |
+| enforcement | which of the twelve rules have an *enforced* equivalent, and which are policy only |
 | runtime | the mount-everything, click-everything sweep, run by the judge on both |
-| the boundary | P5 audited: the number of places the UI computes what the server should have published |
-| ownership | who owns a cell — the domain or the framework — since that is the question both prior studies turn on |
+| the boundary | the number of places the UI computes what the server should have published |
+| ownership | who owns a cell |
 
-**Hypotheses, stated so they can be wrong.**
+**What this study expects, stated so it can be wrong.**
 
-1. The React team reaches acceptance first on the form-heavy workspaces —
-   the sales pricer, the quant lab, governance — and last on the grid-heavy
-   ones: the blotters, the ladder, the audit explorer.
-2. The React tree is larger by an order of magnitude and has at least one
-   open advisory on acceptance day — because §6's snapshot is the resting
-   state of such a tree, not an anomaly in it.
+1. The React team reaches acceptance first on the form-heavy workspaces and
+   last on the grid-heavy ones.
+2. The React tree is larger by an order of magnitude and carries at least one
+   open advisory on acceptance day.
 3. Without a reviewer holding the papers, the P5 boundary erodes on the React
-   side: totals get computed in the client because the grid offers to. The
-   homing side is not immune; it is merely not offered the shortcut.
-4. The homing cold start pays its first week to the framework — the party,
-   the crate, the string-array authoring of §5 — and its later weeks are
-   cheaper than React's. Whether the two curves cross before acceptance is
-   the result most worth having.
-5. On a clean machine, one side builds from source with one tool, and the
+   side, because the grid offers to compute.
+4. The homing cold start pays its first week to the framework and its later
+   weeks are cheaper; whether the curves cross before acceptance is the
+   result most worth having.
+5. On a clean machine, one side builds from source with one tool and the
    other does not.
 
 If the fourth is false — if the homing side never catches up — that is a
-finding against the framework, and a more useful one than any rewrite costing
-could produce. The experiment is worth running precisely because it can come
-out that way.
+finding against the framework, and the experiment is worth running precisely
+because it can come out that way.
 
-## 5. What React would make better
+## 9. The conclusion
 
-This section exists because a study that finds nothing is not a study.
+The cost of React development, for these papers, is not mostly in days. It is
+in currencies that do not appear on a day count: a stack of fourteen
+decisions, a dependency tree an order of magnitude larger with advisories as
+its resting state, a second build system owned forever, rules that can be
+stated but only partly enforced, and a premise under which the domain no
+longer owns its cells. Days are the currency the experiment will measure;
+the others are the ones it will confirm.
 
-**Authoring.** Roughly 3,650 lines of this demo's JavaScript are written as
-Java string arrays — `"    var x = ...",` — with escaped Unicode, no syntax
-highlighting, and a line gate to stay under. The co-located `.js` path exists
-and nine modules use it, but the string arrays are the majority and they are a
-tax. JSX in a `.tsx` file with an editor that understands it is simply
-better, and it is not close.
+Against that, React's cost is genuinely lowest exactly where the existing
+answer's is highest — authoring and the inner loop — and both of those are
+taxes on this repository, not on its premise, and are on its backlog.
 
-**The inner loop.** A change here is a clean build and a server restart, on
-the order of a minute; the risk ladder took about twenty of those in one
-afternoon. Vite's hot reload is under a second. Over a project that is
-hours, and over a team it is the difference in how often anyone tries
-something.
-
-**State-heavy widgets.** The pricer, the calibration lab, the override
-inventory — forms with derived values and validation — are what "UI as a
-function of state" was invented for. They are the widgets where the current
-approach is most laborious and React's would be least.
-
-**Hiring, tooling, ecosystem.** Every React developer can read a component;
-nobody has read a `DomModule` before their first day here. Devtools, testing
-libraries, and answers to questions already exist.
-
-## 6. What React would make worse
-
-**A second build system**, argued in the RelationGrid study and not repeated,
-except to say that it is not an install but a second set of failure modes,
-owned forever.
-
-**The dependency tree.** This is the measured part. Two lockfiles were
-resolved on 2026-09-04 with `npm install --package-lock-only`, no scripts run:
-
-| stack | direct | resolved packages | advisories open that day |
-|---|---|---|---|
-| the floor: React, React DOM, TypeScript, Vite, the React plugin | 5 | **111** | 2 (1 moderate, 1 high) |
-| a fair build of §2: the floor plus AG Grid, dockview, react-arborist, zustand, react-markdown, remark-gfm, mermaid, three, ESLint and its React rules, Vitest, Testing Library, jsdom, Playwright | 21 | **552** | 5 (3 moderate, 1 high, 1 critical) |
-| for comparison: the demo's *entire server*, runtime scope | — | **65** artifacts, ≈24 third-party | — |
-
-Three things about that table. The 552 is the front end *alone*, added on top
-of the same 65-artifact server; nothing is replaced. The advisory counts are a
-snapshot and will be different next week, which is the point: they are not a
-number you fix, they are a number you *attend to*, on every build, forever.
-And the critical one was open on a stack assembled that morning from current
-versions of well-maintained libraries — not a neglected tree, an ordinary one.
-
-**The conformance discipline.** The twelve rules run over the *served
-artifact* — the JavaScript the browser actually receives — because in this
-architecture the module is the artifact. React compiles the artifact away: the
-rules would run over source, the bundle would be what ships, and the two are
-related by a toolchain with its own transforms. The baseline ratchet, which
-lets a rule land before every violation is fixed, has no ESLint analogue.
-Crate integrity — every module served is one the crate declares — has no
-analogue at all, because the bundler is the crate.
-
-**The ownership model.** This is the one that is not a cost but a
-contradiction. `DomOpsParty` gives every element a name and an owner, and a
-branch that can be dissolved whole. React's reconciler owns the DOM; that is
-its premise, and it does not share. "Cells are ours" — the finding on which the
-RelationGrid study and the virtualization study both rest — becomes "cells
-are components", which is precisely the downstream deficit that makes a grid
-need virtualization at three hundred rows. The rewrite would not merely
-re-express the demo. It would remove the property the demo was built to show.
-
-## 7. Not a dependency — a premise
-
-Which is what the cold start would actually be testing. React is not
-something this demo could *add*. It is a different answer to the question the
-demo exists to answer — and the experiment in §4 asks whether that difference
-shows up in the hands of people who have never heard of either premise.
-
-The demo's premise: a UI is a set of served modules that own a DOM by name,
-compose through a party, and are checked as the artifacts they are. React's
-premise: a UI is a function of state, and the framework owns the DOM. One
-cannot be adopted as a library inside the other; the second replaces the
-first entirely. So the cost of "the demo in React" is not the 80–135 days in
-§3 and not the 552 packages in §6. It is that the result would no longer be
-a downstream validation case for the framework. It would be a React app with
-a Java back end, of which the world has a great many.
-
-For almost any other product, that is fine. A team hiring from the market,
-building a form-heavy UI with no appetite for a bespoke framework, should use
-React, pay the dependency tax as routine, and think no more about it — the
-costs in §6 are the ordinary price of the ecosystem, and most of the industry
-pays it without noticing. The costs are only *decisive* here because this
-repository's reason to exist is the thing they would remove.
-
-## 8. The conclusion, as a rule
-
-**Cost a framework against what the system is for, not against what one
-screen needs — and compare it cold, or not at all.** The RelationGrid study
-ended with "a grid should be chosen for what it costs the system"; this one
-ends one level up. A rewrite that preserves every feature and discards the
-premise has a cost of one hundred percent, whatever the day count says; and a
-comparison that carries one side's design over to the other has measured
-nothing but translation.
-
-This study is therefore a protocol awaiting its experiment. Until it runs, §3
-is a ceiling, §6 is a forecast, and §4's hypotheses are the only claims here
-that can be settled.
-
-And the honest corollary, since §5 is real: the string-array authoring and the
-one-minute loop are the demo's two genuine taxes, and neither is the premise.
-Both are fixable inside it — more modules on the co-located path, a faster
-serve-from-source loop — for a great deal less than four months and 552
-packages. The first is now a backlog item; that is where the next effort
-belongs.
+**Cost a framework in every currency it charges, not only the one the
+schedule shows.**
