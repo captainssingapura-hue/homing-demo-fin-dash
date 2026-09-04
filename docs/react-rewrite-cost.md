@@ -193,19 +193,38 @@ If the fourth is false — if the homing side never catches up — that is a
 finding against the framework, and the experiment is worth running precisely
 because it can come out that way.
 
-## 9. The conclusion
+## 9. The conclusion: the ledger at a glance
 
-The cost of React development, for these papers, is not mostly in days. It is
-in currencies that do not appear on a day count: a stack of fourteen
-decisions, a dependency tree an order of magnitude larger with advisories as
-its resting state, a second build system owned forever, rules that can be
-stated but only partly enforced, and a premise under which the domain no
-longer owns its cells. Days are the currency the experiment will measure;
-the others are the ones it will confirm.
+| currency | React, cold start | this desk | status |
+|---|---|---|---|
+| sourcing decisions before the first persona | 14 | 0 — one framework | counted, §2 |
+| resolved packages, front end | 111 at the floor, **552** for the stack | none — no front-end tree | measured 2026-09-04, §3 |
+| resolved artifacts, the server | the backend's own, on top | **65**, ≈24 third-party | measured, §3 |
+| advisories open, that day | 2 at the floor, **5** for the stack, one critical | not scanned; the exposure is the 24 | measured / not measured |
+| build systems | 2 | 1 | counted, §4 |
+| cold build on a clean machine | Node, npm, the backend's tools, and the marriage between them | JDK and Maven, one command — proven from an empty repository | proven one side, expected the other |
+| papers' rules enforced at build, of 12 | about 5 with an analogue; crate integrity, the baseline ratchet and DOM ownership with none | 12 | estimated, §5 |
+| who owns a cell | the framework | the domain | binary, §6 |
+| **developer-days to acceptance, 13 workspaces** | **90–150**, expected | **60–105**, expected | hypothesis — the experiment's output |
+| the existing answer's clock | — | 76 commits in 25 calendar days | measured, and not a cold start |
 
-Against that, React's cost is genuinely lowest exactly where the existing
-answer's is highest — authoring and the inner loop — and both of those are
-taxes on this repository, not on its premise, and are on its backlog.
+The day figures are expectations and are labelled so. The React range is the
+stack of §2 plus a backend built from the papers: roughly ten to fifteen days
+of data model and endpoints, twelve to twenty for shell, focus, bus, themes
+and catalogue, forty to eighty for forty-one widgets, and ten or so for
+enforcement, tests, the sweep and the build. The homing range removes what
+the framework supplies — the shell, bus, trees, grid, catalogue, themes and
+conformance, some twenty-five to thirty-five days of it — and pays instead a
+first week to the framework and the authoring tax of §7 on every widget. The
+two ranges overlap widely. That overlap is the reason the experiment is worth
+running: it is the one number in the table that only the experiment can
+settle, and it could settle it either way.
+
+So the cost of React development, for these papers, has a figure in every
+currency but the one the schedule shows, and an expectation there. Where it is
+lowest — authoring and the inner loop — is exactly where the existing answer's
+is highest, and both of those are taxes on this repository rather than on its
+premise, and are on its backlog.
 
 **Cost a framework in every currency it charges, not only the one the
 schedule shows.**
