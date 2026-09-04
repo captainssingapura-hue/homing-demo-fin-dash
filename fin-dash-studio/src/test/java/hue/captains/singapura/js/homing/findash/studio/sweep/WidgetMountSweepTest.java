@@ -83,6 +83,7 @@ class WidgetMountSweepTest {
         try (Context js = Context.newBuilder("js")
                 .allowAllAccess(false)
                 .option("js.ecmascript-version", "2022")
+                .option("engine.WarnInterpreterOnly", "false")   // a stock JDK runs GraalJS interpreted; that is fine for ~3 s of tests
                 .build()) {
             js.getBindings("js").putMember("__host", new Host());
             js.eval("js", STUB);
@@ -119,6 +120,41 @@ class WidgetMountSweepTest {
                   globalThis.__ctl = globalThis.__mod["%s"].construct(__b, {}, { deskParty: party });
                 })()
                 """.formatted(DOM_OPS_PARTY, className));
+        // Click everything, twice. The manual protocol's second half: every
+        // element under the root with a click or dblclick listener is
+        // dispatched to twice, because the defects this finds are the
+        // second-render class — a handler that re-renders on a branch it did
+        // not dissolve, a name minted again. Handlers run inside the widget's
+        // own try/catch only where it has one, so a throw is caught here and
+        // reported with the element it came from. Jobs run between phases.
+        js.eval("js", """
+                (function () {
+                  globalThis.__clickProblems = [];
+                  var ctl = globalThis.__ctl;
+                  if (!ctl || !ctl.root) return;
+                  var targets = [];
+                  (function walk(n) {
+                    if (!n) return;
+                    if (n._listeners && (n._listeners.click || n._listeners.dblclick)) targets.push(n);
+                    else if (typeof n.onclick === 'function' || typeof n.ondblclick === 'function') targets.push(n);
+                    for (var i = 0; n.children && i < n.children.length; i++) walk(n.children[i]);
+                  })(ctl.root);
+                  globalThis.__clickTargets = targets.length;
+                  targets.forEach(function (el) {
+                    ['click', 'dblclick'].forEach(function (type) {
+                      var has = (el._listeners && el._listeners[type]) || typeof el['on' + type] === 'function';
+                      if (!has) return;
+                      for (var k = 0; k < 2; k++) {
+                        try { el.dispatchEvent(new MouseEvent(type, { bubbles: true })); }
+                        catch (e) {
+                          __clickProblems.push(type + ' #' + (k + 1) + ' on <' + el.tagName.toLowerCase() + '> "'
+                              + String(el.textContent).trim().slice(0, 40) + '": ' + (e && e.message ? e.message : e));
+                        }
+                      }
+                    });
+                  });
+                })()
+                """);
         return js.eval("js", """
                 (function () {
                   var ctl = globalThis.__ctl;
@@ -141,7 +177,9 @@ class WidgetMountSweepTest {
                     fetches: __fetches.map(function (f) { return f.status + ' ' + f.url; }),
                     badFetches: __fetches.filter(function (f) { return f.status !== 200; }).map(function (f) { return f.status + ' ' + f.url; }),
                     joined: __joined.length, left: __left.length,
-                    intervalsLeft: __timers.intervals.length
+                    intervalsLeft: __timers.intervals.length,
+                    clickTargets: globalThis.__clickTargets || 0,
+                    clickProblems: globalThis.__clickProblems || []
                   };
                 })()
                 """);
@@ -164,6 +202,8 @@ class WidgetMountSweepTest {
         if (joined != left) problems.add("actors joined " + joined + ", left " + left);
         long intervals = result.getMember("intervalsLeft").asLong();
         if (intervals != 0) problems.add(intervals + " interval(s) still scheduled after teardown");
+        Value clicks = result.getMember("clickProblems");
+        for (long i = 0; i < clicks.getArraySize(); i++) problems.add("click sweep: " + clicks.getArrayElement(i).asString());
         return problems;
     }
 
@@ -178,6 +218,7 @@ class WidgetMountSweepTest {
         try (Context js = Context.newBuilder("js")
                 .allowAllAccess(false)
                 .option("js.ecmascript-version", "2022")
+                .option("engine.WarnInterpreterOnly", "false")   // a stock JDK runs GraalJS interpreted; that is fine for ~3 s of tests
                 .build()) {
             js.getBindings("js").putMember("__host", new Host());
             js.eval("js", STUB);

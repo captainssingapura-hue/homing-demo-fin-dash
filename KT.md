@@ -342,8 +342,14 @@ Both finish in about three seconds. When a widget needs something the stub
 lacks, add it to `BrowserStub.js` once, beside the widget that needed it;
 `VolSurfaceWidget` is skipped by name (WebGL) with the reason in the test.
 
-**What is still manual:** clicking every control twice. The stub records
-listeners, so dispatching each one is the next increment, not a new harness.
+**The click half is automated too.** After the mount and the promise drain,
+the sweep walks the root, finds every element with a recorded `click` or
+`dblclick` listener (or an `onclick`), dispatches each **twice**, drains
+again, and reports any throw with the element it came from. Twice, because
+the defects this finds are the second‑render class — a handler that re‑renders
+on a branch it did not dissolve, a name minted again. Its first run caught
+`DataTypeTreeWidget` doing exactly that. What remains manual is only what
+the stub cannot host: WebGL, and anything that needs real layout geometry.
 
 ## 8. Domain design — a concrete starting set
 
@@ -435,8 +441,9 @@ light/dark + the named themes you'll see in the top bar).
    threw `NoSuchMethodError`. The desk only ever *encoded* JSON, so nothing
    noticed until the sweep parsed an action's answer. The root pom now manages
    the three Jackson artifacts at one version (`jackson.version`); if the
-   framework's vert.x moves, move it with it. No convergence rule enforces this
-   yet (backlog #13).
+   framework's vert.x moves, move it with it — and `maven-enforcer-plugin`'s
+   `dependencyConvergence` rule in the root build now fails the build on the
+   next split, in every module.
 
 ## 10. Starter checklist (in order)
 
