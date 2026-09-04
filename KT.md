@@ -309,6 +309,48 @@ codec‑gen step unless your crate re‑packs `ReportCodecsModule` (it won't).
 
 ---
 
+### 7e. The runtime sweep (automated)
+
+Conformance reads the served text; the sweep **runs** it. Two tests in
+`fin-dash-studio/src/test/java/…/studio/sweep/` are part of every `mvn install`:
+
+- **`WidgetMountSweepTest`** — for every `WorkspaceWidget` in every top‑level
+  crate, in a fresh GraalJS context: evaluate `BrowserStub.js` (a DOM with
+  children, classes, styles, attributes, text and listeners; timers that
+  *record* rather than fire; `fetch` routed in‑process to the desk's real
+  actions; a console whose errors are kept), load the widget's **served**
+  module and everything it imports (`ServedModuleLoader` renders each
+  `/module?class=` in‑process and resolves imports depth‑first into
+  IIFE‑isolated globals — the artifact, not a transcription), mint a
+  DomOpsParty branch as the shell does, `construct(branch, {}, {deskParty})`,
+  return to Java so the promise jobs run, then `setActive(true/false)`,
+  `partyDeregister()`, `branch.dissolve()`. It fails on: no root; the
+  framework's "Widget failed to construct" root; a "load failed" line or any
+  `fd-error-text` after mount; a fetch answered other than 200; a console
+  error; an actor that joined and did not leave; an interval still scheduled
+  after teardown. A **canary** widget that mints one element name twice — the
+  defect the manual sweep found in two widgets — must be reported, or the
+  test fails; a green sweep that cannot fail is not a gate.
+- **`ActionsShapeTest`** — every `/fx/*` action answers in‑process with a
+  non‑empty JSON object. This is what surfaced the Jackson split (§9.9).
+
+Run them alone with
+```bash
+mvn -o -pl fin-dash-studio test -Dtest='WidgetMountSweepTest,ActionsShapeTest'
+```
+Both finish in about three seconds. When a widget needs something the stub
+lacks, add it to `BrowserStub.js` once, beside the widget that needed it;
+`VolSurfaceWidget` is skipped by name (WebGL) with the reason in the test.
+
+**The click half is automated too.** After the mount and the promise drain,
+the sweep walks the root, finds every element with a recorded `click` or
+`dblclick` listener (or an `onclick`), dispatches each **twice**, drains
+again, and reports any throw with the element it came from. Twice, because
+the defects this finds are the second‑render class — a handler that re‑renders
+on a branch it did not dissolve, a name minted again. Its first run caught
+`DataTypeTreeWidget` doing exactly that. What remains manual is only what
+the stub cannot host: WebGL, and anything that needs real layout geometry.
+
 ## 8. Domain design — a concrete starting set
 
 A believable risk dashboard (all fabricated demo data — no real feeds):
@@ -351,13 +393,19 @@ light/dark + the named themes you'll see in the top bar).
    `risk-conformance-baseline.txt` under `src/main/resources` (the gate test still
    sees it — test classpath includes main resources).
 
-3. **Never regenerate the baseline by piping console output to a file on Windows.**
-   The console mangles UTF‑8 (e.g. an em‑dash `—` in a rule message becomes a lone
-   `0x97` byte → invalid UTF‑8 → `Files.readAllLines` throws → the **whole** baseline
-   loads empty → "0 baselined"). Instead, have a probe write fingerprints via Java
-   (`Files.writeString(..., UTF_8)`) or edit the file with a UTF‑8‑safe editor. Verify
-   with `LC_ALL=C grep -c $'\x97' <file>` (must be 0). Also delete any stale
-   `target/**/…-baseline.txt` that could shadow the source copy.
+3. **Regenerate the baseline with `BaselineRegen`, never by hand.**
+   ```bash
+   mvn -o -pl fin-dash-studio exec:java -Dexec.classpathScope=test -Dexec.mainClass=hue.captains.singapura.js.homing.findash.studio.conformance.BaselineRegen
+   ```
+   It writes `src/main/resources/risk-conformance-baseline.txt` itself, UTF‑8, and
+   prints a per‑rule summary. The reason it exists: piping console output to a file
+   on Windows mangles UTF‑8 (an em‑dash `—` in a rule message becomes a lone `0x97`
+   byte → invalid UTF‑8 → `Files.readAllLines` throws → the **whole** baseline loads
+   empty → "0 baselined" and every grandfathered finding silently becomes a new
+   error). The class is the safe path; a redirect is not a procedure. If the file is
+   ever touched by anything else, verify with `LC_ALL=C grep -c $'\x97' <file>`
+   (must be 0), and delete any stale `target/**/…-baseline.txt` that could shadow
+   the source copy.
 
 4. **Companion resources move with the class's package.** A module's served
    `.js`/`.svg`/`.css` resource path mirrors its Java package
@@ -385,6 +433,17 @@ light/dark + the named themes you'll see in the top bar).
    untracked files.
 
 ---
+
+9. **Jackson arrives twice through vert.x 4.5.11** — `vertx-web` brings
+   `jackson-databind 2.17.2`, `vertx-core` brings `jackson-core 2.16.1`, and
+   nearest‑wins keeps both. databind 2.17 calls `JsonParser.getNumberTypeFP()`,
+   which core 2.16 lacks, so **parsing** any JSON with a floating‑point number
+   threw `NoSuchMethodError`. The desk only ever *encoded* JSON, so nothing
+   noticed until the sweep parsed an action's answer. The root pom now manages
+   the three Jackson artifacts at one version (`jackson.version`); if the
+   framework's vert.x moves, move it with it — and `maven-enforcer-plugin`'s
+   `dependencyConvergence` rule in the root build now fails the build on the
+   next split, in every module.
 
 ## 10. Starter checklist (in order)
 

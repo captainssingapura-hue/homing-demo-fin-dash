@@ -56,3 +56,45 @@ takes it; a serve-from-source mode for `.js` resources would be its shape.
 **Origin.** Named in [`react-rewrite-cost.md`](react-rewrite-cost.md) §7 and
 §9 as the place where React's cost is lowest and this repository's highest —
 a tax on the existing answer, not on its premise.
+
+---
+
+# Reference-implementation debt
+
+This demo exists to be copied into real desks. So the criterion for what
+follows is not *is it wrong* but **would it be copied** — and a practice that
+appears twenty times in a reference implementation has already been copied
+twenty times before anyone outside sees it. Evidence gathered 2026-09-04 by
+grep over `src/main`, `lib/` excluded.
+
+| # | item | sites | copy risk | size |
+|---|---|---|---|---|
+| 9 | a standing baseline of grandfathered findings | 5 findings, 1 module | medium | upstream |
+| 10 | widget view state lost on reconstruction | 1 widget known | low | upstream |
+
+## 9. A standing baseline of grandfathered findings
+
+**Copy risk: medium.** The baseline "may only shrink" and has held at five
+for weeks, all on `SmileChartModule`, all because conformant code cannot
+create SVG ([`upstream-blockers.md`](upstream-blockers.md) §1). A permanent
+baseline teaches that baselines are permanent.
+
+**Fix.** Upstream: `branch.createElementNS`. Downstream, nothing is possible;
+`FdChartCss` is already written and waiting. **Acceptance:** baseline empty;
+the file kept, with its header, as the record that it once was not.
+
+## 10. Widget view state lost on reconstruction
+
+**Copy risk: low.** `RiskLadderWidget` takes `_None` params, so fold and
+focus live in a closure and a replay reopens every block. Other widgets
+likely share it; the ladder is the one known.
+
+**Fix — upstream.** Not fixable downstream as the shell stands: a tab's
+params are written once at spawn (`WorkspaceStateModel`) and the shell reads
+nothing back from a controller but `root`, `setActive`, `partyDeregister`
+and the write-lock `takeOver`. There is no seam through which a widget can
+say "my params changed". The seam is proposed in
+[`upstream-blockers.md`](upstream-blockers.md) §4; until it exists, folding
+and focus live in a closure by necessity, not by choice. **Acceptance:**
+unchanged — reload the workspace, the folds survive — once the seam lands.
+

@@ -24,6 +24,8 @@
              first) — needed when validating an unreleased core change downstream. -->
         <homing.core.version>0.8.0</homing.core.version>
         <junit.version>5.11.3</junit.version>
+        <!-- One Jackson for the whole tree; see the managed dependencies. -->
+        <jackson.version>2.17.2</jackson.version>
         <jontology.version>0.0.1</jontology.version>
     </properties>
 
@@ -76,6 +78,28 @@
                 <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
+            <!-- Jackson arrives twice through vert.x 4.5.11: vertx-web brings
+                 databind 2.17.2, vertx-core brings core 2.16.1, and nearest-wins
+                 keeps both. databind 2.17 calls JsonParser.getNumberTypeFP(),
+                 which core 2.16 lacks — so parsing any JSON with a floating-point
+                 number threw NoSuchMethodError. The desk only ever encoded JSON,
+                 so nothing noticed until the widget sweep parsed an action's
+                 answer. One version for the three, managed here. -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -94,6 +118,28 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <!-- Dependency convergence, enforced. vert.x 4.5.11 once brought two
+                 Jackson versions into the same classpath and nothing said so
+                 until a test parsed a float (KT.md §9.9). This fails the build
+                 on the next split instead. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>converge</id>
+                        <goals><goal>enforce</goal></goals>
+                        <configuration>
+                            <rules>
+                                <dependencyConvergence/>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 
 </project>

@@ -1,6 +1,7 @@
 package hue.captains.singapura.js.homing.findash.summary.data;
 
 import hue.captains.singapura.js.homing.findash.core.data.DeskData;
+import hue.captains.singapura.js.homing.findash.core.data.DeskTolerances;
 import hue.captains.singapura.js.homing.server.EmptyParam;
 import hue.captains.singapura.js.homing.studio.base.DocContent;
 import hue.captains.singapura.tao.http.action.GetAction;
@@ -47,7 +48,9 @@ public final class SummaryGetAction
             if ("serious".equals(c.severity())) aging++;
         }
         int sloWarns = 0;
-        for (DeskData.Slo s : DeskData.SLOS) if (s.budgetFrac() >= 0.75) sloWarns++;
+        for (DeskData.Slo s : DeskData.SLOS) {
+            if (!DeskTolerances.OK.equals(DeskTolerances.budgetState(s.budgetFrac()))) sloWarns++;
+        }
 
         java.util.function.Function<String[], JsonObject> tile = a -> new JsonObject()
                 .put("title", a[0]).put("value", a[1]).put("detail", a[2])

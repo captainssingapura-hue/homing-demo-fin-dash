@@ -141,7 +141,10 @@ design around, and each is discoverable only by reading the source.
 tenor's reading stale against *its* budget?". The adapter answers instead and
 ships the verdict inside the value — `{kind, text, n, state}`. The cell renders a
 judgement already made. This is the right seam: the adapter faces the domain, the
-cell is presentation.
+cell is presentation. (And the adapter, in turn, *relays* the verdict rather than
+making it: `/fx/book` publishes `freshState` and `budgetState` beside the numbers,
+from one tolerance table on the desk. The first cut had the adapter comparing
+`secs > 10` itself — see §9.)
 
 **The factory is consulted once per cell.** `ensure` caches by `(pk, column)` and
 returns early. So the cell *class* is permanent, and anything the factory
@@ -221,10 +224,14 @@ table" — from the selection identities, without the grid learning any of it.
 
 ## 8. Live data
 
-Untried here, but the path is short and the batch was built for it:
-`adapter.subscribe(fn)` gives the domain a push channel, and `fn` is the facade's
-`updateCell` — straight to the cell, no positional lookup. Three obligations fall
-on the feed rather than the grid:
+Tried, in the plainest form: `adapter.subscribe(fn)` starts a five-second poll
+of `/fx/book`, re-orders the answer, and for every row whose data changed
+re-judges it and relays *every cell of it* through `fn` — which is the facade's
+`updateCell`, straight to the cell, no positional lookup. The book is
+deterministic, so in the demo nothing changes; with `fetch` stubbed to return
+altered numbers, the cells tick within one poll. Three obligations fall on the
+feed rather than the grid, and the implementation honours the first by
+construction (a changed subtotal is a changed row like any other):
 
 1. **Aggregates must tick too.** Having decided the UI must not compute totals,
    a feed that ticks only leaves leaves every Σ stale. The server has to publish
@@ -237,14 +244,19 @@ on the feed rather than the grid:
 
 - The ladder **follows** the selection bus but never drives it. Every other
   trader widget publishes; clicking a tenor here moves a cursor and nothing else.
-- **Copy is not wired.** `onCopy` is only bound when supplied, so `Ctrl+C` in the
-  ladder currently does nothing — the copy-safety guard on the cells is correct
-  but, as yet, unreachable.
+- ~~**Copy is not wired.**~~ Closed: `onCopy` writes the grid's TSV to the
+  clipboard and reports "copied N rows" in the header; the cells' copy guard is
+  now on a live path, and a copied subtotal row carries its label and blank
+  numbers. The adapter's `update` and `deleteRows` no longer return silently —
+  they throw, because a reference adapter that stubs a contract teaches that
+  contracts are for stubbing.
 - **Fold and focus do not survive a reconstruction.** The widget takes no params,
   so the state lives in a closure; a replay reopens every block.
-- **Freshness thresholds are UI-invented** in two widgets that must be kept in
-  step by hand. That verdict belongs upstream, next to the reval budget the
-  server already publishes.
+- ~~**Freshness thresholds are UI-invented** in two widgets that must be kept in
+  step by hand.~~ Closed: the desk now publishes `freshState` and
+  `budgetState` from one tolerance table (`DeskTolerances`), and four widgets
+  that each carried a copy of the cut-off render the verdict instead. The
+  adapter relays; it no longer decides.
 - **Sorting is deliberately not exposed.** `sortBy` would scatter the aggregates;
   a within-scope sort has to be computed by the domain and handed over through
   the row view.

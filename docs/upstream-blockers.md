@@ -140,6 +140,39 @@ is `TreeRendererModule` (10 sites) and the SVG factory.
 
 ---
 
+## 4. A widget cannot persist its own view state
+
+**Severity: limiting.** Not a defect — a missing seam.
+
+A tab's params are written once, at spawn (`WorkspaceStateModel`,
+`TabRegistry`), and the shell reads nothing back from a widget's controller
+except `root`, `setActive`, `partyDeregister` and the write-lock `takeOver`.
+So a widget whose *view* has state — the risk ladder's folded sections and
+its pair focus; a tree's expanded nodes; a blotter's sort — cannot say "my
+params changed", and a reconstruction of the workspace replays the params it
+was spawned with. In the ladder, every block reopens.
+
+**What it costs downstream.** The state lives in a closure by necessity. The
+desk's backlog carries it as item #10 with nothing to do until this lands.
+
+**Suggested fix.** One optional controller method, read by the shell at
+checkpoint time and on tab close:
+
+```js
+// controller shape, RFC 0028 — proposed addition
+{ root, setActive, partyDeregister?, onClose?, params? }
+//                                             ^ () => Params — the widget's
+//                                               CURRENT params, replacing
+//                                               the spawn-time ones in the
+//                                               persisted tab
+```
+
+`params()` returns the same shape `construct(branch, params, ctx)` received,
+so the persistence model, the codec and the picker are untouched; only the
+checkpoint reads it when present. A widget that does not implement it
+persists as today. The ladder would return `{ focus, folded }` and
+reconstruct with them.
+
 ## Note on what conformance did and did not catch
 
 Offered because it bears on where rules are worth adding.
@@ -160,3 +193,10 @@ debugging here:
 
 (3) is arguably best addressed by JS-level unit tests rather than a conformance
 rule. (1) and (2) look like genuine rule candidates.
+
+*Update:* (3) is now caught at build time. The runtime sweep (KT.md §7e)
+dispatches every recorded `click`/`dblclick` twice after mounting each
+widget under GraalJS; its first run reported `DataTypeTreeWidget` minting
+`chip-1` again on the second selection — the exact shape described above —
+and the fix (a dissolvable sub-branch) followed. A second interaction is no
+longer something a smoke test can miss.

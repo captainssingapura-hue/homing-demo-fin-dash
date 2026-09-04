@@ -1,6 +1,7 @@
 package hue.captains.singapura.js.homing.findash.trader.data;
 
 import hue.captains.singapura.js.homing.findash.core.data.DeskData;
+import hue.captains.singapura.js.homing.findash.core.data.DeskTolerances;
 import hue.captains.singapura.js.homing.server.EmptyParam;
 import hue.captains.singapura.js.homing.studio.base.DocContent;
 import hue.captains.singapura.tao.http.action.GetAction;
@@ -48,7 +49,9 @@ public final class BookGetAction
                     .put("vBf", r.vBf())
                     .put("theta", r.theta())
                     .put("freshSecs", r.freshSecs())
+                    .put("freshState", DeskTolerances.freshState(r.freshSecs()))
                     .put("budgetFrac", r.budgetFrac())
+                    .put("budgetState", DeskTolerances.budgetState(r.budgetFrac()))
                     .put("note", r.note()));
         }
         var t = DeskData.TOTALS;

@@ -13,6 +13,91 @@
 //
 // The framework appends the `export { fdk }` from exports().
 var fdk = {
+    /**
+     * A party actor id for a widget instance: `<kind>/<branch name>`.
+     *
+     * The shell names every widget's branch after its tab, so the branch
+     * name is unique per instance and stable across a reconstruction of
+     * the workspace — which is what an identity is for. Twenty widgets used
+     * to mint one with Math.random(): unique, but a different actor on
+     * every mount, so nothing could be addressed or persisted by it and no
+     * bus interaction could be replayed. (The desk's own conformance rule
+     * bans Math.random() in risk models for the same reason; this closes
+     * the gap for identities.)
+     *
+     * The counter is the fallback for a branch without a name — a test
+     * harness, say — and is deterministic within a page lifetime.
+     */
+    actorId: function (kind, branch) {
+        var name = branch && branch.name;
+        if (!name) name = 'n' + (fdk._actorSeq = (fdk._actorSeq || 0) + 1);
+        return kind + '/' + name;
+    },
+
+    /**
+     * The desk's one way to load JSON into a widget.
+     *
+     *     fdk.load('/fx/book', { branch: branch, host: host, what: 'risk' }, render);
+     *
+     * One HTTP policy (a non-2xx status is a failure, named by its code), one
+     * JSON policy, one failure rendering (an fd_error_text line appended to
+     * `into.host`, worded "<what> load failed: <reason>"), and one place for
+     * the guard that a late response for a superseded request is dropped:
+     * pass `into.stillWanted`, a function that says whether the caller still
+     * wants this answer — the lifecycle journal passes `() => b === tradeBranch`.
+     *
+     * Twenty-nine widgets used to carry their own copy of this chain, and the
+     * stale-response guard existed in exactly one of them. A copy per widget
+     * is a policy per widget; this is the policy.
+     *
+     * `onData` runs inside the chain, so a failure in it is rendered too —
+     * the same behaviour the per-widget copies had, and the right one for a
+     * desk: a widget that cannot paint says so on screen, not in a console.
+     *
+     * The failure element's name is sequenced, not fixed: a widget that
+     * reloads on a bus message may fail twice on one branch, and a branch
+     * name is unique for the branch's life.
+     */
+    load: function (url, into, onData, onFail) {
+        // A list of urls loads them together and hands onData the list of
+        // answers in the same order — one failure fails the load, as it should:
+        // a blotter with trades but no portfolio index is not half right.
+        var many = Array.isArray(url);
+        var one  = function (u) {
+            return fetch(u)
+                .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+        };
+        // A host shows at most its LATEST load failure, and a later success
+        // clears it: a pricer re-priced on every Enter must not stack error
+        // lines, nor keep one under a quote that has since succeeded. The
+        // failure is its own sub-branch so it can be dissolved whole (the house
+        // teardown), tracked on the host it was appended to.
+        var clearFailure = function () {
+            if (into && into.host && into.host._fdLoadFailure) {
+                into.host._fdLoadFailure.dissolve();
+                into.host._fdLoadFailure = null;
+            }
+        };
+        return Promise.all((many ? url : [url]).map(one))
+            .then(function (ds) {
+                if (into && into.stillWanted && !into.stillWanted()) return;
+                clearFailure();
+                if (onData) onData(many ? ds : ds[0]);
+            })
+            .catch(function (e) {
+                if (into && into.stillWanted && !into.stillWanted()) return;
+                // State first, so a widget can drop what the failure invalidates
+                // (a FIRM countdown, a stale quote) before the line is drawn.
+                if (onFail) onFail(e);
+                if (!into || !into.branch || !into.host) return;
+                clearFailure();
+                var fb = into.branch.createBranch('load-failed-' + (fdk._loadSeq = (fdk._loadSeq || 0) + 1));
+                fb.activate(into.host);
+                into.host.appendChild(fdk.el(fb, 'line', 'div', fd_error_text,
+                    (into.what || 'data') + ' load failed: ' + (e && e.message ? e.message : e)));
+                into.host._fdLoadFailure = fb;
+            });
+    },
 
     // P2 — state is carried by icon + label + class, never by colour alone.
     status: {

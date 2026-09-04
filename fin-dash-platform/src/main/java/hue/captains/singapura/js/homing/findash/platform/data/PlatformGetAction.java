@@ -1,6 +1,7 @@
 package hue.captains.singapura.js.homing.findash.platform.data;
 
 import hue.captains.singapura.js.homing.findash.core.data.DeskData;
+import hue.captains.singapura.js.homing.findash.core.data.DeskTolerances;
 import hue.captains.singapura.js.homing.server.EmptyParam;
 import hue.captains.singapura.js.homing.studio.base.DocContent;
 import hue.captains.singapura.tao.http.action.GetAction;
@@ -38,7 +39,8 @@ public final class PlatformGetAction
         var slos = new JsonArray();
         for (DeskData.Slo s : DeskData.SLOS) {
             slos.add(new JsonObject().put("path", s.path()).put("p99", s.p99())
-                    .put("budgetFrac", s.budgetFrac()));
+                    .put("budgetFrac", s.budgetFrac())
+                    .put("budgetState", DeskTolerances.budgetState(s.budgetFrac())));
         }
         var epochs = new JsonArray();
         for (DeskData.EpochFlow e : DeskData.EPOCH_FLOW) {
