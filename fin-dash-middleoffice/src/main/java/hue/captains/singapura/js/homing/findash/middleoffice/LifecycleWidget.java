@@ -221,7 +221,7 @@ public final class LifecycleWidget
             "    var tradeParty = (workspaceCtx && workspaceCtx.tradeParty) ? workspaceCtx.tradeParty : null;",
             "    var tradeActorId = null;",
             "    if (tradeParty) {",
-            "        tradeActorId = 'mo/lifecycle-' + Math.random().toString(36).slice(2, 8);",
+            "        tradeActorId = fdk.actorId('mo/lifecycle', branch);",
             "        tradeParty.joinActor({",
             "            id: tradeActorId,",
             "            parentSecretary: 'trade',",

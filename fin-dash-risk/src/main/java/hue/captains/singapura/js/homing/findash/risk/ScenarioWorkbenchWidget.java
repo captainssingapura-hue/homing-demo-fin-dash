@@ -77,7 +77,7 @@ public final class ScenarioWorkbenchWidget
             "    var party = (workspaceCtx && workspaceCtx.deskParty) ? workspaceCtx.deskParty : null;",
             "    var actorId = null;",
             "    if (party) {",
-            "        actorId = 'risk/scenarios-' + Math.random().toString(36).slice(2, 8);",
+            "        actorId = fdk.actorId('risk/scenarios', branch);",
             "        party.joinActor({ id: actorId, parentSecretary: 'desk', reactors: {} });",
             "    }",
             "",

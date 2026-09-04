@@ -87,7 +87,7 @@ public final class FeedHealthWidget
             "    var party = (workspaceCtx && workspaceCtx.deskParty) ? workspaceCtx.deskParty : null;",
             "    var actorId = null;",
             "    if (party) {",
-            "        actorId = 'marketdata/feeds-' + Math.random().toString(36).slice(2, 8);",
+            "        actorId = fdk.actorId('marketdata/feeds', branch);",
             "        party.joinActor({ id: actorId, parentSecretary: 'desk', reactors: {} });",
             "    }",
             "",

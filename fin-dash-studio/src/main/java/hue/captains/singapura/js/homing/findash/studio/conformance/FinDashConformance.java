@@ -100,7 +100,9 @@ public final class FinDashConformance {
      * A type whose framework rule set is empty (a bundled external) stays
      * empty — exemption is the framework's decision and is not overridden.
      */
-    private static final List<JsRule> DESK_WIDE = List.of(NoEmptyCatchRule.INSTANCE);
+    private static final List<JsRule> DESK_WIDE = List.of(
+            NoEmptyCatchRule.INSTANCE,
+            DeterministicRiskRule.INSTANCE);   // also in RISK_MODEL_RULES; the append de-duplicates
 
     public static final JsRulePolicy POLICY = type -> {
         JsRuleSet base = TYPED_POLICY.rulesFor(type);

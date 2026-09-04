@@ -250,7 +250,7 @@ public final class VolSurfaceWidget
             "    var actorId = null;",
             "    var current = 'EURUSD';",
             "    if (party) {",
-            "        actorId = 'viz/volsurface-' + Math.random().toString(36).slice(2, 8);",
+            "        actorId = fdk.actorId('viz/volsurface', branch);",
             "        party.joinActor({",
             "            id: actorId,",
             "            parentSecretary: 'desk',",

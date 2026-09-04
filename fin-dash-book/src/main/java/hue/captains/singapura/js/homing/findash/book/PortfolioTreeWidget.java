@@ -83,7 +83,7 @@ public final class PortfolioTreeWidget
             "    var party = (workspaceCtx && workspaceCtx.deskParty) ? workspaceCtx.deskParty : null;",
             "    var actorId = null;",
             "    if (party) {",
-            "        actorId = 'book/portfolios-' + Math.random().toString(36).slice(2, 8);",
+            "        actorId = fdk.actorId('book/portfolios', branch);",
             "        party.joinActor({ id: actorId, parentSecretary: 'desk', reactors: {} });",
             "    }",
             "",

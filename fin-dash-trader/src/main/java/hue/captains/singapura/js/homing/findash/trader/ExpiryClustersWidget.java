@@ -70,7 +70,7 @@ public final class ExpiryClustersWidget
             "    var party = (workspaceCtx && workspaceCtx.deskParty) ? workspaceCtx.deskParty : null;",
             "    var actorId = null;",
             "    if (party) {",
-            "        actorId = 'trader/expiries-' + Math.random().toString(36).slice(2, 8);",
+            "        actorId = fdk.actorId('trader/expiries', branch);",
             "        party.joinActor({ id: actorId, parentSecretary: 'desk', reactors: {} });",
             "    }",
             "",

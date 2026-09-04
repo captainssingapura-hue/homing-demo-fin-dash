@@ -92,7 +92,7 @@ public final class QuotingConsoleWidget
             "    var party = (workspaceCtx && workspaceCtx.deskParty) ? workspaceCtx.deskParty : null;",
             "    var actorId = null;",
             "    if (party) {",
-            "        actorId = 'etrading/console-' + Math.random().toString(36).slice(2, 8);",
+            "        actorId = fdk.actorId('etrading/console', branch);",
             "        party.joinActor({ id: actorId, parentSecretary: 'desk', reactors: {} });",
             "    }",
             "",

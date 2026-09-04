@@ -80,7 +80,7 @@ public final class DataTypeTreeWidget
             "    var party = (workspaceCtx && workspaceCtx.deskParty) ? workspaceCtx.deskParty : null;",
             "    var actorId = null;",
             "    if (party) {",
-            "        actorId = 'ontology/types-' + Math.random().toString(36).slice(2, 8);",
+            "        actorId = fdk.actorId('ontology/types', branch);",
             "        party.joinActor({ id: actorId, parentSecretary: 'desk', reactors: {} });",
             "    }",
             "",

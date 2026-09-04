@@ -13,6 +13,26 @@
 //
 // The framework appends the `export { fdk }` from exports().
 var fdk = {
+    /**
+     * A party actor id for a widget instance: `<kind>/<branch name>`.
+     *
+     * The shell names every widget's branch after its tab, so the branch
+     * name is unique per instance and stable across a reconstruction of
+     * the workspace — which is what an identity is for. Twenty widgets used
+     * to mint one with Math.random(): unique, but a different actor on
+     * every mount, so nothing could be addressed or persisted by it and no
+     * bus interaction could be replayed. (The desk's own conformance rule
+     * bans Math.random() in risk models for the same reason; this closes
+     * the gap for identities.)
+     *
+     * The counter is the fallback for a branch without a name — a test
+     * harness, say — and is deterministic within a page lifetime.
+     */
+    actorId: function (kind, branch) {
+        var name = branch && branch.name;
+        if (!name) name = 'n' + (fdk._actorSeq = (fdk._actorSeq || 0) + 1);
+        return kind + '/' + name;
+    },
 
     // P2 — state is carried by icon + label + class, never by colour alone.
     status: {

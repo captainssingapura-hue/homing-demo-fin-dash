@@ -167,7 +167,7 @@ public final class DataTypeUsageWidget
             "    var party = (workspaceCtx && workspaceCtx.deskParty) ? workspaceCtx.deskParty : null;",
             "    var actorId = null;",
             "    if (party) {",
-            "        actorId = 'ontology/usage-' + Math.random().toString(36).slice(2, 8);",
+            "        actorId = fdk.actorId('ontology/usage', branch);",
             "        party.joinActor({",
             "            id: actorId,",
             "            parentSecretary: 'desk',",

@@ -198,7 +198,7 @@ public final class PricerWidget extends WorkspaceWidget<WorkspaceWidget._None, P
             "    var party = (workspaceCtx && workspaceCtx.deskParty) ? workspaceCtx.deskParty : null;",
             "    var actorId = null;",
             "    if (party) {",
-            "        actorId = 'trader/pricer-' + Math.random().toString(36).slice(2, 8);",
+            "        actorId = fdk.actorId('trader/pricer', branch);",
             "        party.joinActor({",
             "            id: actorId,",
             "            parentSecretary: 'desk',",

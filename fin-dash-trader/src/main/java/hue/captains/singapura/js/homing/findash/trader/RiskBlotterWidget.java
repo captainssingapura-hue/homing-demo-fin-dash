@@ -76,7 +76,7 @@ public final class RiskBlotterWidget
             "    var party = (workspaceCtx && workspaceCtx.deskParty) ? workspaceCtx.deskParty : null;",
             "    var actorId = null;",
             "    if (party) {",
-            "        actorId = 'trader/blotter-' + Math.random().toString(36).slice(2, 8);",
+            "        actorId = fdk.actorId('trader/blotter', branch);",
             "        party.joinActor({ id: actorId, parentSecretary: 'desk', reactors: {} });",
             "    }",
             "",

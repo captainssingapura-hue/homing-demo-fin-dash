@@ -178,7 +178,7 @@ public final class PortfolioWidget
             "    }",
             "",
             "    if (party) {",
-            "        actorId = 'book/portfolio-' + Math.random().toString(36).slice(2, 8);",
+            "        actorId = fdk.actorId('book/portfolio', branch);",
             "        party.joinActor({",
             "            id: actorId,",
             "            parentSecretary: 'desk',",

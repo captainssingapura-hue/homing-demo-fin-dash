@@ -11,24 +11,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * RFC 0044 extension — the fin-dash's own conformance rule: a {@link
- * RiskModuleType#RISK_MODEL} module must be <b>reproducible</b>. A risk number
- * that depends on {@code Math.random()} or wall-clock {@code Date.now()} cannot
- * be replayed, reconciled, or IPV'd — the whole platform rests on "two consumers
- * at the same as-of see the same number" (UI study P5), which non-determinism
- * breaks. Time and randomness must enter a risk model as explicit inputs
- * (the {@code MarketSlice} / scenario), never ambiently.
+ * RFC 0044 extension — the fin-dash's own conformance rule: served code must
+ * be <b>reproducible</b>. Nothing ambient — no {@code Math.random()}, no
+ * wall-clock {@code Date.now()}; time and randomness enter as explicit inputs.
+ *
+ * <p>It began as a rule for {@link RiskModuleType#RISK_MODEL} modules alone: a
+ * risk number that depends on ambient randomness cannot be replayed,
+ * reconciled, or IPV'd — the whole platform rests on "two consumers at the
+ * same as-of see the same number" (UI study P5). Then the desk was found
+ * minting every party actor identity with {@code Math.random()}, in twenty
+ * widgets, so that no actor could be addressed or persisted and no bus
+ * interaction replayed — the same failure, one layer up. The rule now holds
+ * desk-wide: it sits in the RISK_MODEL set and in the desk-wide layer of
+ * {@code FinDashConformance}'s policy.</p>
  *
  * <p>A downstream rule is just a {@link JsRule}, the same contract the framework
- * rules implement. Pair it in the RISK_MODEL rule set with the no-DOM rule and
- * the global rules — see {@link FinDashConformance}.</p>
+ * rules implement.</p>
  */
 public record DeterministicRiskRule() implements JsRule {
 
     public static final DeterministicRiskRule INSTANCE = new DeterministicRiskRule();
 
     @Override public RuleId      id()     { return new RuleId("deterministic-risk"); }
-    @Override public String      intent() { return "A risk model must be reproducible — no Math.random() or wall-clock Date.now(); time and randomness are explicit inputs."; }
+    @Override public String      intent() { return "Served code must be reproducible — no Math.random() or wall-clock Date.now(); time and randomness are explicit inputs, and an identity comes from the workspace, not from chance."; }
     @Override public DoctrineRef basis()  { return new DoctrineRef("reproducible-risk"); }
 
     @Override
@@ -41,7 +46,7 @@ public record DeterministicRiskRule() implements JsRule {
             String line = lines.get(i);
             if (line.contains("Math.random(") || line.contains("Date.now(")) {
                 findings.add(new Finding(module.moduleClass(), id(),
-                        "non-deterministic call in a risk model (pass time/randomness as inputs): " + line.trim(), i));
+                        "non-deterministic call (pass time/randomness as inputs; take an identity from the workspace): " + line.trim(), i));
             }
         }
         return List.copyOf(findings);

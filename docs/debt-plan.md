@@ -104,7 +104,7 @@ and the runtime sweep green on every widget the step touched.
 | 1 | #2 swallowed exceptions | **done** | "Debt #2: no swallowed exceptions" |
 | 2 | #3 risk judgement in the UI | **done** | "Debt #3: the desk judges, the UI renders" |
 | 3 | #8 baseline regeneration | **done** (docs; the class already existed) | "Debt #8: the baseline procedure is the class, not the redirect" |
-| 4 | #5 actor identity | next | |
-| 5 | #4 fetch and failure | | |
+| 4 | #5 actor identity | **done** | "Debt #5: an identity comes from the workspace, not from chance" |
+| 5 | #4 fetch and failure | next | |
 | 6 | #7 stubs and `onCopy` | | |
 | 7 | #6 runtime sweep | | |

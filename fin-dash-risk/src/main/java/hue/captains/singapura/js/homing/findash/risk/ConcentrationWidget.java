@@ -66,7 +66,7 @@ public final class ConcentrationWidget
             "    var party = (workspaceCtx && workspaceCtx.deskParty) ? workspaceCtx.deskParty : null;",
             "    var actorId = null;",
             "    if (party) {",
-            "        actorId = 'risk/concentration-' + Math.random().toString(36).slice(2, 8);",
+            "        actorId = fdk.actorId('risk/concentration', branch);",
             "        party.joinActor({ id: actorId, parentSecretary: 'desk', reactors: {} });",
             "    }",
             "",

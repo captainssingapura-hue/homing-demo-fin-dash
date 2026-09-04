@@ -248,7 +248,7 @@ public final class SurfaceManagerWidget
             "    var party = (workspaceCtx && workspaceCtx.deskParty) ? workspaceCtx.deskParty : null;",
             "    var actorId = null;",
             "    if (party) {",
-            "        actorId = 'trader/surface-' + Math.random().toString(36).slice(2, 8);",
+            "        actorId = fdk.actorId('trader/surface', branch);",
             "        party.joinActor({",
             "            id: actorId,",
             "            parentSecretary: 'desk',",

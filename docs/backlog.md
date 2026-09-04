@@ -70,7 +70,6 @@ grep over `src/main`, `lib/` excluded.
 | # | item | sites | copy risk | size |
 |---|---|---|---|---|
 | 4 | fetch and failure handling written per widget | 27 widgets | medium | moderate |
-| 5 | actor identity from `Math.random()` | 20 widgets | medium | small ×20 |
 | 6 | the runtime sweep is a manual protocol | — | high | large |
 | 7 | contract methods stubbed; copy guard unreachable | 1 adapter | medium | small |
 | 9 | a standing baseline of grandfathered findings | 5 findings, 1 module | medium | upstream |
@@ -91,23 +90,6 @@ nowhere else.
 one JSON policy, the stale-response guard by construction (the branch is the
 generation token), one failure rendering. **Acceptance:** no `fetch(` in a
 widget body; failure copy identical across the desk.
-
-## 5. Actor identity from `Math.random()`
-
-**Copy risk: medium — and already realised.** The pattern
-`actorId = '<kind>-' + Math.random().toString(36).slice(2, 8)` appears in
-20 widgets verbatim. The desk's own `DeterministicRiskRule` bans
-`Math.random()` in risk models; its party identities are random everywhere.
-
-**Consequences.** No stable identity across a workspace reconstruction, so
-nothing can be addressed or persisted by actor; the runtime sweep cannot
-reproduce a bus interaction; a log line names an actor that will never exist
-again.
-
-**Fix.** Identity from the workspace — the pane/widget instance id
-`workspaceCtx` can supply — or, failing that, a per-kind counter. One helper
-in the kit, twenty call sites. **Acceptance:** `Math.random` absent from
-served code; the deterministic-risk rule widened to say so.
 
 ## 6. The runtime sweep is a manual protocol
 
