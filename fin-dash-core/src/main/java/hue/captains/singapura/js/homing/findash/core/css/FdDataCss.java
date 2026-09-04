@@ -154,19 +154,6 @@ public record FdDataCss() implements CssGroup<FdDataCss> {
     }
 
     /**
-     * A cell whose content is a <b>mark standing for its row</b> rather than a
-     * value in its column — the bare Σ that closes a block.
-     *
-     * <p>Centred, because left-aligned it lands in the same optical column as
-     * the labels above it and reads as one more of them: under 1W, 1M, 3M, a
-     * flush-left Σ looks like a fourth tenor. Off the column's reading edge it
-     * stops belonging to the sequence and starts closing it.</p>
-     */
-    public record fd_row_mark() implements CssClass<FdDataCss> {
-        @Override public String body() { return "text-align: center;\n"; }
-    }
-
-    /**
      * A subtotal cell — one per cell of an aggregate row, which is what draws a
      * band across a grid that owns its own {@code <tr>}.
      *
@@ -272,7 +259,6 @@ public record FdDataCss() implements CssGroup<FdDataCss> {
                 new fd_td_num(),
                 new fd_row_group(),
                 new fd_row_indent(),
-                new fd_row_mark(),
                 new fd_section_row(),
                 new fd_total_row(),
                 new fd_grand_row(),

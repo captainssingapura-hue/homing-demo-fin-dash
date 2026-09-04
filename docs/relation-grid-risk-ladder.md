@@ -34,16 +34,16 @@ Book ▸ tenor        Δ      vATM     vRR    vBF      Θ   freshness
   1W            1.10M       18k     −2k     1k    −6k   ● 2s
   1M            3.40M       92k    −21k     6k    −9k   ● 2s
   3M            3.70M      102k    −15k     4k    −6k   ● 2s
-Σ               8.20M      212k    −38k    11k   −21k   ● 2s
+  Subtotal      8.20M      212k    −38k    11k   −21k   ● 2s
 ▾ USDJPY
   1M          ◆ −800k     ◆ 61k    ◆ 9k   ◆ 4k  ◆ −5k   ▲ 45s
   6M         ◆ −1.30M     ◆ 87k   ◆ 13k   ◆ 5k  ◆ −6k   ▲ 45s
-Σ           ◆ −2.10M    ◆ 148k   ◆ 22k   ◆ 9k ◆ −11k   ▲ 45s
+  Subtotal  ◆ −2.10M    ◆ 148k   ◆ 22k   ◆ 9k ◆ −11k   ▲ 45s
 …
-Σ FXO book      12.4M         —       —      —   −38k   —
+FXO book total  12.4M         —       —      —   −38k   —
 ```
 
-Double-click a header, or press Enter on it, and the block folds to its Σ.
+Double-click a header, or press Enter on it, and the block folds to its subtotal.
 Selecting a pair anywhere on the desk focuses the ladder to that pair.
 
 ## 2. The question that shaped everything: what is a row?
