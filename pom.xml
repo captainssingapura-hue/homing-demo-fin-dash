@@ -72,6 +72,33 @@
                 <artifactId>homing-relation-grid</artifactId>
                 <version>${homing.core.version}</version>
             </dependency>
+            <!-- The GraalJS fixtures the widget sweep runs on (KT.md §7e).
+                 Test scope, same release train as everything above. -->
+            <dependency>
+                <groupId>io.github.captainssingapura-hue.homing.js</groupId>
+                <artifactId>homing-ssjs-test-fixtures</artifactId>
+                <version>${homing.core.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <!-- jOntology: the entity-graph markers fin-dash-data is declared
+                 with, and the build-time gate that checks them. -->
+            <dependency>
+                <groupId>io.github.captainssingapura-hue.lang.ontology</groupId>
+                <artifactId>core</artifactId>
+                <version>${jontology.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.captainssingapura-hue.lang.ontology</groupId>
+                <artifactId>enforcing-utils</artifactId>
+                <version>${jontology.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.github.captainssingapura-hue.lang.ontology</groupId>
+                <artifactId>enforcer</artifactId>
+                <version>${jontology.version}</version>
+                <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter</artifactId>
@@ -115,6 +142,34 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
                     <version>3.5.0</version>
+                </plugin>
+                <!-- Pinned so the build does not vary with the Maven on the
+                     machine. These four otherwise resolve from the super-POM,
+                     which differs between Maven versions; the values here are
+                     the ones Maven 3.9.14 supplied, so pinning changed nothing
+                     at the time it was done. maven-resources-plugin matters
+                     most: fin-dash-studio declares it to copy docs/ into the
+                     jar, and a declaration without a version is the case
+                     Maven itself warns about. -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.15.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.4.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.5.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>3.1.4</version>
                 </plugin>
             </plugins>
         </pluginManagement>
