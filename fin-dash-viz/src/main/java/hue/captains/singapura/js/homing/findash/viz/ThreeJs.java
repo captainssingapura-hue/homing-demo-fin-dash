@@ -29,7 +29,10 @@ import java.util.List;
  *
  * <p><b>Version.</b> Pinned to 0.128.0 to match the r128 the library was
  * written against — its scene setup relies on the pre-r15x lighting and
- * colour-management defaults.</p>
+ * colour-management defaults. Provenance, the file's sha256, the exact
+ * {@code THREE.*} contract the desk uses, and the refresh procedure with
+ * the r128→current API changes that touch it are in
+ * {@code lib/README.md} beside the file.</p>
  *
  * @see <a href="https://threejs.org/">threejs.org</a>
  */
