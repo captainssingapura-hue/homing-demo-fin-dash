@@ -46,10 +46,20 @@ function foldable(host, value, opts) {
     });
 }
 
+/** The header's pressed state — on every cell of the row, so the bevel inverts whole. */
+function pressed(el, value) {
+    if (value && value.folded) css.addClass(el, fd_section_folded);
+    else                       css.removeClass(el, fd_section_folded);
+}
+
 /**
  * A cell that is structurally present and semantically absent. It renders the
  * section band so the header reads as one strip, answers the contract, and
  * contributes nothing: no text, no value, no copy.
+ *
+ * Nothing, that is, except the row's PRESSED state: a void cell has no
+ * content to update, but it does have a face, and that face must fold with
+ * the rest of the bar. So update() is not a no-op after all.
  */
 function VoidCell(opts) { this._el = null; this._opts = opts || null; }
 
@@ -57,10 +67,14 @@ VoidCell.prototype.render = function (host, value) {
     this._el = host;
     css.setClass(host, fd_dense);
     css.addClass(host, fd_section_row);
+    pressed(host, value);
     foldable(host, value, this._opts);
     return this;
 };
-VoidCell.prototype.update         = function () { return this; };
+VoidCell.prototype.update = function (value) {
+    if (this._el) pressed(this._el, value);
+    return this;
+};
 VoidCell.prototype.onSelect       = function (mode) {};
 VoidCell.prototype.effectiveType  = function () { return null; };
 VoidCell.prototype.beginEdit      = function () {};
@@ -107,13 +121,17 @@ LadderCell.prototype._paint = function (value) {
     css.removeClass(el, fd_total_row);
     css.removeClass(el, fd_grand_row);
     css.removeClass(el, fd_section_row);
+    css.removeClass(el, fd_section_folded);
 
     // The ROW treatment goes on EVERY cell of an aggregate row. The grid owns
     // the <tr>, so a band across the row is drawn by its cells agreeing — and
     // because .hgr-td carries padding:0, this element fills the cell exactly.
     // Weight alone was not enough: with only the label emboldened, a subtotal
     // read as one more tenor once the eye was in the numbers.
-    if (value != null && value.rowKind === 'section') css.addClass(el, fd_section_row);
+    if (value != null && value.rowKind === 'section') {
+        css.addClass(el, fd_section_row);
+        pressed(el, value);
+    }
     else if (value != null && value.rowKind === 'subtotal') css.addClass(el, fd_total_row);
     else if (value != null && value.rowKind === 'grand') css.addClass(el, fd_grand_row);
 

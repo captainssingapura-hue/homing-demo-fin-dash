@@ -153,6 +153,32 @@ public record FdDataCss() implements CssGroup<FdDataCss> {
     }
 
     /**
+     * A folded section header — the Minesweeper tile after it is clicked.
+     * Worn <em>alongside</em> {@link fd_section_row}, on every cell of the row.
+     *
+     * <p>Pressed is the raised bevel inverted: the shadow moves to the top
+     * edge and the highlight to the bottom, so the bar reads as pushed into
+     * the page rather than standing off it. The face darkens a step too — a
+     * pressed key sits in its own shadow. Re-declaring {@code --fd-bevel-face}
+     * here is enough for that: the raised class paints its background
+     * <em>through</em> the property, so the later declaration darkens face
+     * and edges together.</p>
+     *
+     * <p>Must be emitted after {@link fd_section_row}: same specificity, so
+     * order is what lets the inverted bevel win.</p>
+     */
+    public record fd_section_folded() implements CssClass<FdDataCss> {
+        @Override public String body() {
+            return """
+                   --fd-bevel-face: color-mix(in srgb, var(--color-text-primary) 18%,
+                                                        var(--color-surface-raised));
+                   box-shadow: inset 0  2px 0 color-mix(in srgb, black 35%, var(--fd-bevel-face)),
+                               inset 0 -2px 0 color-mix(in srgb, white 60%, var(--fd-bevel-face));
+                   """;
+        }
+    }
+
+    /**
      * A cell whose content is a <b>mark standing for its row</b> rather than a
      * value in its column — the bare Σ that closes a block.
      *
@@ -273,6 +299,7 @@ public record FdDataCss() implements CssGroup<FdDataCss> {
                 new fd_row_indent(),
                 new fd_row_mark(),
                 new fd_section_row(),
+                new fd_section_folded(),   // after fd_section_row: order decides the bevel
                 new fd_total_row(),
                 new fd_grand_row(),
                 new fd_meter(),
