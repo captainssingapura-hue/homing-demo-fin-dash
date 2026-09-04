@@ -248,3 +248,91 @@ on the feed rather than the grid:
 - **Sorting is deliberately not exposed.** `sortBy` would scatter the aggregates;
   a within-scope sort has to be computed by the domain and handed over through
   the row view.
+
+## 10. What the same ladder would cost on React + AG Grid
+
+A fair question to end on, because AG Grid (or any of its peers) is the
+default answer to "we need a grid", and the answer to "why not?" should be
+costed rather than assumed.
+
+Taking the ladder exactly as built — row kinds, server-published totals,
+section rows with void cells, fold by double-click and Enter, state marks,
+copy safety, bus focus, a themed header, read-only:
+
+| concern | RelationGrid (what we did) | React + AG Grid |
+|---|---|---|
+| grouped rows with subtotals | domain-side: pk design, ordering, one predicate | Enterprise row grouping exists — and computes totals **client-side**, which is exactly the P5 violation. You would disable it and do flat rows with kinds, as we did |
+| grand total | a row kind that survives every filter | `pinnedBottomRowData` — Community, always visible, never sorts. Genuinely better |
+| section header across the row | void cells, plus the zero-height fix | `fullWidthCellRenderer` — one component paints the whole row; the void-cell discovery is a non-issue |
+| a cell knowing its row | impossible; the verdict ships in the value | `params.data` *is* the row. Easier — and it invites putting the judgement in the renderer |
+| subtotals sorting last within scope | sort deliberately not exposed | header-click sort is **on by default**; you write `postSortRows` to re-pin subtotals, or suppress sorting. Work forced by a free feature |
+| fold on double-click / Enter | `dblclick` on our element; Enter via `setActive` | `onRowDoubleClicked` plus `suppressKeyboardEvent`, since the grid owns Enter |
+| copy safety | `getValueToCopy()` — unreachable until `onCopy` is wired | `processCellForClipboard` — Enterprise clipboard module. Community has the same gap we have |
+| live updates | `adapter.subscribe` → batched `updateCell` | `applyTransactionAsync` + `getRowId` + cell flash. Clearly better, and built for a hot feed |
+| virtualization | none — fine at 20 rows, not at 5,000 | built in |
+| theming | CSS tokens, gated by `no-literal-color` | ~30 `--ag-*` variables to map; a day; no gate |
+| toolchain | `mvn clean install`, no npm | Vite or webpack, Node in the build, a second package ecosystem |
+| footprint | tens of KB, served from Java | React ~45 KB gzipped plus AG Grid Community on the order of 300 KB; Enterprise, more |
+| licence | none | Community free; grouping, clipboard and ranges are Enterprise — on the order of a thousand dollars per developer per year |
+
+**Developer days.** For someone fluent in both, roughly four to six on AG
+Grid: a day or two on grid setup, renderers and theme mapping; a day on row
+kinds, the external filter, full-width rows and the fold; half a day on copy,
+keyboard and bus wiring; and one to two days integrating a JavaScript build
+pipeline into a Maven repository — plus that pipeline forever after.
+
+What the ladder cost here was of the same order, but the time went somewhere
+different: into deciding what a row *is* and who owns totals. That
+deliberation exists in either stack. AG Grid does not remove it; it hides it
+behind a feature that gives the wrong answer by default, and you find out
+later.
+
+**What flips, and what does not.** Three of the findings in §5 evaporate on AG
+Grid — the void-cell height, a cell never learning its row, the rAF caret in a
+hidden tab. Two get worse: aggregation-by-default makes "the UI is not a
+calculator" the path of *most* resistance, and default sorting scatters
+subtotals until you write the scope-aware sort we chose not to expose.
+
+The design conclusions do not flip at all. Row kinds with scope, totals as
+published facts, "never copied as data", the fold as a filter — all of it is
+domain code on either grid. That is the real reflection: **the grid was never
+the hard part.** The three-seams discipline of §6 transfers directly; AG Grid's
+seams are merely called `cellRenderer`, `isExternalFilterPresent` and
+`postSortRows`.
+
+**Where the cost actually is.** For this ladder at this size, a wash in days.
+AG Grid pulls ahead the moment you need virtualization, live deltas with
+flashing, or Excel export — and a real desk needs the first two. RelationGrid
+wins on footprint, on the conformance gates, and on not having to *disable*
+features to keep the domain in charge.
+
+But the deciding line item is not in the ladder. It is two things about the
+repository:
+
+1. **A second build system.** This repository's premise — and now its README's
+   promise — is that anyone with the source builds and runs it from an empty
+   Maven repository, with no npm. React + AG Grid does not add a dependency to
+   that; it adds a second build system, with its own resolver, lockfile,
+   cache, CI step and failure modes. That is expensive *here* and would be
+   cheap almost anywhere else.
+
+2. **The dependency tree, and its CVEs.** A React + AG Grid + Vite front end
+   resolves to hundreds of packages — typically well over a thousand once the
+   toolchain is counted — every one of them a supply-chain trust decision and a
+   CVE surface, most of them transitive, most of them never executed in
+   production, all of them audited on every build. That is a standing cost in
+   attention: advisory noise, forced upgrades, transitive breakage, and the
+   occasional real one. The served JavaScript here has **no third-party
+   runtime code** — the grid, the cells and the bus are all first-party
+   modules served from Java — and the single third-party exception in the
+   desk, a vendored and pinned `three.js` for the 3D surface, is one file with
+   no resolver behind it. (The vol-surface renderer beside it is bundled the
+   same way, but it is the desk's own code; it sits outside the gates because
+   it is a rendering leaf, not because anyone else wrote it.) Zero packages is
+   not a number you can audit your way down to; it is a number you can only
+   start from.
+
+The ladder, then, is a poor argument for RelationGrid on its own merits and a
+strong one for the repository it lives in. Which is the right way round: a
+grid should be chosen for what it costs the system, not for how it renders
+one widget.
