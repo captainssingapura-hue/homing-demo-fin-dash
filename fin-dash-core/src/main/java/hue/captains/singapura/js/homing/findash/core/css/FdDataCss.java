@@ -84,6 +84,108 @@ public record FdDataCss() implements CssGroup<FdDataCss> {
         @Override public String body() { return "padding-left: var(--space-3, 12px);\n"; }
     }
 
+    /**
+     * A section-header cell — the row that OPENS a block, as against
+     * {@link fd_total_row} which closes it. Worn by every cell of the row,
+     * including the ones that carry nothing, because that is what draws an
+     * unbroken strip across a grid that owns its own {@code <tr>}.
+     *
+     * <p>This one is a <b>divider</b>, so it is the loudest of the three, and
+     * it borrows Minesweeper's vocabulary: the header is an <b>unopened
+     * cell</b> — a raised tile with a 2px highlight along its top edge and a
+     * 2px shadow along its bottom — while the rows beneath it are the opened
+     * ones, flat on the grid's own hairlines. Both edges are <b>inset
+     * shadows</b> rather than borders, the same reasoning the grid itself uses
+     * for its sticky header, so the bevel stays out of the box model.</p>
+     *
+     * <p>The tile does <em>not</em> press when its block folds. An inverted
+     * bevel for the folded state was tried and read as a stray rule under the
+     * bar; the caret in the label carries the fold, and the row keeps the same
+     * face, height and depth either way.</p>
+     *
+     * <p>The face is a little <b>ink mixed into the raised surface</b>, not the
+     * raised surface itself. {@code surface-raised} is defined relative to
+     * {@code surface} and in some themes the two are a hair apart — white on
+     * near-white in the default light theme — which left the band invisible
+     * wherever it was needed most. The text colour, by contrast, is guaranteed
+     * to read against the surface in <em>every</em> theme, so a small share of
+     * it is a step off the page that stays a step off the page. It is declared
+     * once, as a custom property, so both bevel edges derive from the colour
+     * they sit on.</p>
+     *
+     * <p>The edges mix toward {@code white} and {@code black} — absolutes, on
+     * purpose. A bevel is about <b>light</b>, not ink, and light falls from the
+     * top in a dark theme exactly as in a light one; a highlight built from
+     * theme tokens would flip into a shadow the moment the tokens did. The two
+     * keywords are neither hex nor {@code rgb()}, which is what the
+     * literal-colour rule guards against.</p>
+     *
+     * <p>Top and bottom only. The row is <em>one</em> control — a double-click
+     * or Enter anywhere along it folds the block — so it gets one bevel, and
+     * the table's own edges close the left and right.</p>
+     *
+     * <p>The explicit {@code line-height}/{@code min-height} pair is load
+     * bearing. A cell element with no text collapses to zero height, so a
+     * header whose other columns are void would paint its fill on the label
+     * alone and leave the strip broken. Fixing both to the same value makes an
+     * empty cell exactly as tall as a written one.</p>
+     *
+     * <p>Unlike {@link fd_total_row} the fill is <b>not</b> translucent, so a
+     * grid's selection tint does not show through here. That is the accepted
+     * cost: a section header is chrome rather than data — nothing on it is
+     * editable or worth copying — and the cursor is drawn as an outline, which
+     * paints over the fill regardless.</p>
+     */
+    public record fd_section_row() implements CssClass<FdDataCss> {
+        @Override public String body() {
+            return """
+                   --fd-bevel-face: color-mix(in srgb, var(--color-text-primary) 12%,
+                                                        var(--color-surface-raised));
+                   line-height: 18px;
+                   min-height: 18px;
+                   background: var(--fd-bevel-face);
+                   color: var(--color-text-primary);
+                   font-weight: 700;
+                   letter-spacing: 0.04em;
+                   box-shadow: inset 0  2px 0 color-mix(in srgb, white 60%, var(--fd-bevel-face)),
+                               inset 0 -2px 0 color-mix(in srgb, black 35%, var(--fd-bevel-face));
+                   """;
+        }
+    }
+
+    /**
+     * A subtotal cell — one per cell of an aggregate row, which is what draws a
+     * band across a grid that owns its own {@code <tr>}.
+     *
+     * <p>The rule sits on <b>top</b>: a subtotal closes the block above it, so
+     * the line belongs between the last leaf and the total, not under it. The
+     * fill is deliberately translucent — a grid may tint the cell behind this
+     * one to show selection, and an opaque band would swallow it.</p>
+     */
+    public record fd_total_row() implements CssClass<FdDataCss> {
+        @Override public String body() {
+            return """
+                   border-top: 1px solid var(--color-border);
+                   background: color-mix(in srgb, var(--color-surface-raised) 60%, transparent);
+                   font-weight: 600;
+                   """;
+        }
+    }
+
+    /**
+     * A grand-total cell — the same idea one step louder, so the book total is
+     * not mistaken for one more subtotal at a glance.
+     */
+    public record fd_grand_row() implements CssClass<FdDataCss> {
+        @Override public String body() {
+            return """
+                   border-top: 2px solid var(--color-text-muted);
+                   background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+                   font-weight: 700;
+                   """;
+        }
+    }
+
     // ---- meter ----------------------------------------------------------
 
     /** The track. Pair with a {@code fd-status-*-bg} for severity. */
@@ -157,6 +259,9 @@ public record FdDataCss() implements CssGroup<FdDataCss> {
                 new fd_td_num(),
                 new fd_row_group(),
                 new fd_row_indent(),
+                new fd_section_row(),
+                new fd_total_row(),
+                new fd_grand_row(),
                 new fd_meter(),
                 new fd_meter_fill(),
                 new fd_kv_row(),

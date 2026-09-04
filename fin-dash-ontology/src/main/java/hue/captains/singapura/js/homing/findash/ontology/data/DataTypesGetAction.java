@@ -7,18 +7,13 @@ import hue.captains.singapura.js.homing.findash.data.meta.Stratum;
 import hue.captains.singapura.js.homing.findash.data.meta.WidgetUsage;
 import hue.captains.singapura.js.homing.server.EmptyParam;
 import hue.captains.singapura.js.homing.studio.base.DocContent;
-import hue.captains.singapura.js.homing.studio.base.tree.CategoryValue;
-import hue.captains.singapura.js.homing.studio.base.tree.KindValue;
-import hue.captains.singapura.js.homing.tree.Category;
-import hue.captains.singapura.js.homing.tree.DimensionKey;
-import hue.captains.singapura.js.homing.tree.DimensionValue;
-import hue.captains.singapura.js.homing.tree.DisplayLabel;
-import hue.captains.singapura.js.homing.tree.Kind;
+import hue.captains.singapura.js.homing.tree.NodeIdentity;
+import hue.captains.singapura.js.homing.tree.NodeName;
 import hue.captains.singapura.js.homing.tree.NormalizedNode;
-import hue.captains.singapura.js.homing.tree.Summary;
+import hue.captains.singapura.js.homing.tree.RowDisplay;
+import hue.captains.singapura.js.homing.tree.RowDisplaySource;
 import hue.captains.singapura.js.homing.tree.TreeLevel;
 import hue.captains.singapura.js.homing.tree.TreeNodeJsonWriter;
-import hue.captains.singapura.js.homing.tree.dims.NameValue;
 import hue.captains.singapura.tao.http.action.GetAction;
 import hue.captains.singapura.tao.http.action.Param;
 import hue.captains.singapura.tao.http.action.ParamMarshaller;
@@ -67,14 +62,62 @@ public final class DataTypesGetAction
 
     @Override
     public CompletableFuture<DocContent> execute(final Query query, final EmptyParam.NoHeaders headers) {
+        // One walk fills both the tree and the details it will be rendered from.
+        final var details = new LinkedHashMap<NodeIdentity, DataTypeDetails>();
+        final NormalizedNode root = root(details);
         final var json = new JsonObject()
-                .put("tree", new JsonObject(writer.write(root())))
+                // NOTE the two-arg write: the one-arg overload still compiles and
+                // emits no display block, which renders the tree unlabelled.
+                .put("tree", new JsonObject(writer.write(root, rowsFrom(details))))
                 .put("index", index());
         return CompletableFuture.completedFuture(
                 new DocContent(json.encode(), "application/json; charset=utf-8"));
     }
 
-    private NormalizedNode root() {
+    /**
+     * What a node is, in this action's own vocabulary (RFC 0053). Counts stay
+     * {@code int} until {@link #row()} renders them — "12 types" is a number you
+     * can no longer count with.
+     *
+     * <p>Each {@code row()} folds its count into the LABEL rather than the note:
+     * {@code TreeRenderer} draws the note only when its {@code showNote} option
+     * is set, and the navigator trees deliberately leave it off, so a count moved
+     * to the note would silently disappear from the tree.</p>
+     */
+    private sealed interface DataTypeDetails {
+        RowDisplay row();
+
+        record OfRoot(int types) implements DataTypeDetails {
+            public RowDisplay row() {
+                return new RowDisplay("Data Ontology  (" + types + " types)", "",
+                        types + " types", "workspace");
+            }
+        }
+
+        record OfStratum(String label, int types) implements DataTypeDetails {
+            public RowDisplay row() {
+                return new RowDisplay(label + "  (" + types + ")", "",
+                        types + " types", "stratum");
+            }
+        }
+
+        record OfType(String id, String marker, int usages) implements DataTypeDetails {
+            public RowDisplay row() {
+                return new RowDisplay(id + "  (" + usages + ")", "",
+                        usages + " usages", marker);
+            }
+        }
+    }
+
+    /** The projection handed to the writer — it never reads the node itself. */
+    private static RowDisplaySource rowsFrom(final Map<NodeIdentity, DataTypeDetails> details) {
+        return node -> {
+            final DataTypeDetails d = node instanceof NormalizedNode n ? details.get(n.identity()) : null;
+            return d == null ? RowDisplay.of("") : d.row();
+        };
+    }
+
+    private NormalizedNode root(final Map<NodeIdentity, DataTypeDetails> details) {
         final List<NormalizedNode> strata = new ArrayList<>();
         for (final Stratum s : Stratum.values()) {
             final List<DataType> types = ontology.inStratum(s);
@@ -83,17 +126,21 @@ public final class DataTypesGetAction
             }
             final List<NormalizedNode> leaves = new ArrayList<>();
             for (final DataType t : types) {
+                final var id = DataTypeNodeIdentity.type(t.id().value());
+                details.put(id, new DataTypeDetails.OfType(
+                        t.id().value(), markerSlug(t), t.usages().size()));
                 leaves.add(NormalizedNode.leaf(TreeLevel.L2.INSTANCE,
-                        dims(t.id().value() + "  (" + t.usages().size() + ")",
-                                t.id().value(), markerSlug(t))));
+                        NodeName.slug(t.id().value()), id, Map.of()));
             }
+            final var stratumId = DataTypeNodeIdentity.stratum(s.name());
+            details.put(stratumId, new DataTypeDetails.OfStratum(label(s), types.size()));
             strata.add(new NormalizedNode(TreeLevel.L1.INSTANCE,
-                    dims(label(s) + "  (" + types.size() + ")", "stratum:" + s.name(), "stratum"),
-                    leaves));
+                    NodeName.slug(s.name()), stratumId, Map.of(), leaves));
         }
-        final int total = ontology.types().size();
+        final var rootId = DataTypeNodeIdentity.root();
+        details.put(rootId, new DataTypeDetails.OfRoot(ontology.types().size()));
         return new NormalizedNode(TreeLevel.L0.INSTANCE,
-                dims("Data Ontology  (" + total + " types)", "stratum:ALL", "workspace"), strata);
+                NodeName.slug("data-ontology"), rootId, Map.of(), strata);
     }
 
     private JsonObject index() {
@@ -151,13 +198,4 @@ public final class DataTypesGetAction
         return t.marker().name().toLowerCase().replace('_', '-');
     }
 
-    private Map<DimensionKey, DimensionValue> dims(final String label, final String summary,
-                                                   final String kind) {
-        final Map<DimensionKey, DimensionValue> m = new LinkedHashMap<>();
-        m.put(DisplayLabel.INSTANCE, new NameValue(label));
-        m.put(Summary.INSTANCE, new NameValue(summary));
-        m.put(Category.INSTANCE, new CategoryValue(""));
-        m.put(Kind.INSTANCE, new KindValue(kind));
-        return m;
-    }
 }

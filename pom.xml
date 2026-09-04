@@ -22,7 +22,7 @@
              ships from 0.7.0 onwards. Set to LOCAL-SNAPSHOT to build against the
              framework working tree instead (run `mvn -o install` in homing-ssjs-core
              first) — needed when validating an unreleased core change downstream. -->
-        <homing.core.version>LOCAL-SNAPSHOT</homing.core.version>
+        <homing.core.version>0.8.0</homing.core.version>
         <junit.version>5.11.3</junit.version>
         <jontology.version>0.0.1</jontology.version>
     </properties>
@@ -63,6 +63,11 @@
             <dependency>
                 <groupId>io.github.captainssingapura-hue.homing.js</groupId>
                 <artifactId>homing-conformance-studio</artifactId>
+                <version>${homing.core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.captainssingapura-hue.homing.js</groupId>
+                <artifactId>homing-relation-grid</artifactId>
                 <version>${homing.core.version}</version>
             </dependency>
             <dependency>

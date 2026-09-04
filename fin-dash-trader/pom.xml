@@ -22,6 +22,10 @@
             <artifactId>homing-studio-starter</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.github.captainssingapura-hue.homing.js</groupId>
+            <artifactId>homing-relation-grid</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.github.captainssingapura-hue.homing.findash</groupId>
             <artifactId>fin-dash-core</artifactId>
             <version>${project.version}</version>

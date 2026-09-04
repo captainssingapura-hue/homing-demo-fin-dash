@@ -56,6 +56,9 @@ public final class TraderWorkspaceSpec implements WorkspaceSpec {
             WidgetEntry.of(RiskBlotterWidget.class, WidgetLabel.of("Risk Blotter"))
                     .withIcon(new WidgetIcon.Emoji("📋"))
                     .withGroup(risk),
+            WidgetEntry.of(RiskLadderWidget.class, WidgetLabel.of("Risk Ladder"))
+                    .withIcon(new WidgetIcon.Emoji("🪜"))
+                    .withGroup(risk),
             WidgetEntry.of(PortfolioWidget.class, WidgetLabel.of("Portfolio"))
                     .withIcon(new WidgetIcon.Emoji("📁"))
                     .withGroup(risk),

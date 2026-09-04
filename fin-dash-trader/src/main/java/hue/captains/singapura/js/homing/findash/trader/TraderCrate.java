@@ -2,6 +2,7 @@ package hue.captains.singapura.js.homing.findash.trader;
 
 import hue.captains.singapura.js.homing.core.Crate;
 import hue.captains.singapura.js.homing.core.CrateEntry;
+import hue.captains.singapura.js.homing.grid.RelationGridCrate;
 import hue.captains.singapura.js.homing.findash.core.FinDashCoreCrate;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public final class TraderCrate implements Crate {
 
     @Override
     public List<Crate> requires() {
-        return List.of(FinDashCoreCrate.INSTANCE);
+        return List.of(FinDashCoreCrate.INSTANCE, RelationGridCrate.INSTANCE);
     }
 
     @Override
@@ -33,6 +34,8 @@ public final class TraderCrate implements Crate {
                 CrateEntry.of(PricerWidget.INSTANCE),
                 CrateEntry.of(SurfaceManagerWidget.INSTANCE),
                 CrateEntry.of(RiskBlotterWidget.INSTANCE),
+                CrateEntry.of(RiskLadderWidget.INSTANCE),
+                CrateEntry.of(RiskLadderCellModule.INSTANCE),
                 CrateEntry.of(BarrierWatchWidget.INSTANCE),
                 CrateEntry.of(ExpiryClustersWidget.INSTANCE));
     }

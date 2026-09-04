@@ -2,14 +2,19 @@ package hue.captains.singapura.js.homing.findash.studio;
 
 import hue.captains.singapura.js.homing.findash.studio.docs.DemoDataRequirementsDoc;
 import hue.captains.singapura.js.homing.findash.studio.docs.EngineArchitectureDoc;
+import hue.captains.singapura.js.homing.findash.studio.docs.ReactRewriteStudyDoc;
+import hue.captains.singapura.js.homing.findash.studio.docs.RelationGridCaseStudyDoc;
 import hue.captains.singapura.js.homing.findash.studio.docs.ThemeGuideDoc;
 import hue.captains.singapura.js.homing.findash.studio.docs.UiStudyDoc;
 import hue.captains.singapura.js.homing.findash.studio.docs.UserGuideDoc;
+import hue.captains.singapura.js.homing.findash.studio.docs.VirtualizationStudyDoc;
 import hue.captains.singapura.js.homing.studio.base.Doc;
 import hue.captains.singapura.js.homing.studio.base.DocProvider;
+import hue.captains.singapura.js.homing.studio.base.app.DocReader;
 import hue.captains.singapura.js.homing.studio.base.app.Entry;
 import hue.captains.singapura.js.homing.studio.base.app.L1_Catalogue;
 import hue.captains.singapura.js.homing.studio.base.app.L2_Catalogue;
+import hue.captains.singapura.js.homing.studio.base.composed.ComposedViewer;
 
 import java.util.List;
 
@@ -38,14 +43,38 @@ public record FinDashDocCatalogue()
         return List.of(WorkspaceIntrosCatalogue.INSTANCE);
     }
 
+    /**
+     * RFC 0053: an entry names the viewer that renders the doc. {@code Doc} no
+     * longer carries a {@code url()} — "a doc no longer knows how it is viewed" —
+     * so the choice of reader moves here, where the catalogue is authored.
+     */
     @Override
     public List<Entry<FinDashDocCatalogue>> leaves() {
         return List.of(
-                Entry.of(this, UserGuideDoc.INSTANCE),
-                Entry.of(this, UiStudyDoc.INSTANCE),
-                Entry.of(this, EngineArchitectureDoc.INSTANCE),
-                Entry.of(this, DemoDataRequirementsDoc.INSTANCE),
-                Entry.of(this, ThemeGuideDoc.INSTANCE)
+                Entry.of(this, ComposedViewer.INSTANCE,
+                        new ComposedViewer.Params(UserGuideDoc.INSTANCE.uuid().toString()),
+                        UserGuideDoc.INSTANCE),
+                Entry.of(this, DocReader.INSTANCE,
+                        new DocReader.Params(UiStudyDoc.INSTANCE.uuid().toString()),
+                        UiStudyDoc.INSTANCE),
+                Entry.of(this, DocReader.INSTANCE,
+                        new DocReader.Params(EngineArchitectureDoc.INSTANCE.uuid().toString()),
+                        EngineArchitectureDoc.INSTANCE),
+                Entry.of(this, DocReader.INSTANCE,
+                        new DocReader.Params(DemoDataRequirementsDoc.INSTANCE.uuid().toString()),
+                        DemoDataRequirementsDoc.INSTANCE),
+                Entry.of(this, DocReader.INSTANCE,
+                        new DocReader.Params(ThemeGuideDoc.INSTANCE.uuid().toString()),
+                        ThemeGuideDoc.INSTANCE),
+                Entry.of(this, DocReader.INSTANCE,
+                        new DocReader.Params(RelationGridCaseStudyDoc.INSTANCE.uuid().toString()),
+                        RelationGridCaseStudyDoc.INSTANCE),
+                Entry.of(this, DocReader.INSTANCE,
+                        new DocReader.Params(VirtualizationStudyDoc.INSTANCE.uuid().toString()),
+                        VirtualizationStudyDoc.INSTANCE),
+                Entry.of(this, DocReader.INSTANCE,
+                        new DocReader.Params(ReactRewriteStudyDoc.INSTANCE.uuid().toString()),
+                        ReactRewriteStudyDoc.INSTANCE)
         );
     }
 
@@ -53,6 +82,7 @@ public record FinDashDocCatalogue()
     public List<Doc> docs() {
         return List.of(UserGuideDoc.INSTANCE, UiStudyDoc.INSTANCE,
                 EngineArchitectureDoc.INSTANCE, DemoDataRequirementsDoc.INSTANCE,
-                ThemeGuideDoc.INSTANCE);
+                ThemeGuideDoc.INSTANCE, RelationGridCaseStudyDoc.INSTANCE,
+                VirtualizationStudyDoc.INSTANCE, ReactRewriteStudyDoc.INSTANCE);
     }
 }

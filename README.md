@@ -12,6 +12,7 @@ in the UI Requirements Study.
 > - [`docs/demo-data-requirements.md`](docs/demo-data-requirements.md) — requirements for the consolidated, UI-agnostic demo dataset (the substrate for cross-workspace widget connection).
 > - [`docs/adding-a-theme.md`](docs/adding-a-theme.md) — how to add a custom studio theme (worked example: a Bloomberg-terminal look), incl. the downstream wiring the framework skill omits.
 > - [`docs/upstream-blockers.md`](docs/upstream-blockers.md) · [`docs/defect-app-refs-ambiguous.md`](docs/defect-app-refs-ambiguous.md) — framework issues this demo found, with evidence and suggested fixes.
+> - [`docs/backlog.md`](docs/backlog.md) — what this demo owes itself, with evidence and suggested fixes (first item: JavaScript authored as Java string arrays).
 >
 > `docs/` is the single source: the studio serves these files from the jar via a
 > build-time copy (no second committed copy), under **Documentation** on the landing.
