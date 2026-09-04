@@ -224,10 +224,14 @@ table" — from the selection identities, without the grid learning any of it.
 
 ## 8. Live data
 
-Untried here, but the path is short and the batch was built for it:
-`adapter.subscribe(fn)` gives the domain a push channel, and `fn` is the facade's
-`updateCell` — straight to the cell, no positional lookup. Three obligations fall
-on the feed rather than the grid:
+Tried, in the plainest form: `adapter.subscribe(fn)` starts a five-second poll
+of `/fx/book`, re-orders the answer, and for every row whose data changed
+re-judges it and relays *every cell of it* through `fn` — which is the facade's
+`updateCell`, straight to the cell, no positional lookup. The book is
+deterministic, so in the demo nothing changes; with `fetch` stubbed to return
+altered numbers, the cells tick within one poll. Three obligations fall on the
+feed rather than the grid, and the implementation honours the first by
+construction (a changed subtotal is a changed row like any other):
 
 1. **Aggregates must tick too.** Having decided the UI must not compute totals,
    a feed that ticks only leaves leaves every Σ stale. The server has to publish
@@ -240,9 +244,12 @@ on the feed rather than the grid:
 
 - The ladder **follows** the selection bus but never drives it. Every other
   trader widget publishes; clicking a tenor here moves a cursor and nothing else.
-- **Copy is not wired.** `onCopy` is only bound when supplied, so `Ctrl+C` in the
-  ladder currently does nothing — the copy-safety guard on the cells is correct
-  but, as yet, unreachable.
+- ~~**Copy is not wired.**~~ Closed: `onCopy` writes the grid's TSV to the
+  clipboard and reports "copied N rows" in the header; the cells' copy guard is
+  now on a live path, and a copied subtotal row carries its label and blank
+  numbers. The adapter's `update` and `deleteRows` no longer return silently —
+  they throw, because a reference adapter that stubs a contract teaches that
+  contracts are for stubbing.
 - **Fold and focus do not survive a reconstruction.** The widget takes no params,
   so the state lives in a closure; a replay reopens every block.
 - ~~**Freshness thresholds are UI-invented** in two widgets that must be kept in

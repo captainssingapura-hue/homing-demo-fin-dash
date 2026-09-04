@@ -106,5 +106,5 @@ and the runtime sweep green on every widget the step touched.
 | 3 | #8 baseline regeneration | **done** (docs; the class already existed) | "Debt #8: the baseline procedure is the class, not the redirect" |
 | 4 | #5 actor identity | **done** | "Debt #5: an identity comes from the workspace, not from chance" |
 | 5 | #4 fetch and failure | **done** | "Debt #4: one data path — fdk.load" |
-| 6 | #7 stubs and `onCopy` | next | |
-| 7 | #6 runtime sweep | | |
+| 6 | #7 stubs and `onCopy` | **done** | "Debt #7: the ladder's contract is real — copy, feed, refusal" |
+| 7 | #6 runtime sweep | next | |

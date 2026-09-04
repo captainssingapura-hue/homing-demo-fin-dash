@@ -70,7 +70,6 @@ grep over `src/main`, `lib/` excluded.
 | # | item | sites | copy risk | size |
 |---|---|---|---|---|
 | 6 | the runtime sweep is a manual protocol | — | high | large |
-| 7 | contract methods stubbed; copy guard unreachable | 1 adapter | medium | small |
 | 9 | a standing baseline of grandfathered findings | 5 findings, 1 module | medium | upstream |
 | 10 | widget view state lost on reconstruction | 1 widget known | low | small |
 | 11 | a vendored library four years old | 1 file, 600 KB | low | small |
@@ -91,22 +90,6 @@ duplicate-name throws and orphaned branches. Then per-module tests for the 21
 actions, which are pure functions of deterministic data and have none.
 **Acceptance:** the sweep is a build step; each module with a `GetAction`
 has a test asserting its shape.
-
-## 7. Contract methods stubbed; the copy guard unreachable
-
-**Copy risk: medium.** A reference adapter with `subscribe: function (fn)
-{}` teaches that a contract is something to stub.
-
-**Evidence.** `RiskLadderWidget`'s adapter stubs `subscribe`, `unsubscribe`
-and `deleteRows`, and `update` returns silently. `onCopy` is not supplied to
-the grid, so `Ctrl+C` does nothing and the cells' `getValueToCopy()` guard —
-described three times as protecting a live path — is unreachable.
-
-**Fix.** Wire `onCopy` (the guard becomes real). Implement `subscribe` over a
-polling or push feed (the case study's §8 path). For a read-only adapter,
-`deleteRows` and `update` should refuse loudly, not silently. **Acceptance:**
-`Ctrl+C` in the ladder copies with aggregates blank; a fixture feed ticks
-the ladder.
 
 ## 9. A standing baseline of grandfathered findings
 
