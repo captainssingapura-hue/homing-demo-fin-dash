@@ -156,13 +156,16 @@ public record FdDataCss() implements CssGroup<FdDataCss> {
      * A folded section header — the Minesweeper tile after it is clicked.
      * Worn <em>alongside</em> {@link fd_section_row}, on every cell of the row.
      *
-     * <p>Pressed is the raised bevel inverted: the shadow moves to the top
-     * edge and the highlight to the bottom, so the bar reads as pushed into
-     * the page rather than standing off it. The face darkens a step too — a
-     * pressed key sits in its own shadow. Re-declaring {@code --fd-bevel-face}
-     * here is enough for that: the raised class paints its background
-     * <em>through</em> the property, so the later declaration darkens face
-     * and edges together.</p>
+     * <p>Pressed is the shadow moved to the top edge and the highlight taken
+     * away, so the bar reads as pushed into the page rather than standing off
+     * it. Not the raised bevel mirrored: a pressed key does not catch light on
+     * its bottom edge (Win95's pressed button has no bright edge either), and
+     * in practice a highlight there read as a stray grey rule under the bar —
+     * on an amber theme the white mix desaturates to exactly that. The face
+     * takes one more step of ink too, since a pressed key sits in its own
+     * shadow. Re-declaring {@code --fd-bevel-face} is enough for that: the
+     * raised class paints its background <em>through</em> the property, so
+     * the later declaration moves face and edge together.</p>
      *
      * <p>Must be emitted after {@link fd_section_row}: same specificity, so
      * order is what lets the inverted bevel win.</p>
@@ -172,8 +175,7 @@ public record FdDataCss() implements CssGroup<FdDataCss> {
             return """
                    --fd-bevel-face: color-mix(in srgb, var(--color-text-primary) 18%,
                                                         var(--color-surface-raised));
-                   box-shadow: inset 0  2px 0 color-mix(in srgb, black 35%, var(--fd-bevel-face)),
-                               inset 0 -2px 0 color-mix(in srgb, white 60%, var(--fd-bevel-face));
+                   box-shadow: inset 0 2px 0 color-mix(in srgb, black 35%, var(--fd-bevel-face));
                    """;
         }
     }
