@@ -226,7 +226,7 @@ public final class PricerWidget extends WorkspaceWidget<WorkspaceWidget._None, P
             "        root: root,",
             "        setActive: function (active) { if (active) input.focus(); },",
             "        partyDeregister: function () {",
-            "            if (actorId && party) { try { party.leave(actorId); } catch (e) {} }",
+            "            if (actorId && party) { party.leave(actorId); }",
             "        }",
             "    };");
     }

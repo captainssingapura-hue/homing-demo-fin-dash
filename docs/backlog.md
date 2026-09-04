@@ -69,7 +69,6 @@ grep over `src/main`, `lib/` excluded.
 
 | # | item | sites | copy risk | size |
 |---|---|---|---|---|
-| 2 | swallowed exceptions | 25 in 8 widgets | high | small |
 | 3 | risk judgement computed in the UI | 2 widgets, 3 thresholds | high | moderate |
 | 4 | fetch and failure handling written per widget | 27 widgets | medium | moderate |
 | 5 | actor identity from `Math.random()` | 20 widgets | medium | small ×20 |
@@ -79,23 +78,6 @@ grep over `src/main`, `lib/` excluded.
 | 9 | a standing baseline of grandfathered findings | 5 findings, 1 module | medium | upstream |
 | 10 | widget view state lost on reconstruction | 1 widget known | low | small |
 | 11 | a vendored library four years old | 1 file, 600 KB | low | small |
-
-## 2. Swallowed exceptions
-
-**Copy risk: high.** `catch (e) {}` teaches that teardown may fail silently.
-
-**Evidence.** 25 occurrences across 8 widgets — `VolSurfaceWidget` 4,
-`RiskLadderWidget` 3, `TradeBlotterWidget` 2, one each in five more. Almost
-all wrap the same two calls: `grid.destroy()` on a possibly half-built grid,
-and `party.leave(actorId)` on a possibly already-left actor.
-
-**Fix.** Do not catch; make the cases impossible. `destroy()` is only called
-on a grid that was built (`if (grid)` already guards most sites); `leave()`
-is only called once, from `partyDeregister`. Where a framework call can
-genuinely throw on a legitimate path, that is an upstream item, not a
-`catch {}`. **Acceptance:** zero `catch (e) {}` in served code; a
-conformance rule `no-empty-catch` added to the desk's own rule set so it
-stays zero.
 
 ## 3. Risk judgement computed in the UI
 

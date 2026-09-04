@@ -340,7 +340,7 @@ public final class RiskLadderWidget
             "        // The grid owns its cells' elements, so it gets a branch of its own",
             "        // that is dissolved whole when the pair changes — the same discipline",
             "        // every re-rendering region here follows.",
-            "        if (grid) { try { grid.destroy(); } catch (e) {} grid = null; }",
+            "        if (grid) { grid.destroy(); grid = null; }",
             "        if (gridBranch) gridBranch.dissolve();",
             "        gridBranch = branch.createBranch('grid');",
             "        gridBranch.activate(host);",
@@ -418,8 +418,8 @@ public final class RiskLadderWidget
             "        },",
             "        partyDeregister: function () {",
             "            document.removeEventListener('keydown', keyHandler);",
-            "            if (grid) { try { grid.destroy(); } catch (e) {} }",
-            "            if (actorId && party) { try { party.leave(actorId); } catch (e) {} }",
+            "            if (grid) { grid.destroy(); }",
+            "            if (actorId && party) { party.leave(actorId); }",
             "        }",
             "    };");
     }

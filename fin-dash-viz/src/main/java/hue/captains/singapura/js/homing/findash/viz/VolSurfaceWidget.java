@@ -154,7 +154,7 @@ public final class VolSurfaceWidget
             "    var surface = null, wireOn = false, lastData = null, lastW = 0, lastH = 0;",
             "",
             "    function build() {",
-            "        if (surface) { try { surface.destroy(); } catch (e) {} }",
+            "        if (surface) { surface.destroy(); }",
             "        surface = new VolSurface(mount, { THREE: THREE, colormap: cmap.value || 'plasma' });",
             "        surface.setWireframe(wireOn);",
             "        surface.on('hover', function (p) {",
@@ -271,10 +271,10 @@ public final class VolSurfaceWidget
             "            // library's DOM still exists for it to unwind. This is the",
             "            // disposer half of the rendering-leaf contract: without it the",
             "            // rAF loop and the window mouse listeners would outlive the tab.",
-            "            try { ro.disconnect(); } catch (e) {}",
+            "            ro.disconnect();",
             "            if (frame !== null) cancelAnimationFrame(frame);",
-            "            if (surface) { try { surface.destroy(); } catch (e) {} }",
-            "            if (actorId && party) { try { party.leave(actorId); } catch (e) {} }",
+            "            if (surface) { surface.destroy(); }",
+            "            if (actorId && party) { party.leave(actorId); }",
             "        }",
             "    };");
     }

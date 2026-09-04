@@ -192,7 +192,7 @@ public final class DataTypeUsageWidget
             "        root: root,",
             "        setActive: function (active) {},",
             "        partyDeregister: function () {",
-            "            if (actorId && party) { try { party.leave(actorId); } catch (e) {} }",
+            "            if (actorId && party) { party.leave(actorId); }",
             "        }",
             "    };");
     }

@@ -367,8 +367,8 @@ public final class TradeBlotterWidget
             "        },",
             "        partyDeregister: function () {",
             "            document.removeEventListener('keydown', keyHandler);",
-            "            if (actorId && party) { try { party.leave(actorId); } catch (e) {} }",
-            "            if (tradeActorId && tradeParty) { try { tradeParty.leave(tradeActorId); } catch (e) {} }",
+            "            if (actorId && party) { party.leave(actorId); }",
+            "            if (tradeActorId && tradeParty) { tradeParty.leave(tradeActorId); }",
             "        }",
             "    };");
     }

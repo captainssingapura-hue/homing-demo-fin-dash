@@ -4,6 +4,7 @@ import hue.captains.singapura.js.homing.conformance.rules.Allowance;
 import hue.captains.singapura.js.homing.conformance.rules.Baseline;
 import hue.captains.singapura.js.homing.conformance.rules.DefaultJsRulePolicy;
 import hue.captains.singapura.js.homing.conformance.rules.FindingGrader;
+import hue.captains.singapura.js.homing.conformance.rules.JsRule;
 import hue.captains.singapura.js.homing.conformance.rules.JsRulePolicy;
 import hue.captains.singapura.js.homing.conformance.rules.JsRuleSet;
 import hue.captains.singapura.js.homing.conformance.rules.MaxEffectiveLinesRule;
@@ -16,6 +17,7 @@ import hue.captains.singapura.js.homing.findash.audit.AuditCrate;
 import hue.captains.singapura.js.homing.findash.book.BookCrate;
 import hue.captains.singapura.js.homing.findash.core.FinDashCoreCrate;
 import hue.captains.singapura.js.homing.findash.core.conformance.DeterministicRiskRule;
+import hue.captains.singapura.js.homing.findash.core.conformance.NoEmptyCatchRule;
 import hue.captains.singapura.js.homing.findash.core.conformance.RiskModuleType;
 import hue.captains.singapura.js.homing.findash.etrading.ETradingCrate;
 import hue.captains.singapura.js.homing.findash.governance.GovernanceCrate;
@@ -88,8 +90,25 @@ public final class FinDashConformance {
                     DeterministicRiskRule.INSTANCE));
 
     /** The framework policy, extended with the fin-dash's {@code risk-model} type → rule set. */
-    public static final JsRulePolicy POLICY = DefaultJsRulePolicy.INSTANCE.extendedWith(
+    private static final JsRulePolicy TYPED_POLICY = DefaultJsRulePolicy.INSTANCE.extendedWith(
             Map.<JsModuleType, JsRuleSet>of(RiskModuleType.RISK_MODEL, RISK_MODEL_RULES));
+
+    /**
+     * The desk-wide layer: rules that hold for <em>every</em> served fin-dash
+     * module regardless of type. {@link JsRulePolicy} is one method, so a
+     * downstream global rule is a policy that delegates per type and appends.
+     * A type whose framework rule set is empty (a bundled external) stays
+     * empty — exemption is the framework's decision and is not overridden.
+     */
+    private static final List<JsRule> DESK_WIDE = List.of(NoEmptyCatchRule.INSTANCE);
+
+    public static final JsRulePolicy POLICY = type -> {
+        JsRuleSet base = TYPED_POLICY.rulesFor(type);
+        if (base.rules().isEmpty()) return base;
+        var rules = new ArrayList<JsRule>(base.rules());
+        for (JsRule r : DESK_WIDE) if (!rules.contains(r)) rules.add(r);
+        return new JsRuleSet(base.id(), base.title(), rules);
+    };
 
     /** Documented, intentional exceptions (none today). */
     public static final List<Allowance> ALLOWANCES = List.of();

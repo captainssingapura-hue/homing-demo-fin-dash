@@ -1,0 +1,105 @@
+# Plan — paying down the reference-implementation debt
+
+The register is [`backlog.md`](backlog.md) (items 2–11). This is the order
+they are worked in, what each step touches, how it is verified, and where
+things stand. One item per commit, or one commit per mechanical pass; every
+step ends with a clean build, the conformance report unchanged or improved,
+and the runtime sweep green on every widget the step touched.
+
+## Order, and why
+
+| step | item | why here |
+|---|---|---|
+| 1 | #2 swallowed exceptions | smallest change with the highest copy risk; makes every later diff cleaner |
+| 2 | #3 risk judgement in the UI | the P5 breach in the widgets a desk copies first; changes the JSON contract, so it goes before the fetch helper is written against it |
+| 3 | #8 baseline regeneration | tiny; removes a documented footgun before anything else regenerates the baseline |
+| 4 | #5 actor identity | a kit helper and twenty mechanical call sites |
+| 5 | #4 fetch and failure per widget | a kit helper and twenty-seven mechanical call sites; done after #3 so the helper sees the final contract |
+| 6 | #7 stubs and `onCopy` | closes the case study's honest gaps once the ladder's data path is settled by steps 2 and 5 |
+| 7 | #6 the runtime sweep, automated | the largest item and the one that protects all the others; last so it lands on finished code |
+| — | #9 standing baseline | upstream; tracked, not worked here |
+| — | #10 view state, #11 three.js | after the above, or as someone's spare afternoon |
+
+## Steps
+
+### Step 1 — #2 swallowed exceptions
+
+- Enumerate all 25 `catch (e) {}` sites; for each, name what could throw and
+  why the call is on that path at all.
+- Replace each with a guard that makes the throw impossible (`if (grid)`,
+  a once-only `partyDeregister`), or with a real handler where the failure
+  is a legitimate state.
+- Add `no-empty-catch` to the desk's own conformance rules so the count
+  cannot rise.
+- **Verify:** `grep -c 'catch (e) {\s*}'` over `src/main` is 0; the rule is
+  in the report; sweep on the 8 widgets touched.
+
+### Step 2 — #3 risk judgement in the UI
+
+- One tolerance table in `fin-dash-core` (freshness budget, reval budget
+  bands) as desk facts, with the source of each number stated.
+- `BookGetAction`, `PositionsGetAction`, `PlatformGetAction` publish
+  `freshState` / `budgetState` beside the raw numbers.
+- `RiskLadderWidget`, `RiskBlotterWidget`, `PortfolioWidget`,
+  `PlatformConsoleWidget` render the state and stop comparing.
+- Update the RelationGrid case study §9 (the gap is closed) and its §5
+  paragraph on the adapter's verdict (it now relays, not decides).
+- **Verify:** no numeric threshold in served widget JS; the four widgets
+  show the same states as before on the deterministic book; sweep.
+
+### Step 3 — #8 baseline regeneration
+
+- `BaselineRegen` writes `risk-conformance-baseline.txt` itself, UTF-8, and
+  prints a summary only.
+- Delete KT.md §9.3.
+- **Verify:** regenerate on Windows; the loaded baseline count equals the
+  written count; build green.
+
+### Step 4 — #5 actor identity
+
+- Establish what `workspaceCtx` can supply as a stable instance identity;
+  if nothing, a per-kind counter in the kit.
+- `fdk.actorId(kind)` in the kit; twenty call sites.
+- Widen `DeterministicRiskRule` (or add a sibling) so `Math.random` is
+  banned in all served code, not only risk models.
+- **Verify:** `Math.random` absent from `src/main` served JS; the bus still
+  routes (blotter ↔ pricer ↔ ladder); sweep across all 20 widgets.
+
+### Step 5 — #4 fetch and failure handling
+
+- `fdk.load(branch, host, url, paint)`: HTTP status policy, JSON policy, the
+  stale-response guard by construction (the branch is the generation
+  token), one failure rendering.
+- Twenty-seven call sites.
+- **Verify:** no `fetch(` in a widget body; failure copy identical; the
+  `LifecycleWidget` rapid-navigation case still correct; sweep on all 27.
+
+### Step 6 — #7 stubs and `onCopy`
+
+- Supply `onCopy` to the ladder's grid; the copy guard becomes reachable.
+- `subscribe` over a fixture feed (poll the deterministic book with a
+  slice advance); `update` / `deleteRows` refuse loudly on a read-only
+  adapter.
+- Update the case study §8 and §9.
+- **Verify:** `Ctrl+C` copies with aggregates blank; the ladder ticks.
+
+### Step 7 — #6 the runtime sweep
+
+- A headless test that mounts every widget kind, exercises every control
+  twice, and asserts: no console errors, no duplicate-name throws, no
+  orphaned branches after teardown.
+- Per-module tests for the 21 actions against the deterministic data.
+- Delete the manual protocol from KT.md once the test replaces it.
+- **Verify:** the sweep is a build step and fails on a seeded regression.
+
+## Status
+
+| step | item | state | commit |
+|---|---|---|---|
+| 1 | #2 swallowed exceptions | **done** | "Debt #2: no swallowed exceptions" |
+| 2 | #3 risk judgement in the UI | next | |
+| 3 | #8 baseline regeneration | | |
+| 4 | #5 actor identity | | |
+| 5 | #4 fetch and failure | | |
+| 6 | #7 stubs and `onCopy` | | |
+| 7 | #6 runtime sweep | | |

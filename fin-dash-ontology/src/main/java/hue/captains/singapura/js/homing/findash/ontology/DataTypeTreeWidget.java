@@ -140,7 +140,7 @@ public final class DataTypeTreeWidget
             "        },",
             "        partyDeregister: function () {",
             "            document.removeEventListener('keydown', keyHandler);",
-            "            if (actorId && party) { try { party.leave(actorId); } catch (e) {} }",
+            "            if (actorId && party) { party.leave(actorId); }",
             "        }",
             "    };");
     }

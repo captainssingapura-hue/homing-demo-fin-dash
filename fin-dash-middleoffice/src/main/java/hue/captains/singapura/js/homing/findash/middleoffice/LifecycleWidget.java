@@ -238,7 +238,7 @@ public final class LifecycleWidget
             "        setActive: function (active) {},",
             "        partyDeregister: function () {",
             "            if (tradeActorId && tradeParty) {",
-            "                try { tradeParty.leave(tradeActorId); } catch (e) {}",
+            "                tradeParty.leave(tradeActorId);",
             "            }",
             "        }",
             "    };");
