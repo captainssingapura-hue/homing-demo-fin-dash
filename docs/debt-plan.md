@@ -90,12 +90,21 @@ and the runtime sweep green on every widget the step touched.
 
 ### Step 7 — #6 the runtime sweep
 
-- A headless test that mounts every widget kind, exercises every control
-  twice, and asserts: no console errors, no duplicate-name throws, no
-  orphaned branches after teardown.
-- Per-module tests for the 21 actions against the deterministic data.
-- Delete the manual protocol from KT.md once the test replaces it.
-- **Verify:** the sweep is a build step and fails on a seeded regression.
+- Done as `WidgetMountSweepTest` + `ActionsShapeTest` (KT.md §7e): every
+  widget's *served* module run under GraalJS against a browser stub, with
+  `fetch` routed to the real actions; assertions on the error root, load
+  failures, non-200 fetches, console errors, actors that did not leave, and
+  intervals left scheduled; a canary duplicate-name widget that must be
+  reported. Every `/fx/*` action answers a non-empty JSON object.
+- Not a headless browser: GraalJS with the conformance engine's own renderer,
+  so the sweep runs the artifact in-process in ~3 s and needs no new runtime.
+- The click-everything half is not automated; it is item #12 on the same
+  harness. There was no manual protocol in KT.md to delete — it lived in
+  session notes — so §7e is new.
+- Found on the way: the Jackson version split (item #13, fixed in the root
+  pom).
+- **Verify:** the sweep is a build step (part of `mvn install`) and the
+  canary fails it when the detection is broken.
 
 ## Status
 
@@ -107,4 +116,4 @@ and the runtime sweep green on every widget the step touched.
 | 4 | #5 actor identity | **done** | "Debt #5: an identity comes from the workspace, not from chance" |
 | 5 | #4 fetch and failure | **done** | "Debt #4: one data path — fdk.load" |
 | 6 | #7 stubs and `onCopy` | **done** | "Debt #7: the ladder's contract is real — copy, feed, refusal" |
-| 7 | #6 runtime sweep | next | |
+| 7 | #6 runtime sweep | **done** (mount half + actions; click half → #12) | "Debt #6: the sweep is a build step" |

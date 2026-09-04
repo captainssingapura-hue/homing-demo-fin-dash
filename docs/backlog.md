@@ -69,27 +69,11 @@ grep over `src/main`, `lib/` excluded.
 
 | # | item | sites | copy risk | size |
 |---|---|---|---|---|
-| 6 | the runtime sweep is a manual protocol | — | high | large |
 | 9 | a standing baseline of grandfathered findings | 5 findings, 1 module | medium | upstream |
 | 10 | widget view state lost on reconstruction | 1 widget known | low | small |
 | 11 | a vendored library four years old | 1 file, 600 KB | low | small |
-
-## 6. The runtime sweep is a manual protocol
-
-**Copy risk: high, in the other direction.** The sweep — mount every widget,
-click every control twice, close all tabs first — found every runtime defect
-this month (fixed-name-per-row in two widgets, an undissolved branch that
-would have thrown on the second price, journal stacking, self-filtering on the
-bus). Nothing runs it. A desk that copies this repository copies a test suite
-of 7 files across 3 of 18 modules and a protocol in a knowledge-transfer
-document.
-
-**Fix.** Automate the sweep as a test: headless browser, every widget kind
-mounted, every control exercised twice, assertions on console errors,
-duplicate-name throws and orphaned branches. Then per-module tests for the 21
-actions, which are pure functions of deterministic data and have none.
-**Acceptance:** the sweep is a build step; each module with a `GetAction`
-has a test asserting its shape.
+| 12 | click-everything not yet automated | — | low | small |
+| 13 | dependency convergence not enforced | 1 split found | medium | small |
 
 ## 9. A standing baseline of grandfathered findings
 
@@ -122,3 +106,30 @@ and nobody has.
 fetched from, how it is verified, what the vol-surface module needs from
 it — beside the file. **Acceptance:** a `lib/README.md` that answers those
 three questions.
+
+## 12. Click-everything not yet automated
+
+**Copy risk: low.** The mount half of the runtime sweep is a build step
+(`WidgetMountSweepTest`, KT.md §7e); the "click every control twice" half is
+still the manual protocol. It found the fixed-name-per-row defects at mount
+time, so what it would add is the second-render class: a control whose
+handler re-renders on a branch it did not dissolve.
+
+**Fix.** The stub already records every listener; dispatch each `click`
+twice per widget after mount and assert as the mount sweep does. Next
+increment on the same harness, not a new one. **Acceptance:** the manual
+protocol deleted from wherever it still lives.
+
+## 13. Dependency convergence not enforced
+
+**Copy risk: medium.** vert.x 4.5.11 brought `jackson-databind 2.17.2` and
+`jackson-core 2.16.1` into the same classpath and nothing said so; parsing a
+float threw `NoSuchMethodError`, and the desk did not notice because it only
+ever encoded. The sweep found it by parsing an action's answer. A reference
+implementation that ships a split classpath teaches that it is fine.
+
+**Fix.** The root pom now manages Jackson at one version (KT.md §9.9). The
+general fix is `maven-enforcer-plugin` with `dependencyConvergence` (or
+`requireUpperBoundDeps`) — not added today because the plugin is not in the
+offline repository and the build's portability promise is checked offline.
+**Acceptance:** the enforcer rule in the root build, green.

@@ -309,6 +309,42 @@ codec‑gen step unless your crate re‑packs `ReportCodecsModule` (it won't).
 
 ---
 
+### 7e. The runtime sweep (automated)
+
+Conformance reads the served text; the sweep **runs** it. Two tests in
+`fin-dash-studio/src/test/java/…/studio/sweep/` are part of every `mvn install`:
+
+- **`WidgetMountSweepTest`** — for every `WorkspaceWidget` in every top‑level
+  crate, in a fresh GraalJS context: evaluate `BrowserStub.js` (a DOM with
+  children, classes, styles, attributes, text and listeners; timers that
+  *record* rather than fire; `fetch` routed in‑process to the desk's real
+  actions; a console whose errors are kept), load the widget's **served**
+  module and everything it imports (`ServedModuleLoader` renders each
+  `/module?class=` in‑process and resolves imports depth‑first into
+  IIFE‑isolated globals — the artifact, not a transcription), mint a
+  DomOpsParty branch as the shell does, `construct(branch, {}, {deskParty})`,
+  return to Java so the promise jobs run, then `setActive(true/false)`,
+  `partyDeregister()`, `branch.dissolve()`. It fails on: no root; the
+  framework's "Widget failed to construct" root; a "load failed" line or any
+  `fd-error-text` after mount; a fetch answered other than 200; a console
+  error; an actor that joined and did not leave; an interval still scheduled
+  after teardown. A **canary** widget that mints one element name twice — the
+  defect the manual sweep found in two widgets — must be reported, or the
+  test fails; a green sweep that cannot fail is not a gate.
+- **`ActionsShapeTest`** — every `/fx/*` action answers in‑process with a
+  non‑empty JSON object. This is what surfaced the Jackson split (§9.9).
+
+Run them alone with
+```bash
+mvn -o -pl fin-dash-studio test -Dtest='WidgetMountSweepTest,ActionsShapeTest'
+```
+Both finish in about three seconds. When a widget needs something the stub
+lacks, add it to `BrowserStub.js` once, beside the widget that needed it;
+`VolSurfaceWidget` is skipped by name (WebGL) with the reason in the test.
+
+**What is still manual:** clicking every control twice. The stub records
+listeners, so dispatching each one is the next increment, not a new harness.
+
 ## 8. Domain design — a concrete starting set
 
 A believable risk dashboard (all fabricated demo data — no real feeds):
@@ -391,6 +427,16 @@ light/dark + the named themes you'll see in the top bar).
    untracked files.
 
 ---
+
+9. **Jackson arrives twice through vert.x 4.5.11** — `vertx-web` brings
+   `jackson-databind 2.17.2`, `vertx-core` brings `jackson-core 2.16.1`, and
+   nearest‑wins keeps both. databind 2.17 calls `JsonParser.getNumberTypeFP()`,
+   which core 2.16 lacks, so **parsing** any JSON with a floating‑point number
+   threw `NoSuchMethodError`. The desk only ever *encoded* JSON, so nothing
+   noticed until the sweep parsed an action's answer. The root pom now manages
+   the three Jackson artifacts at one version (`jackson.version`); if the
+   framework's vert.x moves, move it with it. No convergence rule enforces this
+   yet (backlog #13).
 
 ## 10. Starter checklist (in order)
 
