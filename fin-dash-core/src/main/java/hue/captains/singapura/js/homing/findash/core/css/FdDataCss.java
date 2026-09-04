@@ -90,13 +90,18 @@ public record FdDataCss() implements CssGroup<FdDataCss> {
      * including the ones that carry nothing, because that is what draws an
      * unbroken strip across a grid that owns its own {@code <tr>}.
      *
-     * <p>This one is a <b>divider</b>, so it is the loudest of the three — and
-     * it is nothing but a face. No rules, no bevel: the elevated colour of the
-     * strip is the whole separator. Earlier cuts tried a top rule, then a
-     * Minesweeper bevel, then an inverted bevel for the folded state, and each
-     * added a line that had to be explained; the face on its own reads as a
-     * band between blocks, and a fold is announced by the caret in the label,
-     * not by the row changing height or depth.</p>
+     * <p>This one is a <b>divider</b>, so it is the loudest of the three, and
+     * it borrows Minesweeper's vocabulary: the header is an <b>unopened
+     * cell</b> — a raised tile with a 2px highlight along its top edge and a
+     * 2px shadow along its bottom — while the rows beneath it are the opened
+     * ones, flat on the grid's own hairlines. Both edges are <b>inset
+     * shadows</b> rather than borders, the same reasoning the grid itself uses
+     * for its sticky header, so the bevel stays out of the box model.</p>
+     *
+     * <p>The tile does <em>not</em> press when its block folds. An inverted
+     * bevel for the folded state was tried and read as a stray rule under the
+     * bar; the caret in the label carries the fold, and the row keeps the same
+     * face, height and depth either way.</p>
      *
      * <p>The face is a little <b>ink mixed into the raised surface</b>, not the
      * raised surface itself. {@code surface-raised} is defined relative to
@@ -104,9 +109,20 @@ public record FdDataCss() implements CssGroup<FdDataCss> {
      * near-white in the default light theme — which left the band invisible
      * wherever it was needed most. The text colour, by contrast, is guaranteed
      * to read against the surface in <em>every</em> theme, so a small share of
-     * it is a step off the page that stays a step off the page: it darkens a
-     * light theme and lightens a dark one, which is what elevation means in
-     * each.</p>
+     * it is a step off the page that stays a step off the page. It is declared
+     * once, as a custom property, so both bevel edges derive from the colour
+     * they sit on.</p>
+     *
+     * <p>The edges mix toward {@code white} and {@code black} — absolutes, on
+     * purpose. A bevel is about <b>light</b>, not ink, and light falls from the
+     * top in a dark theme exactly as in a light one; a highlight built from
+     * theme tokens would flip into a shadow the moment the tokens did. The two
+     * keywords are neither hex nor {@code rgb()}, which is what the
+     * literal-colour rule guards against.</p>
+     *
+     * <p>Top and bottom only. The row is <em>one</em> control — a double-click
+     * or Enter anywhere along it folds the block — so it gets one bevel, and
+     * the table's own edges close the left and right.</p>
      *
      * <p>The explicit {@code line-height}/{@code min-height} pair is load
      * bearing. A cell element with no text collapses to zero height, so a
@@ -123,13 +139,16 @@ public record FdDataCss() implements CssGroup<FdDataCss> {
     public record fd_section_row() implements CssClass<FdDataCss> {
         @Override public String body() {
             return """
+                   --fd-bevel-face: color-mix(in srgb, var(--color-text-primary) 12%,
+                                                        var(--color-surface-raised));
                    line-height: 18px;
                    min-height: 18px;
-                   background: color-mix(in srgb, var(--color-text-primary) 12%,
-                                                   var(--color-surface-raised));
+                   background: var(--fd-bevel-face);
                    color: var(--color-text-primary);
                    font-weight: 700;
                    letter-spacing: 0.04em;
+                   box-shadow: inset 0  2px 0 color-mix(in srgb, white 60%, var(--fd-bevel-face)),
+                               inset 0 -2px 0 color-mix(in srgb, black 35%, var(--fd-bevel-face));
                    """;
         }
     }
