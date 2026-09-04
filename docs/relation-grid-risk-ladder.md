@@ -141,7 +141,10 @@ design around, and each is discoverable only by reading the source.
 tenor's reading stale against *its* budget?". The adapter answers instead and
 ships the verdict inside the value — `{kind, text, n, state}`. The cell renders a
 judgement already made. This is the right seam: the adapter faces the domain, the
-cell is presentation.
+cell is presentation. (And the adapter, in turn, *relays* the verdict rather than
+making it: `/fx/book` publishes `freshState` and `budgetState` beside the numbers,
+from one tolerance table on the desk. The first cut had the adapter comparing
+`secs > 10` itself — see §9.)
 
 **The factory is consulted once per cell.** `ensure` caches by `(pk, column)` and
 returns early. So the cell *class* is permanent, and anything the factory
@@ -242,9 +245,11 @@ on the feed rather than the grid:
   but, as yet, unreachable.
 - **Fold and focus do not survive a reconstruction.** The widget takes no params,
   so the state lives in a closure; a replay reopens every block.
-- **Freshness thresholds are UI-invented** in two widgets that must be kept in
-  step by hand. That verdict belongs upstream, next to the reval budget the
-  server already publishes.
+- ~~**Freshness thresholds are UI-invented** in two widgets that must be kept in
+  step by hand.~~ Closed: the desk now publishes `freshState` and
+  `budgetState` from one tolerance table (`DeskTolerances`), and four widgets
+  that each carried a copy of the cut-off render the verdict instead. The
+  adapter relays; it no longer decides.
 - **Sorting is deliberately not exposed.** `sortBy` would scatter the aggregates;
   a within-scope sort has to be computed by the domain and handed over through
   the row view.

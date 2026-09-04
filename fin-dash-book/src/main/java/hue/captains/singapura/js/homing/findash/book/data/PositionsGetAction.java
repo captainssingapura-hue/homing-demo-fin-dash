@@ -1,6 +1,7 @@
 package hue.captains.singapura.js.homing.findash.book.data;
 
 import hue.captains.singapura.js.homing.findash.core.data.DeskData;
+import hue.captains.singapura.js.homing.findash.core.data.DeskTolerances;
 import hue.captains.singapura.js.homing.server.EmptyParam;
 import hue.captains.singapura.js.homing.studio.base.DocContent;
 import hue.captains.singapura.tao.http.action.GetAction;
@@ -43,6 +44,8 @@ public final class PositionsGetAction
                     .put("pv", p.pv()).put("delta", p.delta()).put("vega", p.vega())
                     .put("barrierDist", p.barrierDist())
                     .put("freshSecs", p.freshSecs()).put("budgetFrac", p.budgetFrac())
+                    .put("freshState", DeskTolerances.freshState(p.freshSecs()))
+                    .put("budgetState", DeskTolerances.budgetState(p.budgetFrac()))
                     .put("tradeId", p.tradeId()));
         }
         var json = new JsonObject()

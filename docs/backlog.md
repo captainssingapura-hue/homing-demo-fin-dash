@@ -69,7 +69,6 @@ grep over `src/main`, `lib/` excluded.
 
 | # | item | sites | copy risk | size |
 |---|---|---|---|---|
-| 3 | risk judgement computed in the UI | 2 widgets, 3 thresholds | high | moderate |
 | 4 | fetch and failure handling written per widget | 27 widgets | medium | moderate |
 | 5 | actor identity from `Math.random()` | 20 widgets | medium | small ×20 |
 | 6 | the runtime sweep is a manual protocol | — | high | large |
@@ -78,24 +77,6 @@ grep over `src/main`, `lib/` excluded.
 | 9 | a standing baseline of grandfathered findings | 5 findings, 1 module | medium | upstream |
 | 10 | widget view state lost on reconstruction | 1 widget known | low | small |
 | 11 | a vendored library four years old | 1 file, 600 KB | low | small |
-
-## 3. Risk judgement computed in the UI
-
-**Copy risk: high.** This is P5 — the UI is a consumer, not a calculator —
-violated in the two widgets a desk would copy first.
-
-**Evidence.** The server publishes raw `freshSecs` and `budgetFrac`
-(`BookGetAction`, `PositionsGetAction`, `PlatformGetAction`) and no verdict.
-`RiskLadderWidget` decides `secs > 10` is stale and `budgetFrac >= 0.90` /
-`>= 0.75` is over / warn; `RiskBlotterWidget` carries its own copy of the
-freshness cut-off; `PortfolioWidget` and `PlatformConsoleWidget` band values
-locally too. The tolerances are desk facts and live in four places, none of
-them the desk.
-
-**Fix.** The actions publish the verdict beside the number — `freshState`,
-`budgetState` — from one tolerance table in `fin-dash-core`. Widgets render
-the state and never compare. **Acceptance:** no numeric threshold in any
-widget's served JS; the RelationGrid case study's §9 gap closed.
 
 ## 4. Fetch and failure handling written per widget
 
