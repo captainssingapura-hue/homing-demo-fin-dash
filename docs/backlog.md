@@ -70,10 +70,7 @@ grep over `src/main`, `lib/` excluded.
 | # | item | sites | copy risk | size |
 |---|---|---|---|---|
 | 9 | a standing baseline of grandfathered findings | 5 findings, 1 module | medium | upstream |
-| 10 | widget view state lost on reconstruction | 1 widget known | low | small |
-| 11 | a vendored library four years old | 1 file, 600 KB | low | small |
-| 12 | click-everything not yet automated | — | low | small |
-| 13 | dependency convergence not enforced | 1 split found | medium | small |
+| 10 | widget view state lost on reconstruction | 1 widget known | low | upstream |
 
 ## 9. A standing baseline of grandfathered findings
 
@@ -92,44 +89,12 @@ the file kept, with its header, as the record that it once was not.
 focus live in a closure and a replay reopens every block. Other widgets
 likely share it; the ladder is the one known.
 
-**Fix.** Fold set and focus as widget params, per the workspace persistence
-model. **Acceptance:** reload the workspace, the folds survive.
+**Fix — upstream.** Not fixable downstream as the shell stands: a tab's
+params are written once at spawn (`WorkspaceStateModel`) and the shell reads
+nothing back from a controller but `root`, `setActive`, `partyDeregister`
+and the write-lock `takeOver`. There is no seam through which a widget can
+say "my params changed". The seam is proposed in
+[`upstream-blockers.md`](upstream-blockers.md) §4; until it exists, folding
+and focus live in a closure by necessity, not by choice. **Acceptance:**
+unchanged — reload the workspace, the folds survive — once the seam lands.
 
-## 11. A vendored library four years old
-
-**Copy risk: low.** `three@0.128.0` (April 2021), 600 KB, pinned with no
-recorded refresh procedure. The React study praises "one file, no resolver";
-the other half of that bargain is that someone has to refresh it by hand,
-and nobody has.
-
-**Fix.** Pin to a current release and record the procedure — where it is
-fetched from, how it is verified, what the vol-surface module needs from
-it — beside the file. **Acceptance:** a `lib/README.md` that answers those
-three questions.
-
-## 12. Click-everything not yet automated
-
-**Copy risk: low.** The mount half of the runtime sweep is a build step
-(`WidgetMountSweepTest`, KT.md §7e); the "click every control twice" half is
-still the manual protocol. It found the fixed-name-per-row defects at mount
-time, so what it would add is the second-render class: a control whose
-handler re-renders on a branch it did not dissolve.
-
-**Fix.** The stub already records every listener; dispatch each `click`
-twice per widget after mount and assert as the mount sweep does. Next
-increment on the same harness, not a new one. **Acceptance:** the manual
-protocol deleted from wherever it still lives.
-
-## 13. Dependency convergence not enforced
-
-**Copy risk: medium.** vert.x 4.5.11 brought `jackson-databind 2.17.2` and
-`jackson-core 2.16.1` into the same classpath and nothing said so; parsing a
-float threw `NoSuchMethodError`, and the desk did not notice because it only
-ever encoded. The sweep found it by parsing an action's answer. A reference
-implementation that ships a split classpath teaches that it is fine.
-
-**Fix.** The root pom now manages Jackson at one version (KT.md §9.9). The
-general fix is `maven-enforcer-plugin` with `dependencyConvergence` (or
-`requireUpperBoundDeps`) — not added today because the plugin is not in the
-offline repository and the build's portability promise is checked offline.
-**Acceptance:** the enforcer rule in the root build, green.

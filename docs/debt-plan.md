@@ -117,3 +117,7 @@ and the runtime sweep green on every widget the step touched.
 | 5 | #4 fetch and failure | **done** | "Debt #4: one data path — fdk.load" |
 | 6 | #7 stubs and `onCopy` | **done** | "Debt #7: the ladder's contract is real — copy, feed, refusal" |
 | 7 | #6 runtime sweep | **done** (mount half + actions; click half → #12) | "Debt #6: the sweep is a build step" |
+| 8 | #12 click-everything | **done** — and it caught `DataTypeTreeWidget` on its first run | "Debt #12: click everything, twice" |
+| 9 | #13 dependency convergence | **done** — enforcer `dependencyConvergence`, every module | "Debt #13: convergence enforced" |
+| 10 | #11 vendored three.js | **done** as provenance + procedure; the version bump itself not performed (no WebGL here to verify) | "Debt #11: the vendored file answers its three questions" |
+| 11 | #10 view state | **upstream** — no seam for a widget to update its params; proposed as `upstream-blockers.md` §4 | "Debt #10: view-state persistence needs a seam" |
