@@ -118,6 +118,28 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <!-- Dependency convergence, enforced. vert.x 4.5.11 once brought two
+                 Jackson versions into the same classpath and nothing said so
+                 until a test parsed a float (KT.md §9.9). This fails the build
+                 on the next split instead. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>converge</id>
+                        <goals><goal>enforce</goal></goals>
+                        <configuration>
+                            <rules>
+                                <dependencyConvergence/>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 
 </project>
