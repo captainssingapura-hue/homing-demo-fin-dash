@@ -86,22 +86,66 @@ public record FdDataCss() implements CssGroup<FdDataCss> {
 
     /**
      * A section-header cell — the row that OPENS a block, as against
-     * {@link fd_total_row} which closes it.
+     * {@link fd_total_row} which closes it. Worn by every cell of the row,
+     * including the ones that carry nothing, because that is what draws an
+     * unbroken strip across a grid that owns its own {@code <tr>}.
      *
-     * <p>Quieter than a total on purpose: it carries a name, not a number, and
-     * the eye should read it as a label rather than as one more figure to
-     * check. The top rule is what separates one block from the last.</p>
+     * <p>This one is a <b>divider</b>, so it is the loudest of the three: a
+     * solid fill, a 2px rule above and a hairline below, which together read as
+     * a band sitting proud of the rows beneath it. Both rules are <b>inset
+     * shadows</b> rather than borders — the same reasoning the grid itself uses
+     * for its sticky header, and it keeps the band's height out of the box
+     * model.</p>
+     *
+     * <p>The fill is a little <b>ink mixed into the raised surface</b>, not the
+     * raised surface itself. {@code surface-raised} is defined relative to
+     * {@code surface} and in some themes the two are a hair apart — white on
+     * near-white in the default light theme — which left the band invisible
+     * wherever it was needed most. The text colour, by contrast, is guaranteed
+     * to read against the surface in <em>every</em> theme, so a small share of
+     * it is a step off the page that stays a step off the page: it darkens a
+     * light theme and lightens a dark one, which is what elevation means in
+     * each.</p>
+     *
+     * <p>The explicit {@code line-height}/{@code min-height} pair is load
+     * bearing. A cell element with no text collapses to zero height, so a
+     * header whose other columns are void would paint its fill on the label
+     * alone and leave the strip broken. Fixing both to the same value makes an
+     * empty cell exactly as tall as a written one.</p>
+     *
+     * <p>Unlike {@link fd_total_row} the fill is <b>not</b> translucent, so a
+     * grid's selection tint does not show through here. That is the accepted
+     * cost: a section header is chrome rather than data — nothing on it is
+     * editable or worth copying — and the cursor is drawn as an outline, which
+     * paints over the fill regardless.</p>
      */
     public record fd_section_row() implements CssClass<FdDataCss> {
         @Override public String body() {
             return """
-                   border-top: 1px solid var(--color-border);
-                   background: color-mix(in srgb, var(--color-surface-raised) 35%, transparent);
-                   color: var(--color-text-muted);
-                   font-weight: 600;
+                   line-height: 18px;
+                   min-height: 18px;
+                   background: color-mix(in srgb, var(--color-text-primary) 12%,
+                                                   var(--color-surface-raised));
+                   color: var(--color-text-primary);
+                   font-weight: 700;
                    letter-spacing: 0.04em;
+                   box-shadow: inset 0 2px 0 var(--color-border-emphasis),
+                               inset 0 -1px 0 var(--color-border);
                    """;
         }
+    }
+
+    /**
+     * A cell whose content is a <b>mark standing for its row</b> rather than a
+     * value in its column — the bare Σ that closes a block.
+     *
+     * <p>Centred, because left-aligned it lands in the same optical column as
+     * the labels above it and reads as one more of them: under 1W, 1M, 3M, a
+     * flush-left Σ looks like a fourth tenor. Off the column's reading edge it
+     * stops belonging to the sequence and starts closing it.</p>
+     */
+    public record fd_row_mark() implements CssClass<FdDataCss> {
+        @Override public String body() { return "text-align: center;\n"; }
     }
 
     /**
@@ -210,6 +254,7 @@ public record FdDataCss() implements CssGroup<FdDataCss> {
                 new fd_td_num(),
                 new fd_row_group(),
                 new fd_row_indent(),
+                new fd_row_mark(),
                 new fd_section_row(),
                 new fd_total_row(),
                 new fd_grand_row(),

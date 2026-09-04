@@ -163,6 +163,15 @@ cell of an aggregate row and it fills exactly, with no fight against the grid's
 own styling. Weight on the label alone was not enough: with only the label
 emboldened, a subtotal read as one more tenor once the eye was in the numbers.
 
+**A cell with no text has no height.** The corollary of the above, and the one
+that actually bit. The grid mints a bare `<div>` and styles none of it, so a
+`VoidCell` — which by definition writes nothing — collapsed to zero and painted
+its share of the band on nothing at all: the section header showed a strip under
+its label and bare page across the other six columns. A band drawn by agreement
+needs every cell to agree about its *height* as well as its colour, so the row
+treatment fixes `line-height` and `min-height` to the same value. An empty cell
+is then exactly as tall as a written one.
+
 **`updateCell` batches on `requestAnimationFrame`.** A fold is a direct answer to
 a gesture and should not wait on the compositor — and rAF does not run at all in
 a hidden tab, which left the disclosure caret pointing the wrong way while the

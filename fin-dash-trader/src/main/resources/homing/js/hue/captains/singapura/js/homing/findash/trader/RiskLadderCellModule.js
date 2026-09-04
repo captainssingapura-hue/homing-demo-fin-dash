@@ -103,6 +103,7 @@ LadderCell.prototype._paint = function (value) {
     css.removeClass(el, fd_strongest);
     css.removeClass(el, fd_muted);
     css.removeClass(el, fd_row_indent);
+    css.removeClass(el, fd_row_mark);
     css.removeClass(el, fd_total_row);
     css.removeClass(el, fd_grand_row);
     css.removeClass(el, fd_section_row);
@@ -131,8 +132,13 @@ LadderCell.prototype._paint = function (value) {
         // An aggregate announces itself by weight; a leaf sits indented under
         // the block it belongs to. Neither relies on position alone, because a
         // filtered view can put any row first.
+        //
+        // A MARK is the third case: Σ is not an answer to "which tenor", so it
+        // leaves the column's reading edge. Flush left, under 1W / 1M / 3M, it
+        // read as a fourth tenor rather than as the line that closes them.
         if (value.agg) css.addClass(el, fd_strongest);
         if (value.leaf) css.addClass(el, fd_row_indent);
+        if (value.mark) css.addClass(el, fd_row_mark);
         text = value.text;
     } else if (value.kind === 'fresh') {
         // Freshness is the column that says whether the rest of the row can be
