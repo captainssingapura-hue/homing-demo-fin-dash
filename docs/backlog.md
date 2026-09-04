@@ -69,27 +69,11 @@ grep over `src/main`, `lib/` excluded.
 
 | # | item | sites | copy risk | size |
 |---|---|---|---|---|
-| 4 | fetch and failure handling written per widget | 27 widgets | medium | moderate |
 | 6 | the runtime sweep is a manual protocol | — | high | large |
 | 7 | contract methods stubbed; copy guard unreachable | 1 adapter | medium | small |
 | 9 | a standing baseline of grandfathered findings | 5 findings, 1 module | medium | upstream |
 | 10 | widget view state lost on reconstruction | 1 widget known | low | small |
 | 11 | a vendored library four years old | 1 file, 600 KB | low | small |
-
-## 4. Fetch and failure handling written per widget
-
-**Copy risk: medium.** Twenty-seven independent copies of the same policy
-means twenty-seven places for it to drift — and it has: the stale-response
-guard that `LifecycleWidget` needed after rapid navigation exists there and
-nowhere else.
-
-**Evidence.** 27 widgets each carry `fetch(url).then(r => { if (!r.ok) throw
-… })` and their own "load failed" rendering.
-
-**Fix.** `fdk.load(branch, host, url, paint)` in the kit: one HTTP policy,
-one JSON policy, the stale-response guard by construction (the branch is the
-generation token), one failure rendering. **Acceptance:** no `fetch(` in a
-widget body; failure copy identical across the desk.
 
 ## 6. The runtime sweep is a manual protocol
 

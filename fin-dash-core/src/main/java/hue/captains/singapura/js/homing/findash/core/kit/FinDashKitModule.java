@@ -45,6 +45,7 @@ public record FinDashKitModule() implements DomModule<FinDashKitModule> {
                         new FdStatusCss.fd_chip_serious(),
                         new FdStatusCss.fd_chip_critical(),
                         new FdStatusCss.fd_chip_neutral(),
+                        new FdStatusCss.fd_error_text(),
                         new FdStatusCss.fd_status_good_bg(),
                         new FdStatusCss.fd_status_warn_bg(),
                         new FdStatusCss.fd_status_critical_bg()),

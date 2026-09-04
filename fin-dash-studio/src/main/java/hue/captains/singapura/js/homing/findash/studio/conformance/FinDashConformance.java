@@ -18,6 +18,7 @@ import hue.captains.singapura.js.homing.findash.book.BookCrate;
 import hue.captains.singapura.js.homing.findash.core.FinDashCoreCrate;
 import hue.captains.singapura.js.homing.findash.core.conformance.DeterministicRiskRule;
 import hue.captains.singapura.js.homing.findash.core.conformance.NoEmptyCatchRule;
+import hue.captains.singapura.js.homing.findash.core.conformance.NoRawFetchRule;
 import hue.captains.singapura.js.homing.findash.core.conformance.RiskModuleType;
 import hue.captains.singapura.js.homing.findash.etrading.ETradingCrate;
 import hue.captains.singapura.js.homing.findash.governance.GovernanceCrate;
@@ -102,7 +103,8 @@ public final class FinDashConformance {
      */
     private static final List<JsRule> DESK_WIDE = List.of(
             NoEmptyCatchRule.INSTANCE,
-            DeterministicRiskRule.INSTANCE);   // also in RISK_MODEL_RULES; the append de-duplicates
+            DeterministicRiskRule.INSTANCE,    // also in RISK_MODEL_RULES; the append de-duplicates
+            NoRawFetchRule.INSTANCE);
 
     public static final JsRulePolicy POLICY = type -> {
         JsRuleSet base = TYPED_POLICY.rulesFor(type);
