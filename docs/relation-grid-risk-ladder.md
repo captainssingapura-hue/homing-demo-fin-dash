@@ -268,8 +268,9 @@ copy safety, bus focus, a themed header, read-only:
 | subtotals sorting last within scope | sort deliberately not exposed | header-click sort is **on by default**; you write `postSortRows` to re-pin subtotals, or suppress sorting. Work forced by a free feature |
 | fold on double-click / Enter | `dblclick` on our element; Enter via `setActive` | `onRowDoubleClicked` plus `suppressKeyboardEvent`, since the grid owns Enter |
 | copy safety | `getValueToCopy()` — unreachable until `onCopy` is wired | `processCellForClipboard` — Enterprise clipboard module. Community has the same gap we have |
-| live updates | `adapter.subscribe` → batched `updateCell` | `applyTransactionAsync` + `getRowId` + cell flash. Clearly better, and built for a hot feed |
-| virtualization | none — fine at 20 rows, not at 5,000 | built in |
+| live updates | `adapter.subscribe` → batched `updateCell`; a flash is the cell noticing its own change, so the domain decides what is worth flashing | `applyTransactionAsync` + `getRowId`; `enableCellChangeFlash` flashes every change alike |
+| Excel export | a copy mode (§7), or a server endpoint that emits totals as formulas | Enterprise export of what is rendered — totals baked in as values, the §4 double-count |
+| virtualization | none — the filter already detaches folded rows; a scroll window would be the grid's to add | built in |
 | theming | CSS tokens, gated by `no-literal-color` | ~30 `--ag-*` variables to map; a day; no gate |
 | toolchain | `mvn clean install`, no npm | Vite or webpack, Node in the build, a second package ecosystem |
 | footprint | tens of KB, served from Java | React ~45 KB gzipped plus AG Grid Community on the order of 300 KB; Enterprise, more |
@@ -301,10 +302,28 @@ seams are merely called `cellRenderer`, `isExternalFilterPresent` and
 `postSortRows`.
 
 **Where the cost actually is.** For this ladder at this size, a wash in days.
-AG Grid pulls ahead the moment you need virtualization, live deltas with
-flashing, or Excel export — and a real desk needs the first two. RelationGrid
-wins on footprint, on the conformance gates, and on not having to *disable*
-features to keep the domain in charge.
+The first draft of this section then credited AG Grid with three things beyond
+it — virtualization, live deltas with flashing, Excel export — which is the §6
+mistake a fourth time, made while writing the section about not making it. Two
+of the three belong to the domain:
+
+- **Live deltas with flashing** are the batch we already have plus a cell
+  noticing its own value changed. Because the cell is ours, the domain decides
+  what is worth a flash — a breach crossing, not a two-second freshness tick.
+  A generic change-flash cannot tell them apart.
+- **Excel export** is a copy mode, and §4's double-count wearing a different
+  hat: a rendered export bakes totals in as values, and the sheet's autosum
+  lies. Domain code emits them as formulas or omits them — and in this
+  architecture the server owns the data, so the honest export is an endpoint
+  that never touches the grid at all. Export from the source, not the screen.
+
+Only **virtualization** is the grid's, and narrowly: a scroll window needs row
+height and scroll offset, which is the matrix. Even that compensates for a
+domain that has not reduced its row set — the filter already detaches folded
+rows for free. A blotter of five thousand trades needs it; a ladder never does.
+
+RelationGrid wins on footprint, on the conformance gates, and on not having to
+*disable* features to keep the domain in charge.
 
 But the deciding line item is not in the ladder. It is two things about the
 repository:
