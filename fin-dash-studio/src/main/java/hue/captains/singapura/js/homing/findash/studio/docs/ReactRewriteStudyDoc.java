@@ -21,9 +21,10 @@ public record ReactRewriteStudyDoc() implements MarkdownResourceDoc {
     public static final ReactRewriteStudyDoc INSTANCE = new ReactRewriteStudyDoc();
 
     @Override public UUID   uuid()     { return ID; }
-    @Override public String title()    { return "Study :: What the Demo Would Cost in React"; }
-    @Override public String summary()  { return "Eighty to a hundred and thirty-five developer-days, 552 packages "
-            + "— and the premise the demo exists to show. Measured, not estimated."; }
+    @Override public String title()    { return "Study :: The Desk in React, Cold Start"; }
+    @Override public String summary()  { return "Not a rewrite costing but a protocol: the same papers, two teams, "
+            + "two stacks, neither having seen the other's answer. What to measure, and what to expect to be "
+            + "wrong about."; }
     @Override public String category() { return "STUDY"; }
 
     @Override public String resourcePath() { return "findash-docs/react-rewrite-cost.md"; }
