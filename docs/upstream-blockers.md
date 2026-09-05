@@ -1,11 +1,13 @@
 # Upstream blockers — homing core
 
-Two defects found by taking `homing-demo-fin-dash` to zero inline styling. Both
-are **unfixable downstream**: no amount of consumer work clears them, because
-the framework either forbids the only working API or owns the styling itself.
+What this demo needs from the framework and cannot get for itself. Every item is
+**unfixable downstream**: the framework either forbids the only working API,
+owns the styling itself, or holds the seam a consumer would need.
 
-Everything else from that migration is done — 220 conformance findings to 5, and
-those 5 are blocker #1.
+Items 1–3 came out of taking `homing-demo-fin-dash` to zero inline styling —
+220 conformance findings to 5, and those 5 are blocker #1. Items 4 and 5 came
+out of building the risk ladder, the first downstream consumer of RFC 0050;
+#5 is the largest single tax this repository has measured.
 
 ---
 
@@ -172,6 +174,182 @@ so the persistence model, the codec and the picker are untouched; only the
 checkpoint reads it when present. A widget that does not implement it
 persists as today. The ladder would return `{ focus, folded }` and
 reconstruct with them.
+
+---
+
+## 5. A grid displays ONE relation, so every desk re-invents the second one
+
+**Severity: the largest single tax measured downstream.** Not a defect — a
+missing facility, and the one this repository paid most for.
+
+### The conceptual model
+
+> A list of homologous relations displayed together with shared column controls.
+
+Precisely: an **ordered list of relations over one column schema**, rendered in
+one viewport with **shared column geometry**. Each relation carries its own
+keys, its own row view, its own caption, its own depth and its own policies.
+
+Homology is a **type-level** property, not a runtime check:
+
+```java
+List<Relation<T>>
+```
+
+One `T` fixes the column set, the key type and the headers. The compiler
+enforces it at the point of authorship; the served grid receives a schema it
+can trust because the widget could not otherwise have been compiled. That is
+the same shape as RFC 0044 conformance — a build gate, not a runtime guard —
+and the same move typed CSS already makes on the presentation side.
+
+### The evidence: what the first consumer paid
+
+`RiskLadderWidget` + `RiskLadderCellModule` are **319 effective lines** of
+served JS. **98 of them exist only to teach a single-relation grid about rows
+that are not data rows:**
+
+| what those lines do | effective lines |
+|---|---|
+| row constructors, ordering, placing a subtotal last **within its own scope** | 28 |
+| rendering a non-data row: void cells, the section band, indent | 45 |
+| collapse: fold state, the toggle, the keyboard equivalent | 21 |
+| safety: refusing writes, blanking aggregates on copy | 4 |
+| **total** | **98 of 319** |
+
+The part that is actually FX options risk — the column choice, the number
+formatting, the freshness vocabulary, the pair focus — is the smaller half.
+
+### What the model deletes
+
+**The section header stops being a row.** It is a relation's *caption*. That
+single move retires the `VoidCell` class and its nineteen lines of inert edit
+contract, the zero-height trap (a cell rendering no text collapsing to no
+height), the eight class resets per paint, and the trick where a full-row band
+is drawn by every cell in the row agreeing to wear the same class. Largest of
+the four blocks; it ceases to exist rather than getting a better name.
+
+**Ordering becomes structural.** 17 lines encode "aggregates sort last within
+their scope". Under the model a subtotal is a one-row relation placed after its
+detail relation, so there is nothing to encode.
+
+**The discriminator disappears.** A cell is never told which row it is in, so
+today the row's `kind` is threaded down inside every cell value:
+
+| a cell value carries | belongs to |
+|---|---|
+| `kind`, `n`, `text`, `state` | the cell |
+| `agg`, `rowKind`, `indent`, `scope`, `leaf` | **the relation** |
+
+Five of nine fields stop travelling per cell. What survives is the desk's
+per-cell verdict, which is the half that was always a real judgement (P5).
+
+**Fold** is collapsing a relation: hide its rows, keep its caption and its
+subtotal relation. It becomes grid view state rather than a closure and a
+filter predicate — which is also what lets it survive §4's `params()` seam.
+
+**Read-only and copy policy become per relation**, which is *more* expressive
+than per grid: a detail relation may well be editable in another widget while
+an aggregate relation never is.
+
+**Keys need only be unique within their relation**, so the synthetic ones the
+ladder mints to dodge collisions (`pair + '/Σ'`, `'ΣΣ'`) disappear.
+
+### Sorting
+
+Today sorting is **one flat pass over a single global key list** —
+`GridViewStateModule.applyRowView()` filters `basePks()` and sorts the
+survivors. There is no boundary it could respect, so a sort on the ladder
+would scatter captions and strand subtotals beside rows they do not total.
+Sortability is currently a per-*column*, grid-wide predicate: the wrong axis.
+
+The rule: **sorting never crosses a relation.** Scoped that way, "within a
+single relation" is the only thing sorting *can* mean, and sortability becomes
+per relation per column. A ladder then declares its relations unsortable —
+typically the right answer for a ladder — and the pathological case is
+unreachable by construction rather than merely unwired.
+
+### Why this must be the framework's, not the desk's
+
+**"Shared column controls" is the load-bearing half of the definition.** A desk
+can already stack several grids down a pane. What it *cannot* do is make their
+widths, order, hidden set and horizontal scroll agree without reaching into
+each grid's layout — precisely the reach into framework internals the rule set
+exists to forbid. Captions and per-relation policies could in principle be
+domain code. Column agreement cannot. It is the irreducible contribution.
+
+It is also the **positive form** of
+[`virtualization-pseudo-requirement.md`](virtualization-pseudo-requirement.md).
+That study concluded users scroll enormous tables because the domain never gave
+them a breakdown mechanism. This is the mechanism: twelve relations of five
+rows with their subtotals is what makes fifty thousand rows unnecessary rather
+than merely slow.
+
+### The line the facility must not cross
+
+**The grid may own the SHAPE of an aggregate relation. It must never own the
+NUMBER in it.** The moment the API offers `aggregate: 'sum'`, the grid is
+computing risk — and this repository spent a commit removing exactly that
+(backlog #3, "the desk judges, the UI renders"; P5 in the UI study). The desk
+supplies every value, totals included.
+
+This belongs in the RFC text itself, not in a doc explaining it afterwards.
+Type discipline and P5 answer different questions: `T` gives you **shape, not
+truth**. Nothing about the type stops a desk publishing a subtotal that does
+not match the rows above it. The risk is feeling covered by the first and
+quietly relaxing the second.
+
+### API delta
+
+| | today | proposed |
+|---|---|---|
+| unit of display | one relation | ordered `List<Relation<T>>` |
+| homology | n/a | compile-time, one `T` |
+| cell addressing | `(pk, col)` | `(relationId, pk, col)` — **the breaking change** |
+| adapter | one | one per relation |
+| sortable | per column, grid-wide | per relation, per column |
+| read-only / copy policy | per grid | per relation |
+| caption, depth | none | per relation |
+| nesting | n/a | flat list + a depth per relation, **not** a tree |
+
+Relation-qualified addressing is the real cost and is better taken deliberately
+than discovered. Depth on a flat list gives arbitrary nesting (a region layer
+above pairs is three deep) without importing a tree type and everything that
+follows from one.
+
+### What this does NOT fix
+
+Two costs from the same build are **defects, not missing features**, and should
+not be absorbed here:
+
+1. **The rAF batching leak.** `updateCell` batches on `requestAnimationFrame`,
+   which never fires in a hidden tab, so a fold left the caret pointing the
+   wrong way until the pane came forward. `flushNow()` is domain code
+   compensating for a leaky abstraction. Fix the abstraction.
+2. **The zero-height cell contract.** A cell rendering no text collapsing to no
+   height is a bug. It evaporates here only because void cells stop existing —
+   luck, not a fix.
+
+### Caveat on the evidence
+
+This is **one consumer**. Some of the 98 lines are the ladder's taste rather
+than structure, and a second consumer (`TradeBlotterWidget`, `PortfolioWidget`)
+would separate them; neither has been tried. But height, copy semantics and the
+edit contract follow from a non-data row *existing at all*, not from anything
+specific to ladders. Those three need no second witness.
+
+### Acceptance
+
+The ladder rebuilt on the facility: on the order of **85 of its 98 structural
+lines gone**, what remains being a declaration of which relations exist and
+what each one is; the schema (columns, labels, key) sourced from `T` rather
+than from quoted JS — which also dents [`backlog.md`](backlog.md) item #1;
+conformance report unchanged; the runtime sweep green.
+
+### A note on the name
+
+`RelationGrid` currently displays a single relation, which made the name
+slightly grander than the thing. *A list of relations over one `T` with shared
+column controls* is what the name was always describing.
 
 ## Note on what conformance did and did not catch
 

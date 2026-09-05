@@ -71,6 +71,7 @@ grep over `src/main`, `lib/` excluded.
 |---|---|---|---|---|
 | 9 | a standing baseline of grandfathered findings | 5 findings, 1 module | medium | upstream |
 | 10 | widget view state lost on reconstruction | 1 widget known | low | upstream |
+| 14 | the grid displays one relation; the ladder builds the second by hand | 98 of 319 lines | high | upstream |
 
 ## 9. A standing baseline of grandfathered findings
 
@@ -98,3 +99,25 @@ say "my params changed". The seam is proposed in
 and focus live in a closure by necessity, not by choice. **Acceptance:**
 unchanged — reload the workspace, the folds survive — once the seam lands.
 
+
+## 14. The grid displays one relation, so the ladder built the second one by hand
+
+**Copy risk: high.** Not a practice to avoid — a facility to ask for. 98 of
+the risk ladder's 319 effective lines of served JS exist only to teach a
+single-relation grid about rows that are not data rows: section headers as
+void-celled rows, subtotals ordered last within their scope, fold state in a
+closure, and a hand-written copy guard so an aggregate's number never pastes
+as data. All of it is structure, none of it is FX options risk, and every desk
+that copies the ladder copies it — including the four safety lines, which is
+where the copy risk actually bites.
+
+**Fix — upstream.** The conceptual model is *a list of homologous relations
+displayed together with shared column controls*, with homology carried at the
+type level as `List<Relation<T>>`. Proposed in full, with the measurements and
+the API delta, as [`upstream-blockers.md`](upstream-blockers.md) §5. Nothing
+is possible downstream: a desk can stack grids, but it cannot make their column
+geometry agree without reaching into framework internals the rule set forbids.
+
+**Acceptance:** the ladder rebuilt on the facility, on the order of 85 of those
+98 lines gone and the schema sourced from `T` rather than quoted JS; the
+conformance report unchanged; the sweep green.
