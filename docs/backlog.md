@@ -113,8 +113,10 @@ where the copy risk actually bites.
 
 **Fix — upstream.** The conceptual model is *a list of homologous relations
 displayed together with shared column controls*, with homology carried at the
-type level as `List<Relation<T>>`. Proposed in full, with the measurements and
-the API delta, as [`upstream-blockers.md`](upstream-blockers.md) §5. Nothing
+type level as `List<Relation<T>>`. Proposed in full, with the measurements,
+the API delta and the edges still to settle, as
+[`homologous-relations.md`](homologous-relations.md); summarised for the
+framework as [`upstream-blockers.md`](upstream-blockers.md) §5. Nothing
 is possible downstream: a desk can stack grids, but it cannot make their column
 geometry agree without reaching into framework internals the rule set forbids.
 
