@@ -1,11 +1,13 @@
 # Upstream blockers — homing core
 
-Two defects found by taking `homing-demo-fin-dash` to zero inline styling. Both
-are **unfixable downstream**: no amount of consumer work clears them, because
-the framework either forbids the only working API or owns the styling itself.
+What this demo needs from the framework and cannot get for itself. Every item is
+**unfixable downstream**: the framework either forbids the only working API,
+owns the styling itself, or holds the seam a consumer would need.
 
-Everything else from that migration is done — 220 conformance findings to 5, and
-those 5 are blocker #1.
+Items 1–3 came out of taking `homing-demo-fin-dash` to zero inline styling —
+220 conformance findings to 5, and those 5 are blocker #1. Items 4 and 5 came
+out of building the risk ladder, the first downstream consumer of RFC 0050;
+#5 is the largest single tax this repository has measured.
 
 ---
 
@@ -172,6 +174,48 @@ so the persistence model, the codec and the picker are untouched; only the
 checkpoint reads it when present. A widget that does not implement it
 persists as today. The ladder would return `{ focus, folded }` and
 reconstruct with them.
+
+---
+
+## 5. A grid displays ONE relation, so every desk re-invents the second one
+
+**Severity: the largest single tax measured downstream.** Not a defect — a
+missing facility, and the one this repository paid most for.
+
+> A list of homologous relations displayed together with shared column
+> controls.
+
+Homology carried at the type level, `List<Relation<T>>`: one `T` fixes the
+column set, the key type and the headers, checked where the code is written
+rather than where it runs.
+
+**Evidence.** `RiskLadderWidget` + `RiskLadderCellModule` are 319 effective
+lines of served JS. **98 of them** exist only to teach a single-relation grid
+about rows that are not data rows — row constructors and hand-written ordering
+(28), void cells and the section band and indent (45), fold state and its
+keyboard (21), and four lines of safety: refusing writes the adapter cannot
+honour, and blanking an aggregate's number so a copied ladder cannot sum to
+twice the book. Those four are the argument. Nothing in the grid, the rules or
+the sweep would have caught their absence.
+
+**Why it is unfixable downstream.** A desk can already stack grids down a pane.
+What it cannot do is make their widths, order, hidden set and horizontal scroll
+agree without reaching into each grid's layout — the same reach into framework
+internals this file objects to in §3. *Shared column controls* is the
+irreducible contribution.
+
+**Two constraints on the fix.** Sorting must never cross a relation; today it
+is one flat pass over a global key list, with sortability a per-column,
+grid-wide predicate, which is the wrong axis. And the grid may own the *shape*
+of an aggregate relation but never the *number* in it — the moment the API
+offers `aggregate: 'sum'` it is computing risk, which backlog #3 spent a commit
+removing.
+
+**The full proposal** — the measurements, what the model deletes rather than
+renames, the API delta, the edges still to settle, and the two costs that are
+defects rather than missing features — is
+[`homologous-relations.md`](homologous-relations.md). Registered downstream as
+[`backlog.md`](backlog.md) #14.
 
 ## Note on what conformance did and did not catch
 

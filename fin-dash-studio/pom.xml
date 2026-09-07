@@ -121,7 +121,6 @@
         <dependency>
             <groupId>io.github.captainssingapura-hue.homing.js</groupId>
             <artifactId>homing-ssjs-test-fixtures</artifactId>
-            <version>${homing.core.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

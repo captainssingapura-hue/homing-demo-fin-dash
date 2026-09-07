@@ -13,6 +13,7 @@ in the UI Requirements Study.
 > - [`docs/adding-a-theme.md`](docs/adding-a-theme.md) — how to add a custom studio theme (worked example: a Bloomberg-terminal look), incl. the downstream wiring the framework skill omits.
 > - [`docs/upstream-blockers.md`](docs/upstream-blockers.md) · [`docs/defect-app-refs-ambiguous.md`](docs/defect-app-refs-ambiguous.md) — framework issues this demo found, with evidence and suggested fixes.
 > - [`docs/backlog.md`](docs/backlog.md) · [`docs/debt-plan.md`](docs/debt-plan.md) — what this demo owes itself: the JavaScript-in-Java tax and a reference-implementation debt register ranked by whether a practice would be copied; and the plan paying it down, step by step, with status.
+> - [`docs/relation-grid-risk-ladder.md`](docs/relation-grid-risk-ladder.md) · [`docs/virtualization-pseudo-requirement.md`](docs/virtualization-pseudo-requirement.md) · [`docs/react-rewrite-cost.md`](docs/react-rewrite-cost.md) · [`docs/homologous-relations.md`](docs/homologous-relations.md) — the studies: building the risk ladder as RFC 0050's first consumer, why virtualization is a pseudo-requirement, what the desk would cost cold-start in React, and the grid facility the ladder's 98 structural lines argue for.
 >
 > `docs/` is the single source: the studio serves these files from the jar via a
 > build-time copy (no second committed copy), under **Documentation** on the landing.
