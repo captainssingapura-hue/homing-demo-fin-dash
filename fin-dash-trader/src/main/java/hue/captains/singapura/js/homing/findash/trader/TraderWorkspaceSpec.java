@@ -11,6 +11,9 @@ import hue.captains.singapura.js.homing.workspace.WidgetEntry;
 import hue.captains.singapura.js.homing.workspace.WidgetGroup;
 import hue.captains.singapura.js.homing.workspace.WidgetIcon;
 import hue.captains.singapura.js.homing.workspace.WidgetLabel;
+import hue.captains.singapura.js.homing.workspace.shell.Arrangement;
+import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements;
+import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements.Ide;
 import hue.captains.singapura.js.homing.workspace.shell.PartyDecl;
 import hue.captains.singapura.js.homing.workspace.shell.WorkspaceSpec;
 
@@ -75,6 +78,41 @@ public final class TraderWorkspaceSpec implements WorkspaceSpec {
                     .withIcon(new WidgetIcon.Emoji("📈"))
                     .withGroup(overview)
         );
+    }
+
+    /**
+     * What the desk opens with on a first visit: the book on the left, the
+     * position it selects in the middle, the trades behind that position along
+     * the bottom.
+     *
+     * <p>The shape is {@code IDE} because the desk reads the way an IDE does —
+     * a narrow full-height selector, a tall working surface, a wide short strip
+     * of detail underneath. The allocation is not a guess about taste: it is
+     * <b>the desk bus drawn as geometry</b>. {@code PortfolioTreeWidget} is the
+     * only widget here that broadcasts {@code PortfolioSelected}, and exactly
+     * two widgets react to the {@code PortfolioChanged} the secretary turns it
+     * into — {@code PortfolioWidget} and {@code TradeBlotterWidget}. Seeding
+     * those three means every pane on a first visit participates in one
+     * selection, and the trader learns the desk's central gesture by making
+     * it, rather than by finding two of the three in the picker first.</p>
+     *
+     * <p>The blotter earns the bottom strip twice over: it reads well wide and
+     * short, and a row click there emits {@code InstrumentSelected}, which is
+     * the second gesture — the one the pricer, the surface manager and the risk
+     * ladder answer once the trader opens them.</p>
+     *
+     * <p>Deliberately <b>not</b> seeded: the Risk Ladder. It answers instrument
+     * focus, not portfolio selection, so in the editor pane it would sit
+     * unmoved while the explorer beside it changed — teaching, on the first
+     * visit, that the tree does nothing.</p>
+     */
+    @Override
+    public Arrangement arrangement() {
+        return PaneArrangements.IDE.allocate()
+                .place(Ide.EXPLORER, PortfolioTreeWidget.class)
+                .place(Ide.EDITOR,   PortfolioWidget.class)
+                .place(Ide.TERMINAL, TradeBlotterWidget.class)
+                .build();
     }
 
     @Override

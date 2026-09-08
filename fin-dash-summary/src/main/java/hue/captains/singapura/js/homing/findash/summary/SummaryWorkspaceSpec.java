@@ -5,6 +5,9 @@ import hue.captains.singapura.js.homing.workspace.WidgetEntry;
 import hue.captains.singapura.js.homing.workspace.WidgetGroup;
 import hue.captains.singapura.js.homing.workspace.WidgetIcon;
 import hue.captains.singapura.js.homing.workspace.WidgetLabel;
+import hue.captains.singapura.js.homing.workspace.shell.Arrangement;
+import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements;
+import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements.MainAndSide;
 import hue.captains.singapura.js.homing.workspace.shell.PartyDecl;
 import hue.captains.singapura.js.homing.workspace.shell.WorkspaceSpec;
 
@@ -48,5 +51,17 @@ public final class SummaryWorkspaceSpec implements WorkspaceSpec {
                      .exposedAs("navParty")
                      .build()
         );
+    }
+
+    /**
+     * The dashboard is the point of the workspace; the persona card names the reader
+     * it is for.
+     */
+    @Override
+    public Arrangement arrangement() {
+        return PaneArrangements.MAIN_AND_SIDE.allocate()
+                .place(MainAndSide.MAIN, SummaryDashboardWidget.class)
+                .place(MainAndSide.SIDE, SummaryHomeWidget.class)
+                .build();
     }
 }

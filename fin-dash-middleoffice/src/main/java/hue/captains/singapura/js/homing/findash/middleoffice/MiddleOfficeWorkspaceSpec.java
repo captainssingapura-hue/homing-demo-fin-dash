@@ -9,6 +9,9 @@ import hue.captains.singapura.js.homing.workspace.WidgetEntry;
 import hue.captains.singapura.js.homing.workspace.WidgetGroup;
 import hue.captains.singapura.js.homing.workspace.WidgetIcon;
 import hue.captains.singapura.js.homing.workspace.WidgetLabel;
+import hue.captains.singapura.js.homing.workspace.shell.Arrangement;
+import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements;
+import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements.TripleColumn;
 import hue.captains.singapura.js.homing.workspace.shell.PartyDecl;
 import hue.captains.singapura.js.homing.workspace.shell.WorkspaceSpec;
 
@@ -64,5 +67,20 @@ public final class MiddleOfficeWorkspaceSpec implements WorkspaceSpec {
                      .exposedAs("tradeParty")
                      .build()
         );
+    }
+
+    /**
+     * The best-wired desk in the demo, and the arrangement is simply its bus drawn as
+     * geometry: the tree's portfolio selection reaches the blotter, and a blotter row
+     * click reaches the lifecycle pane through the trade secretary. Every hop of
+     * book -> trade -> lifecycle is live on a first visit.
+     */
+    @Override
+    public Arrangement arrangement() {
+        return PaneArrangements.TRIPLE_COLUMN.allocate()
+                .place(TripleColumn.NAV, PortfolioTreeWidget.class)
+                .place(TripleColumn.LIST, TradeBlotterWidget.class)
+                .place(TripleColumn.CONTENT, LifecycleWidget.class)
+                .build();
     }
 }

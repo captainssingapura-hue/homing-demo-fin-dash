@@ -6,6 +6,9 @@ import hue.captains.singapura.js.homing.workspace.WidgetEntry;
 import hue.captains.singapura.js.homing.workspace.WidgetGroup;
 import hue.captains.singapura.js.homing.workspace.WidgetIcon;
 import hue.captains.singapura.js.homing.workspace.WidgetLabel;
+import hue.captains.singapura.js.homing.workspace.shell.Arrangement;
+import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements;
+import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements.MainAndOutput;
 import hue.captains.singapura.js.homing.workspace.shell.PartyDecl;
 import hue.captains.singapura.js.homing.workspace.shell.WorkspaceSpec;
 
@@ -56,5 +59,17 @@ public final class MarketDataWorkspaceSpec implements WorkspaceSpec {
                      .exposedAs("deskParty")
                      .build()
         );
+    }
+
+    /**
+     * Feed health is the watch surface and holds the eye; the override inventory is
+     * the record of what was done about it, which is what a strip underneath is for.
+     */
+    @Override
+    public Arrangement arrangement() {
+        return PaneArrangements.MAIN_AND_OUTPUT.allocate()
+                .place(MainAndOutput.MAIN, FeedHealthWidget.class)
+                .place(MainAndOutput.OUTPUT, OverrideInventoryWidget.class)
+                .build();
     }
 }

@@ -6,6 +6,9 @@ import hue.captains.singapura.js.homing.workspace.WidgetEntry;
 import hue.captains.singapura.js.homing.workspace.WidgetGroup;
 import hue.captains.singapura.js.homing.workspace.WidgetIcon;
 import hue.captains.singapura.js.homing.workspace.WidgetLabel;
+import hue.captains.singapura.js.homing.workspace.shell.Arrangement;
+import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements;
+import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements.MainAndOutput;
 import hue.captains.singapura.js.homing.workspace.shell.PartyDecl;
 import hue.captains.singapura.js.homing.workspace.shell.WorkspaceSpec;
 
@@ -54,5 +57,17 @@ public final class PlatformWorkspaceSpec implements WorkspaceSpec {
                      .exposedAs("deskParty")
                      .build()
         );
+    }
+
+    /**
+     * The console is the operator's surface; the epoch flow is the pipeline running
+     * underneath it, which is where a wide short strip belongs.
+     */
+    @Override
+    public Arrangement arrangement() {
+        return PaneArrangements.MAIN_AND_OUTPUT.allocate()
+                .place(MainAndOutput.MAIN, PlatformConsoleWidget.class)
+                .place(MainAndOutput.OUTPUT, EpochFlowWidget.class)
+                .build();
     }
 }

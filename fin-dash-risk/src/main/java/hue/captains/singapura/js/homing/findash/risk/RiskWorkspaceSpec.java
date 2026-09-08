@@ -8,6 +8,9 @@ import hue.captains.singapura.js.homing.workspace.WidgetEntry;
 import hue.captains.singapura.js.homing.workspace.WidgetGroup;
 import hue.captains.singapura.js.homing.workspace.WidgetIcon;
 import hue.captains.singapura.js.homing.workspace.WidgetLabel;
+import hue.captains.singapura.js.homing.workspace.shell.Arrangement;
+import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements;
+import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements.TripleColumn;
 import hue.captains.singapura.js.homing.workspace.shell.PartyDecl;
 import hue.captains.singapura.js.homing.workspace.shell.WorkspaceSpec;
 
@@ -65,5 +68,19 @@ public final class RiskWorkspaceSpec implements WorkspaceSpec {
                      .exposedAs("deskParty")
                      .build()
         );
+    }
+
+    /**
+     * Book, then the positions in it, then the risk views over them. The first hop is
+     * live through the desk bus; the views pane is the surface the risk manager works
+     * in and does not follow a selection.
+     */
+    @Override
+    public Arrangement arrangement() {
+        return PaneArrangements.TRIPLE_COLUMN.allocate()
+                .place(TripleColumn.NAV, PortfolioTreeWidget.class)
+                .place(TripleColumn.LIST, PortfolioWidget.class)
+                .place(TripleColumn.CONTENT, RiskViewsWidget.class)
+                .build();
     }
 }

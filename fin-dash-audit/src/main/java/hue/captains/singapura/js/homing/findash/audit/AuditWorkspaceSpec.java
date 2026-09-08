@@ -9,6 +9,9 @@ import hue.captains.singapura.js.homing.workspace.WidgetEntry;
 import hue.captains.singapura.js.homing.workspace.WidgetGroup;
 import hue.captains.singapura.js.homing.workspace.WidgetIcon;
 import hue.captains.singapura.js.homing.workspace.WidgetLabel;
+import hue.captains.singapura.js.homing.workspace.shell.Arrangement;
+import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements;
+import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements.TripleColumn;
 import hue.captains.singapura.js.homing.workspace.shell.PartyDecl;
 import hue.captains.singapura.js.homing.workspace.shell.WorkspaceSpec;
 
@@ -64,5 +67,20 @@ public final class AuditWorkspaceSpec implements WorkspaceSpec {
                      .exposedAs("tradeParty")
                      .build()
         );
+    }
+
+    /**
+     * Opens on the audit reading order: pick a book, pick a trade, read what
+     * happened to it. The first hop is live — the tree's selection reaches the
+     * blotter through the desk bus — and the explorer is the surface the auditor
+     * then works in.
+     */
+    @Override
+    public Arrangement arrangement() {
+        return PaneArrangements.TRIPLE_COLUMN.allocate()
+                .place(TripleColumn.NAV, PortfolioTreeWidget.class)
+                .place(TripleColumn.LIST, TradeBlotterWidget.class)
+                .place(TripleColumn.CONTENT, AuditExplorerWidget.class)
+                .build();
     }
 }

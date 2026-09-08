@@ -5,6 +5,9 @@ import hue.captains.singapura.js.homing.workspace.WidgetEntry;
 import hue.captains.singapura.js.homing.workspace.WidgetGroup;
 import hue.captains.singapura.js.homing.workspace.WidgetIcon;
 import hue.captains.singapura.js.homing.workspace.WidgetLabel;
+import hue.captains.singapura.js.homing.workspace.shell.Arrangement;
+import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements;
+import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements.MainAndSide;
 import hue.captains.singapura.js.homing.workspace.shell.PartyDecl;
 import hue.captains.singapura.js.homing.workspace.shell.WorkspaceSpec;
 
@@ -49,5 +52,17 @@ public final class GovernanceWorkspaceSpec implements WorkspaceSpec {
                      .exposedAs("navParty")
                      .build()
         );
+    }
+
+    /**
+     * A change is reviewed against the register it changes, so the console takes the
+     * working surface and the model inventory sits beside it as the reference.
+     */
+    @Override
+    public Arrangement arrangement() {
+        return PaneArrangements.MAIN_AND_SIDE.allocate()
+                .place(MainAndSide.MAIN, ChangeConsoleWidget.class)
+                .place(MainAndSide.SIDE, ModelInventoryWidget.class)
+                .build();
     }
 }

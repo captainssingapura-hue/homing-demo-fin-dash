@@ -5,6 +5,9 @@ import hue.captains.singapura.js.homing.workspace.WidgetEntry;
 import hue.captains.singapura.js.homing.workspace.WidgetGroup;
 import hue.captains.singapura.js.homing.workspace.WidgetIcon;
 import hue.captains.singapura.js.homing.workspace.WidgetLabel;
+import hue.captains.singapura.js.homing.workspace.shell.Arrangement;
+import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements;
+import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements.MainAndSide;
 import hue.captains.singapura.js.homing.workspace.shell.PartyDecl;
 import hue.captains.singapura.js.homing.workspace.shell.WorkspaceSpec;
 
@@ -48,5 +51,17 @@ public final class SalesWorkspaceSpec implements WorkspaceSpec {
                      .exposedAs("navParty")
                      .build()
         );
+    }
+
+    /**
+     * The client pricer is the whole job; the persona card beside it carries the
+     * mission and the cadence while the rest of the sales screens land.
+     */
+    @Override
+    public Arrangement arrangement() {
+        return PaneArrangements.MAIN_AND_SIDE.allocate()
+                .place(MainAndSide.MAIN, ClientPricerWidget.class)
+                .place(MainAndSide.SIDE, SalesHomeWidget.class)
+                .build();
     }
 }

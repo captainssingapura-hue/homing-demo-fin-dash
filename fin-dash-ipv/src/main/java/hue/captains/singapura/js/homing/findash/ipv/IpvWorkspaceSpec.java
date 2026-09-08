@@ -10,6 +10,9 @@ import hue.captains.singapura.js.homing.workspace.WidgetEntry;
 import hue.captains.singapura.js.homing.workspace.WidgetGroup;
 import hue.captains.singapura.js.homing.workspace.WidgetIcon;
 import hue.captains.singapura.js.homing.workspace.WidgetLabel;
+import hue.captains.singapura.js.homing.workspace.shell.Arrangement;
+import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements;
+import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements.TripleColumn;
 import hue.captains.singapura.js.homing.workspace.shell.PartyDecl;
 import hue.captains.singapura.js.homing.workspace.shell.WorkspaceSpec;
 
@@ -68,5 +71,19 @@ public final class IpvWorkspaceSpec implements WorkspaceSpec {
                      .exposedAs("tradeParty")
                      .build()
         );
+    }
+
+    /**
+     * Independent price verification reads book, then positions, then the explain
+     * that justifies them. The first hop is live: the tree's selection reaches the
+     * position list through the desk bus.
+     */
+    @Override
+    public Arrangement arrangement() {
+        return PaneArrangements.TRIPLE_COLUMN.allocate()
+                .place(TripleColumn.NAV, PortfolioTreeWidget.class)
+                .place(TripleColumn.LIST, PortfolioWidget.class)
+                .place(TripleColumn.CONTENT, PnlExplainWidget.class)
+                .build();
     }
 }

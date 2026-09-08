@@ -6,6 +6,9 @@ import hue.captains.singapura.js.homing.workspace.WidgetEntry;
 import hue.captains.singapura.js.homing.workspace.WidgetGroup;
 import hue.captains.singapura.js.homing.workspace.WidgetIcon;
 import hue.captains.singapura.js.homing.workspace.WidgetLabel;
+import hue.captains.singapura.js.homing.workspace.shell.Arrangement;
+import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements;
+import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements.MainAndSide;
 import hue.captains.singapura.js.homing.workspace.shell.PartyDecl;
 import hue.captains.singapura.js.homing.workspace.shell.WorkspaceSpec;
 
@@ -57,5 +60,17 @@ public final class ETradingWorkspaceSpec implements WorkspaceSpec {
                      .exposedAs("deskParty")
                      .build()
         );
+    }
+
+    /**
+     * The console is where a quote is made; the tape is the inbound flow it answers.
+     * A feed reads well as a narrow column beside the work, not underneath it.
+     */
+    @Override
+    public Arrangement arrangement() {
+        return PaneArrangements.MAIN_AND_SIDE.allocate()
+                .place(MainAndSide.MAIN, QuotingConsoleWidget.class)
+                .place(MainAndSide.SIDE, RfqTapeWidget.class)
+                .build();
     }
 }

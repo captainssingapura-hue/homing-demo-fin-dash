@@ -6,6 +6,9 @@ import hue.captains.singapura.js.homing.workspace.WidgetEntry;
 import hue.captains.singapura.js.homing.workspace.WidgetGroup;
 import hue.captains.singapura.js.homing.workspace.WidgetIcon;
 import hue.captains.singapura.js.homing.workspace.WidgetLabel;
+import hue.captains.singapura.js.homing.workspace.shell.Arrangement;
+import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements;
+import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements.Columns;
 import hue.captains.singapura.js.homing.workspace.shell.PartyDecl;
 import hue.captains.singapura.js.homing.workspace.shell.WorkspaceSpec;
 
@@ -53,5 +56,18 @@ public final class OntologyWorkspaceSpec implements WorkspaceSpec {
                      .exposedAs("deskParty")
                      .build()
         );
+    }
+
+    /**
+     * A type browser is a selector and a reading pane, and the selection is live: the
+     * tree broadcasts, the usage pane answers. Even halves rather than a narrow rail,
+     * because a data type name is long and the usage list is not wide.
+     */
+    @Override
+    public Arrangement arrangement() {
+        return PaneArrangements.COLUMNS.allocate()
+                .place(Columns.LEFT, DataTypeTreeWidget.class)
+                .place(Columns.RIGHT, DataTypeUsageWidget.class)
+                .build();
     }
 }

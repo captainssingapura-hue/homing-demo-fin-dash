@@ -5,6 +5,9 @@ import hue.captains.singapura.js.homing.workspace.WidgetEntry;
 import hue.captains.singapura.js.homing.workspace.WidgetGroup;
 import hue.captains.singapura.js.homing.workspace.WidgetIcon;
 import hue.captains.singapura.js.homing.workspace.WidgetLabel;
+import hue.captains.singapura.js.homing.workspace.shell.Arrangement;
+import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements;
+import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements.MainAndSide;
 import hue.captains.singapura.js.homing.workspace.shell.PartyDecl;
 import hue.captains.singapura.js.homing.workspace.shell.WorkspaceSpec;
 
@@ -48,5 +51,17 @@ public final class QuantWorkspaceSpec implements WorkspaceSpec {
                      .exposedAs("navParty")
                      .build()
         );
+    }
+
+    /**
+     * The calibration lab is the desk; the persona card beside it says whose desk and
+     * what it is for, which is worth a first visit while the rest of the screens land.
+     */
+    @Override
+    public Arrangement arrangement() {
+        return PaneArrangements.MAIN_AND_SIDE.allocate()
+                .place(MainAndSide.MAIN, CalibrationLabWidget.class)
+                .place(MainAndSide.SIDE, QuantHomeWidget.class)
+                .build();
     }
 }

@@ -22,7 +22,7 @@
              ships from 0.7.0 onwards. Set to LOCAL-SNAPSHOT to build against the
              framework working tree instead (run `mvn -o install` in homing-ssjs-core
              first) — needed when validating an unreleased core change downstream. -->
-        <homing.core.version>0.8.1</homing.core.version>
+        <homing.core.version>LOCAL-SNAPSHOT</homing.core.version>
         <junit.version>5.11.3</junit.version>
         <!-- One Jackson for the whole tree; see the managed dependencies. -->
         <jackson.version>2.17.2</jackson.version>
