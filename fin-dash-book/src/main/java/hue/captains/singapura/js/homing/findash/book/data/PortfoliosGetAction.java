@@ -18,6 +18,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -30,9 +31,10 @@ import java.util.concurrent.CompletableFuture;
  *       node carries a {@link PortfolioNodeIdentity} — the portfolio id, which
  *       the widget reads back on selection — and its display is resolved at the
  *       edge through a {@link RowDisplaySource} (RFC 0053).</li>
- *   <li>{@code index} — id → {label, leafIds, positions} so the widget can
- *       resolve a selection at any level to its leaf-portfolio ids before
- *       broadcasting (consumers only test membership).</li>
+ *   <li>{@code index} — id → {label, leafIds, positions, pairs} so the widget
+ *       can resolve a selection at any level to its leaf-portfolio ids and the
+ *       currency pairs it books, before broadcasting (consumers only test
+ *       membership).</li>
  * </ul>
  */
 public final class PortfoliosGetAction
@@ -107,13 +109,36 @@ public final class PortfoliosGetAction
         return n;
     }
 
+    /**
+     * The currency pairs a portfolio books, in book order.
+     *
+     * <p>Published because it is a <b>desk fact</b>, not something a consumer
+     * should infer. A leaf portfolio books one pair and a group books the union
+     * of its leaves'; the alternative — reading "EURUSD" out of the label
+     * "EURUSD vanillas" — is the same mistake as reading a machine field out of
+     * a display slot, and it breaks the day a book is renamed.</p>
+     *
+     * <p>Consumers only test membership, exactly as they do with
+     * {@code leafIds}.</p>
+     */
+    private static JsonArray pairsOf(List<String> leafIds) {
+        var seen = new LinkedHashSet<String>();
+        for (DeskData.Position p : DeskData.POSITIONS) {
+            if (leafIds.contains(p.portfolioId())) seen.add(p.pair());
+        }
+        var out = new JsonArray();
+        seen.forEach(out::add);
+        return out;
+    }
+
     private static void buildIndex(DeskData.PortfolioNode node, JsonObject index) {
         var leafIds = new JsonArray();
         node.leafIds().forEach(leafIds::add);
         index.put(node.id(), new JsonObject()
                 .put("label", node.label())
                 .put("leafIds", leafIds)
-                .put("positions", positionCount(node.leafIds())));
+                .put("positions", positionCount(node.leafIds()))
+                .put("pairs", pairsOf(node.leafIds())));
         for (DeskData.PortfolioNode c : node.children()) buildIndex(c, index);
     }
 

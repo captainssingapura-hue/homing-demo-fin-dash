@@ -36,6 +36,7 @@ public final class TraderCrate implements Crate {
                 CrateEntry.of(RiskBlotterWidget.INSTANCE),
                 CrateEntry.of(RiskLadderWidget.INSTANCE),
                 CrateEntry.of(RiskLadderCellModule.INSTANCE),
+                CrateEntry.of(RiskLadderRowsModule.INSTANCE),
                 CrateEntry.of(BarrierWatchWidget.INSTANCE),
                 CrateEntry.of(ExpiryClustersWidget.INSTANCE));
     }

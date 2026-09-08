@@ -12,9 +12,10 @@ import hue.captains.singapura.js.homing.workspace.WidgetGroup;
 import hue.captains.singapura.js.homing.workspace.WidgetIcon;
 import hue.captains.singapura.js.homing.workspace.WidgetLabel;
 import hue.captains.singapura.js.homing.workspace.shell.Arrangement;
-import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements;
-import hue.captains.singapura.js.homing.workspace.shell.PaneArrangements.Ide;
+import hue.captains.singapura.js.homing.workspace.shell.PaneArrangement;
+import hue.captains.singapura.js.homing.workspace.shell.PaneDirection;
 import hue.captains.singapura.js.homing.workspace.shell.PartyDecl;
+import hue.captains.singapura.js.homing.workspace.shell.ShapePane;
 import hue.captains.singapura.js.homing.workspace.shell.WorkspaceSpec;
 
 import java.util.List;
@@ -81,37 +82,58 @@ public final class TraderWorkspaceSpec implements WorkspaceSpec {
     }
 
     /**
-     * What the desk opens with on a first visit: the book on the left, the
-     * position it selects in the middle, the trades behind that position along
-     * the bottom.
+     * The desk's own shape, written out because none of the eight shipped ones
+     * is a trading desk: a full-height book rail, risk and positions side by
+     * side above, the tape across the bottom.
      *
-     * <p>The shape is {@code IDE} because the desk reads the way an IDE does —
-     * a narrow full-height selector, a tall working surface, a wide short strip
-     * of detail underneath. The allocation is not a guess about taste: it is
-     * <b>the desk bus drawn as geometry</b>. {@code PortfolioTreeWidget} is the
-     * only widget here that broadcasts {@code PortfolioSelected}, and exactly
-     * two widgets react to the {@code PortfolioChanged} the secretary turns it
-     * into — {@code PortfolioWidget} and {@code TradeBlotterWidget}. Seeding
-     * those three means every pane on a first visit participates in one
-     * selection, and the trader learns the desk's central gesture by making
-     * it, rather than by finding two of the three in the picker first.</p>
+     * <p>Read as the sequence of splits a trader would have performed. Each
+     * ratio is the share the pane being split <b>keeps</b>, and it is local to
+     * that split — so the ladder's 0.60 is 60% of the 80% that is left of the
+     * 70% above the tape, not 60% of the screen.</p>
+     */
+    private static final PaneArrangement DESK =
+            PaneArrangement.named("fx-desk")
+                    .root("ladder")
+                    .splitWithRatio("ladder", PaneDirection.LEFT, "books",     0.80)
+                    .splitWithRatio("ladder", PaneDirection.DOWN, "tape",      0.70)
+                    .splitWithRatio("ladder", PaneDirection.RIGHT, "positions", 0.60)
+                    .build();
+
+    private static final ShapePane BOOKS     = DESK.pane("books");
+    private static final ShapePane LADDER    = DESK.pane("ladder");
+    private static final ShapePane POSITIONS = DESK.pane("positions");
+    private static final ShapePane TAPE      = DESK.pane("tape");
+
+    /**
+     * What the desk opens with on a first visit: the book rail on the left, the
+     * risk ladder and the positions it selects side by side, the trades behind
+     * them along the bottom.
      *
-     * <p>The blotter earns the bottom strip twice over: it reads well wide and
-     * short, and a row click there emits {@code InstrumentSelected}, which is
-     * the second gesture — the one the pricer, the surface manager and the risk
-     * ladder answer once the trader opens them.</p>
+     * <p>The allocation is not a guess about taste — it is <b>the desk bus
+     * drawn as geometry</b>. {@code PortfolioTreeWidget} is the only widget
+     * here that broadcasts {@code PortfolioSelected}, and every other pane
+     * answers the {@code PortfolioChanged} the secretary turns it into. One
+     * selection in the rail moves all three, so the trader learns the desk's
+     * central gesture by making it rather than by assembling three widgets from
+     * the picker first.</p>
      *
-     * <p>Deliberately <b>not</b> seeded: the Risk Ladder. It answers instrument
-     * focus, not portfolio selection, so in the editor pane it would sit
-     * unmoved while the explorer beside it changed — teaching, on the first
-     * visit, that the tree does nothing.</p>
+     * <p>The ladder takes the largest pane because it is the desk's standing
+     * question — where the risk sits down the curve. It narrows to the pairs
+     * the selected book trades, which is a narrowing of the <i>view</i>: the
+     * subtotals stay the desk's own, over the whole book (P5).</p>
+     *
+     * <p>The tape earns the bottom strip twice over: it reads well wide and
+     * short, and a row click there emits {@code InstrumentSelected}, the second
+     * gesture — the one the ladder, the pricer and the surface manager all
+     * answer, so the first visit has somewhere to go next.</p>
      */
     @Override
     public Arrangement arrangement() {
-        return PaneArrangements.IDE.allocate()
-                .place(Ide.EXPLORER, PortfolioTreeWidget.class)
-                .place(Ide.EDITOR,   PortfolioWidget.class)
-                .place(Ide.TERMINAL, TradeBlotterWidget.class)
+        return DESK.allocate()
+                .place(BOOKS,     PortfolioTreeWidget.class)
+                .place(LADDER,    RiskLadderWidget.class)
+                .place(POSITIONS, PortfolioWidget.class)
+                .place(TAPE,      TradeBlotterWidget.class)
                 .build();
     }
 
