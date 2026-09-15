@@ -5,6 +5,7 @@ import hue.captains.singapura.js.homing.core.CrateEntry;
 import hue.captains.singapura.js.homing.grid.RelationGridCrate;
 import hue.captains.singapura.js.homing.findash.core.FinDashCoreCrate;
 import hue.captains.singapura.js.homing.relgrid.group.RelGridGroupCrate;
+import hue.captains.singapura.js.homing.relgrid.protocol.RelGridProtocolCrate;
 
 import java.util.List;
 
@@ -28,7 +29,7 @@ public final class TraderCrate implements Crate {
         // Both grids for now: Episode 1 (RelationGrid) under the ladder that
         // ships, Episode 2 (the group) under the ladder being rebuilt beside it.
         return List.of(FinDashCoreCrate.INSTANCE, RelationGridCrate.INSTANCE,
-                       RelGridGroupCrate.INSTANCE);
+                       RelGridGroupCrate.INSTANCE, RelGridProtocolCrate.INSTANCE);
     }
 
     @Override
@@ -41,6 +42,12 @@ public final class TraderCrate implements Crate {
                 CrateEntry.of(RiskLadderWidget.INSTANCE),
                 CrateEntry.of(RiskLadderCellModule.INSTANCE),
                 CrateEntry.of(RiskLadderRowsModule.INSTANCE),
+                // Episode 2 — the ladder on the group, beside the one above.
+                CrateEntry.of(RiskLadderGroupWidget.INSTANCE),
+                CrateEntry.of(LadderFeedModule.INSTANCE),
+                CrateEntry.of(LadderRelationModule.INSTANCE),
+                CrateEntry.of(LadderCellModule.INSTANCE),
+                CrateEntry.of(LadderFenceModule.INSTANCE),
                 CrateEntry.of(BarrierWatchWidget.INSTANCE),
                 CrateEntry.of(ExpiryClustersWidget.INSTANCE));
     }

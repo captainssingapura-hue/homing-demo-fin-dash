@@ -249,6 +249,56 @@ public record FdDataCss() implements CssGroup<FdDataCss> {
         }
     }
 
+    /**
+     * A FENCE — the slot a Relation Grid group offers between two of its
+     * tables, filled by the domain (RFC 0050 · Episode 2). The group draws
+     * nothing in it and reads nothing back, so its look is entirely the desk's:
+     * a pair caption wears {@link fd_section_row}'s bevel on top of this, so the
+     * caption reads as an unopened cell and the tables under it as opened ones.
+     * This class is only the geometry — a row that lays its controls out in a
+     * line and takes the group's width.
+     */
+    public record fd_fence() implements CssClass<FdDataCss> {
+        @Override public String body() { return """
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                padding: 0 6px;
+                box-sizing: border-box;
+                width: 100%;
+                """;
+        }
+    }
+
+    /**
+     * The fence's fold toggle. Drawn as a bare glyph, not a button: the bevel
+     * behind it is already the affordance, and a second raised surface inside
+     * a raised surface reads as a mistake. It is the fence's FIRST control, so
+     * Enter on the fence stop presses it.
+     */
+    public record fd_fence_toggle() implements CssClass<FdDataCss> {
+        @Override public String body() { return """
+                appearance: none;
+                border: 0;
+                background: transparent;
+                color: inherit;
+                font: inherit;
+                line-height: inherit;
+                padding: 0 2px;
+                cursor: pointer;
+                """;
+        }
+    }
+
+    /** The fence's caption text; the bevel and weight are the row's. */
+    public record fd_fence_name() implements CssClass<FdDataCss> {
+        @Override public String body() { return """
+                flex: 1;
+                white-space: nowrap;
+                """;
+        }
+    }
+
     @Override
     public List<CssClass<FdDataCss>> cssClasses() {
         return List.of(
@@ -267,7 +317,10 @@ public record FdDataCss() implements CssGroup<FdDataCss> {
                 new fd_kv_row(),
                 new fd_kv_label(),
                 new fd_kv_value(),
-                new fd_stamp());
+                new fd_stamp(),
+                new fd_fence(),
+                new fd_fence_toggle(),
+                new fd_fence_name());
     }
 
     @Override
