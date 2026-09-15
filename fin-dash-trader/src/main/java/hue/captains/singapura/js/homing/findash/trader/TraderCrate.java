@@ -4,6 +4,7 @@ import hue.captains.singapura.js.homing.core.Crate;
 import hue.captains.singapura.js.homing.core.CrateEntry;
 import hue.captains.singapura.js.homing.grid.RelationGridCrate;
 import hue.captains.singapura.js.homing.findash.core.FinDashCoreCrate;
+import hue.captains.singapura.js.homing.relgrid.group.RelGridGroupCrate;
 
 import java.util.List;
 
@@ -24,7 +25,10 @@ public final class TraderCrate implements Crate {
 
     @Override
     public List<Crate> requires() {
-        return List.of(FinDashCoreCrate.INSTANCE, RelationGridCrate.INSTANCE);
+        // Both grids for now: Episode 1 (RelationGrid) under the ladder that
+        // ships, Episode 2 (the group) under the ladder being rebuilt beside it.
+        return List.of(FinDashCoreCrate.INSTANCE, RelationGridCrate.INSTANCE,
+                       RelGridGroupCrate.INSTANCE);
     }
 
     @Override

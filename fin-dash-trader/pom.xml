@@ -25,6 +25,12 @@
             <groupId>io.github.captainssingapura-hue.homing.js</groupId>
             <artifactId>homing-relation-grid</artifactId>
         </dependency>
+        <!-- RFC 0050 · Episode 2 — the risk ladder rebuilt on the group, beside
+             the Episode 1 ladder above until the comparison is settled. -->
+        <dependency>
+            <groupId>io.github.captainssingapura-hue.homing.ssjs</groupId>
+            <artifactId>rel-grid-group</artifactId>
+        </dependency>
         <dependency>
             <groupId>io.github.captainssingapura-hue.homing.findash</groupId>
             <artifactId>fin-dash-core</artifactId>
