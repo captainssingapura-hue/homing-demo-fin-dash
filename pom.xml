@@ -28,10 +28,10 @@
         <jackson.version>2.17.2</jackson.version>
         <jontology.version>0.0.1</jontology.version>
         <!-- The Relation Grid reactor (RFC 0050 · Episode 2): a separate repo,
-             homing-rel-grid, under the homing.ssjs group id. Unreleased — the
-             risk ladder is being rebuilt on its group locally first; this moves
-             to the first cut when there is one. -->
-        <relgrid.version>LOCAL-SNAPSHOT</relgrid.version>
+             homing-rel-grid, under the homing.ssjs group id. The risk ladder's
+             group build runs on it; LOCAL-SNAPSHOT to build against its working
+             tree, as with the core above. -->
+        <relgrid.version>0.1.0</relgrid.version>
     </properties>
 
     <modules>
