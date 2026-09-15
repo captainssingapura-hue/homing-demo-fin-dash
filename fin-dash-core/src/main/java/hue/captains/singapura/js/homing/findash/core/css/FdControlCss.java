@@ -2,7 +2,6 @@ package hue.captains.singapura.js.homing.findash.core.css;
 
 import hue.captains.singapura.js.homing.core.CssClass;
 import hue.captains.singapura.js.homing.core.CssGroup;
-import hue.captains.singapura.js.homing.core.CssImportsFor;
 
 import java.util.List;
 
@@ -146,10 +145,5 @@ public record FdControlCss() implements CssGroup<FdControlCss> {
                 new fd_focus_ring(),
                 new fd_tab(),
                 new fd_tab_active());
-    }
-
-    @Override
-    public CssImportsFor<FdControlCss> cssImports() {
-        return new CssImportsFor<>(this, List.of());
     }
 }

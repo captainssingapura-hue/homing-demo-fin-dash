@@ -2,7 +2,6 @@ package hue.captains.singapura.js.homing.findash.core.css;
 
 import hue.captains.singapura.js.homing.core.CssClass;
 import hue.captains.singapura.js.homing.core.CssGroup;
-import hue.captains.singapura.js.homing.core.CssImportsFor;
 
 import java.util.List;
 
@@ -90,10 +89,5 @@ public record FdChartCss() implements CssGroup<FdChartCss> {
                 new fd_chart_series_point(),
                 new fd_chart_annotation(),
                 new fd_chart_label());
-    }
-
-    @Override
-    public CssImportsFor<FdChartCss> cssImports() {
-        return new CssImportsFor<>(this, List.of());
     }
 }

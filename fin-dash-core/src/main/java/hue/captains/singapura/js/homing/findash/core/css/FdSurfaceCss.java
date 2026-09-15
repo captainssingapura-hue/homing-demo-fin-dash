@@ -2,7 +2,6 @@ package hue.captains.singapura.js.homing.findash.core.css;
 
 import hue.captains.singapura.js.homing.core.CssClass;
 import hue.captains.singapura.js.homing.core.CssGroup;
-import hue.captains.singapura.js.homing.core.CssImportsFor;
 
 import java.util.List;
 
@@ -77,10 +76,5 @@ public record FdSurfaceCss() implements CssGroup<FdSurfaceCss> {
                 new fd_rule_left(),
                 new fd_rule_top(),
                 new fd_rule_strong());
-    }
-
-    @Override
-    public CssImportsFor<FdSurfaceCss> cssImports() {
-        return new CssImportsFor<>(this, List.of());
     }
 }

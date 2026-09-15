@@ -2,7 +2,6 @@ package hue.captains.singapura.js.homing.findash.core.css;
 
 import hue.captains.singapura.js.homing.core.CssClass;
 import hue.captains.singapura.js.homing.core.CssGroup;
-import hue.captains.singapura.js.homing.core.CssImportsFor;
 
 import java.util.List;
 
@@ -197,10 +196,5 @@ public record FdFrameCss() implements CssGroup<FdFrameCss> {
                 new fd_render_target(),
                 new fd_grid_pairs(),
                 new fd_split_row());
-    }
-
-    @Override
-    public CssImportsFor<FdFrameCss> cssImports() {
-        return new CssImportsFor<>(this, List.of());
     }
 }
