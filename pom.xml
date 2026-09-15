@@ -72,11 +72,6 @@
                 <artifactId>homing-conformance-studio</artifactId>
                 <version>${homing.core.version}</version>
             </dependency>
-            <dependency>
-                <groupId>io.github.captainssingapura-hue.homing.js</groupId>
-                <artifactId>homing-relation-grid</artifactId>
-                <version>${homing.core.version}</version>
-            </dependency>
             <!-- One dependency brings the reactor whole: rel-grid, and through
                  it the channel, the protocol and the selection. -->
             <dependency>

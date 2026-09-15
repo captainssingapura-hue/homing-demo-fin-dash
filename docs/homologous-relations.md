@@ -376,6 +376,51 @@ name was always describing.
 
 ---
 
+## Outcome
+
+*Added 2026-09-15, after the facility was built and the ladder rebuilt on it.*
+
+The proposal was answered — as the **group** of the Relation Grid reactor
+(`homing-rel-grid`, RFC 0050 · Episode 2): a separate reactor with its own
+contract (a relation is `view()` / `columns()` / `cellFor()`; the grid holds no
+value; a cell is the domain's object, updated directly), rather than an
+extension of the single-relation grid the ladder was first built on. The
+ladder was rebuilt on it beside the old one, the two compared under the same
+scope and the same gestures, and the old one retired.
+
+**Against §13, measured.**
+
+| asked for | delivered |
+|---|---|
+| on the order of 85 of 98 structural lines gone | yes — the void cell, the section row, the band by agreement, the within-scope ordering, the fold predicate, the copy blanking and the write refusal all stop existing; fold-to-subtotal is the group's fold |
+| the schema sourced from `T`, not quoted JS | **no** — homology is checked at construction, which throws naming both column lists; the reactor's KT calls compile-time homology a core wish, not a grid feature |
+| the conformance report unchanged | yes — every reactor module arrives with an empty ledger |
+| the runtime sweep green | yes — it mounted and clicked the new ladder on its first run |
+
+**And one number this study did not predict.** The ladder is *larger*, not
+smaller:
+
+| | effective lines of served JS |
+|---|---|
+| Episode 1 ladder (widget + cell, later + rows module) | 319 |
+| Episode 2 ladder (widget + feed + relations + cell + fences) | 411 |
+
+The 98 structural lines went, as predicted. But the reactor's contract puts
+more on the domain's side than the old grid did: the domain now owns its feed
+(the old adapter's `subscribe` was twenty lines inline), a cell class with its
+own element lifecycle (the old grid minted the element), the fences (the old
+caption was a row), and a two-branch build-and-teardown for a group that is a
+value. So the structure the proposal objected to is gone and the *mechanism*
+the domain must carry grew by more than that. Whether that trade is right is a
+question about the reactor's doctrine — *the grid holds no value* — and not
+about this proposal, which was about where structure lives. It lives in the
+right place now. It is not smaller.
+
+**Two things left with the reactor.** A group built with no `columnWidths`
+applies none and every member sizes its own columns, silently
+([`relgrid-group-widths-defect.md`](relgrid-group-widths-defect.md)); and
+N pairs are 2N+1 tables, unmeasured at scale. Neither bit the ladder.
+
 *Registered as [`backlog.md`](backlog.md) #14 and
 [`upstream-blockers.md`](upstream-blockers.md) §5. Companion to
 [`relation-grid-risk-ladder.md`](relation-grid-risk-ladder.md), which is the

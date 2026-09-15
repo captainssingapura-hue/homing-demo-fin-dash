@@ -63,11 +63,6 @@ public final class TraderWorkspaceSpec implements WorkspaceSpec {
             WidgetEntry.of(RiskLadderWidget.class, WidgetLabel.of("Risk Ladder"))
                     .withIcon(new WidgetIcon.Emoji("🪜"))
                     .withGroup(risk),
-            // RFC 0050 · Episode 2 — the same ladder on the grid GROUP, docked
-            // beside the one above until the comparison is settled.
-            WidgetEntry.of(RiskLadderGroupWidget.class, WidgetLabel.of("Risk Ladder (group)"))
-                    .withIcon(new WidgetIcon.Emoji("🪜"))
-                    .withGroup(risk),
             WidgetEntry.of(PortfolioWidget.class, WidgetLabel.of("Portfolio"))
                     .withIcon(new WidgetIcon.Emoji("📁"))
                     .withGroup(risk),

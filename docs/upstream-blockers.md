@@ -215,7 +215,16 @@ removing.
 renames, the API delta, the edges still to settle, and the two costs that are
 defects rather than missing features — is
 [`homologous-relations.md`](homologous-relations.md). Registered downstream as
-[`backlog.md`](backlog.md) #14.
+[`backlog.md`](backlog.md) #14 (since closed).
+
+**Outcome (2026-09-15).** Built — as the *group* of the Relation Grid reactor
+(`homing-rel-grid`, RFC 0050 · Episode 2), a separate reactor rather than an
+extension of the single-relation grid. The ladder was rebuilt on it beside the
+old one, compared, and the old one retired; the register's item closed. The
+one part of the ask not delivered is type-level homology: the group checks
+column lists at construction and throws naming both, which the reactor's KT
+calls a core wish rather than a grid feature. Full accounting in
+[`homologous-relations.md`](homologous-relations.md), *Outcome*.
 
 ## Note on what conformance did and did not catch
 

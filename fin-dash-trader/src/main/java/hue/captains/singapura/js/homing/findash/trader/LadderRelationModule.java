@@ -16,10 +16,9 @@ import java.util.List;
  * what the group checks once at construction. Which relation a row is in is
  * its kind; there is no {@code kind} field and nothing is parsed from a pk.
  *
- * <p>{@code verdictOf} is what {@link RiskLadderRowsModule}'s
- * {@code ladderCellValue} was, minus the {@code folded} argument: the caret it
- * carried is the fence's now. Body in the co-located
- * {@code LadderRelationModule.js}.</p>
+ * <p>{@code verdictOf} is the Episode 1 ladder's {@code ladderCellValue}
+ * minus its {@code folded} argument: the caret it carried is the fence's now.
+ * Body in the co-located {@code LadderRelationModule.js}.</p>
  */
 public record LadderRelationModule() implements DomModule<LadderRelationModule> {
 

@@ -18,9 +18,11 @@ import java.util.List;
  * {@code set(verdict)}, which is ours: the relation repaints its cells from
  * the feed and the grid is never told.
  *
- * <p>Compare {@link RiskLadderCellModule}, the Episode 1 cell, which is what
- * this replaces: no void cell, no band drawn by agreement, no copy blanking.
- * Body in the co-located {@code LadderCellModule.js}.</p>
+ * <p>What the Episode 1 cell had and this does not: a void cell class for the
+ * section row, a band drawn by every cell in a row agreeing, and a copy guard
+ * blanking aggregates — each of which existed because one table was holding
+ * several relations ({@code docs/relation-grid-risk-ladder.md} §5). Body in
+ * the co-located {@code LadderCellModule.js}.</p>
  */
 public record LadderCellModule() implements DomModule<LadderCellModule> {
 

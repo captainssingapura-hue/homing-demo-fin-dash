@@ -2,7 +2,6 @@ package hue.captains.singapura.js.homing.findash.trader;
 
 import hue.captains.singapura.js.homing.core.Crate;
 import hue.captains.singapura.js.homing.core.CrateEntry;
-import hue.captains.singapura.js.homing.grid.RelationGridCrate;
 import hue.captains.singapura.js.homing.findash.core.FinDashCoreCrate;
 import hue.captains.singapura.js.homing.relgrid.group.RelGridGroupCrate;
 import hue.captains.singapura.js.homing.relgrid.protocol.RelGridProtocolCrate;
@@ -26,9 +25,10 @@ public final class TraderCrate implements Crate {
 
     @Override
     public List<Crate> requires() {
-        // Both grids for now: Episode 1 (RelationGrid) under the ladder that
-        // ships, Episode 2 (the group) under the ladder being rebuilt beside it.
-        return List.of(FinDashCoreCrate.INSTANCE, RelationGridCrate.INSTANCE,
+        // The Relation Grid reactor (RFC 0050 · Episode 2), for the ladder: the
+        // group crate, and the protocol crate directly because the fence module
+        // news up its values — a direct import needs a direct require.
+        return List.of(FinDashCoreCrate.INSTANCE,
                        RelGridGroupCrate.INSTANCE, RelGridProtocolCrate.INSTANCE);
     }
 
@@ -39,11 +39,8 @@ public final class TraderCrate implements Crate {
                 CrateEntry.of(PricerWidget.INSTANCE),
                 CrateEntry.of(SurfaceManagerWidget.INSTANCE),
                 CrateEntry.of(RiskBlotterWidget.INSTANCE),
+                // The ladder and its four domain modules: feed, relations, cell, fences.
                 CrateEntry.of(RiskLadderWidget.INSTANCE),
-                CrateEntry.of(RiskLadderCellModule.INSTANCE),
-                CrateEntry.of(RiskLadderRowsModule.INSTANCE),
-                // Episode 2 — the ladder on the group, beside the one above.
-                CrateEntry.of(RiskLadderGroupWidget.INSTANCE),
                 CrateEntry.of(LadderFeedModule.INSTANCE),
                 CrateEntry.of(LadderRelationModule.INSTANCE),
                 CrateEntry.of(LadderCellModule.INSTANCE),
