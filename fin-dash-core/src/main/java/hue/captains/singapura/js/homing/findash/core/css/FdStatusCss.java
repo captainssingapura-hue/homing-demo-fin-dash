@@ -2,7 +2,6 @@ package hue.captains.singapura.js.homing.findash.core.css;
 
 import hue.captains.singapura.js.homing.core.CssClass;
 import hue.captains.singapura.js.homing.core.CssGroup;
-import hue.captains.singapura.js.homing.core.CssImportsFor;
 
 import java.util.List;
 
@@ -153,10 +152,5 @@ public record FdStatusCss() implements CssGroup<FdStatusCss> {
                 new fd_chip_critical(),
                 new fd_chip_neutral(),
                 new fd_error_text());
-    }
-
-    @Override
-    public CssImportsFor<FdStatusCss> cssImports() {
-        return new CssImportsFor<>(this, List.of());
     }
 }

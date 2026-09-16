@@ -7,43 +7,60 @@ import hue.captains.singapura.js.homing.findash.core.css.FdFrameCss;
 import hue.captains.singapura.js.homing.findash.core.css.FdStatusCss;
 import hue.captains.singapura.js.homing.findash.core.css.FdTextCss;
 import hue.captains.singapura.js.homing.findash.core.kit.FinDashKitModule;
-import hue.captains.singapura.js.homing.grid.RelationGridModule;
+import hue.captains.singapura.js.homing.relgrid.group.RelGridGroupModule;
 import hue.captains.singapura.js.homing.workspace.LifecycleHint;
 import hue.captains.singapura.js.homing.workspace.WorkspaceWidget;
 
 import java.util.List;
 
 /**
- * The risk ladder — one pair's exposure down the tenor curve, on RFC 0050's
- * {@code RelationGrid}.
+ * The risk ladder — the book down the tenor curve — on the Relation Grid's
+ * <b>group</b> (RFC 0050 · Episode 2).
  *
- * <h2>Why one pair</h2>
+ * <p>This is the second ladder. The first was built on Episode 1's
+ * {@code RelationGrid}, a single-relation grid, and is written up in
+ * {@code docs/relation-grid-risk-ladder.md}: the ninety-eight lines it spent
+ * teaching one table about rows that were not data rows became the case for
+ * {@code docs/homologous-relations.md}, and the group is that proposal built.
+ * The two were docked side by side until the comparison was settled; the
+ * first was then retired and this one took its name.</p>
  *
- * <p>A desk ladder normally reads pair → tenor with a subtotal per pair, and
- * {@code RelationGrid} has no row grouping: {@code GridViewMaps} takes a flat
- * list of primary keys, and {@code GridLayout.render} is given a row
- * <em>count</em>, not row headers. Rather than flatten every pair into
- * "EURUSD · 1W" keys and lose the grouping anyway, the ladder scopes itself to
- * the selected instrument and follows {@code InstrumentChanged} — which is how
- * the rest of this desk already works. With one pair on screen there is exactly
- * one subtotal, and it becomes an ordinary row (Σ) rather than a group header.
- * The limitation stops mattering instead of being worked around.</p>
+ * <p>The ladder re-read as {@code docs/homologous-relations.md} re-read it:
+ * <b>not one relation with four kinds of row, but a stack of relations over
+ * one schema</b> — a detail relation per pair, a one-row subtotal per pair, a
+ * one-row book total — in a {@code RelGridGroup}, with a fence above each pair
+ * that the domain fills (the pair's name and a fold toggle, wearing the desk's
+ * own bevel) and one header that is the group's and sticks as a box.</p>
  *
- * <h2>What each piece owns</h2>
+ * <h2>What the widget owns, and what it does not</h2>
  *
- * <ul>
- *   <li>The <b>adapter</b> is the seam onto the domain: it holds the rows for
- *       the current pair, answers {@code get(pk, column)}, and — because a cell
- *       never learns its row — makes the per-row judgements (is this reading
- *       stale? is this residual over its budget?) and ships them inside the
- *       value.</li>
- *   <li>The <b>cell</b> ({@link RiskLadderCellModule}) renders that judgement.</li>
- *   <li>The <b>grid</b> owns structure, selection, keyboard and copy — including
- *       TSV copy of a selected block, which is a real desk gesture.</li>
- * </ul>
+ * <p>Two branches under its own — {@code grid}, handed whole to the group,
+ * which activates it and gives every member's table a sub-branch; and
+ * {@code domain}, divided here into a part per relation for its cells and a
+ * part per fence. The group asks a cell for {@code cellElement()} once and
+ * places it, a fence for {@code fenceElement()} once and places it; nothing
+ * is rendered into anything and neither side sees the other's DOM.</p>
  *
- * <p>Read-only by construction ({@code editable: false}): the ladder reports
- * risk the book already owns, and a UI is a consumer, not a calculator (P5).</p>
+ * <p>The group is a value: its member list is fixed for its life. A book
+ * scope that changes the pairs on screen is a new group — teardown keeps the
+ * widths and the folds, destroys the group (which disposes no fence), then
+ * this widget disposes its fences and relations and dissolves both branches,
+ * and builds again. The feed is untouched.</p>
+ *
+ * <h2>What stopped existing</h2>
+ *
+ * <p>The void cell, the section row, the band drawn by agreement, the
+ * within-scope ordering, the fold predicate composed with focus, the copy
+ * blanking, the write refusal, the {@code flushNow} after a fold. Fold to
+ * subtotal is the group's fold. What remains is the member list, one fence,
+ * one cell, and {@code verdictOf}.</p>
+ *
+ * <h2>The desk bus</h2>
+ *
+ * <p>{@code PortfolioChanged} with its pairs <i>is</i> the member list — the
+ * book scope rebuilds the group over those pairs, the book total staying.
+ * {@code InstrumentChanged} folds every other pair to its caption and makes
+ * the named one active; both are one click back through the scope strip.</p>
  */
 public final class RiskLadderWidget
         extends WorkspaceWidget<WorkspaceWidget._None, RiskLadderWidget> {
@@ -62,16 +79,17 @@ public final class RiskLadderWidget
     @Override
     protected List<ModuleImports<? extends Importable>> bodyImports() {
         return List.of(
-                new ModuleImports<>(List.of(new FinDashKitModule.fdk()),
-                        FinDashKitModule.INSTANCE),
-                new ModuleImports<>(List.of(new RelationGridModule.RelationGrid()),
-                        RelationGridModule.INSTANCE),
-                new ModuleImports<>(List.of(new RiskLadderCellModule.ladderCell()),
-                        RiskLadderCellModule.INSTANCE),
+                new ModuleImports<>(List.of(new FinDashKitModule.fdk()), FinDashKitModule.INSTANCE),
+                new ModuleImports<>(List.of(new RelGridGroupModule.RelGridGroup()), RelGridGroupModule.INSTANCE),
+                new ModuleImports<>(List.of(new LadderFeedModule.createLadderFeed()), LadderFeedModule.INSTANCE),
                 new ModuleImports<>(List.of(
-                        new RiskLadderRowsModule.ladderRows(),
-                        new RiskLadderRowsModule.ladderCellValue()),
-                        RiskLadderRowsModule.INSTANCE),
+                        new LadderRelationModule.LADDER_COLUMNS(),
+                        new LadderRelationModule.createLadderRelation()),
+                        LadderRelationModule.INSTANCE),
+                new ModuleImports<>(List.of(
+                        new LadderFenceModule.createPairFence(),
+                        new LadderFenceModule.createStampFence()),
+                        LadderFenceModule.INSTANCE),
                 new ModuleImports<>(List.of(
                         new FdFrameCss.fd_cluster(),
                         new FdFrameCss.fd_header_row(),
@@ -84,12 +102,8 @@ public final class RiskLadderWidget
                         new FdTextCss.fd_muted(),
                         new FdTextCss.fd_title()),
                         FdTextCss.INSTANCE),
-                new ModuleImports<>(List.of(
-                        new FdStatusCss.fd_error_text()),
-                        FdStatusCss.INSTANCE),
-                new ModuleImports<>(List.of(
-                        new FdControlCss.fd_btn_ghost()),
-                        FdControlCss.INSTANCE));
+                new ModuleImports<>(List.of(new FdStatusCss.fd_error_text()), FdStatusCss.INSTANCE),
+                new ModuleImports<>(List.of(new FdControlCss.fd_btn_ghost()), FdControlCss.INSTANCE));
     }
 
     @Override
@@ -97,223 +111,126 @@ public final class RiskLadderWidget
         return List.of(
             "    var root = branch.createElement('root', 'div');",
             "    css.setClass(root, fd_widget_root);",
-            "",
             "    var head = fdk.el(branch, 'head', 'div', fd_header_row);",
             "    head.appendChild(fdk.el(branch, 'title-1', 'span', fd_title, 'RISK LADDER'));",
-            "    var pairSlot = fdk.el(branch, 'pair', 'span', fd_cluster);",
-            "    head.appendChild(pairSlot);",
-            "    // Copy status is a line whose TEXT changes, not an element per copy.",
-            "    var copyNote = fdk.el(branch, 'copy-note', 'span', [fd_caption, fd_muted]);",
-            "    head.appendChild(copyNote);",
+            "    var scopeSlot = fdk.el(branch, 'scope', 'span', fd_cluster);",
+            "    head.appendChild(scopeSlot);",
             "    root.appendChild(head);",
             "    root.appendChild(fdk.el(branch, 'cap-1', 'div', [fd_caption, fd_muted],",
             "        'the book down the curve \\u00b7 a subtotal closes each pair, then the book \\u00b7 "
                     + "totals come from the desk, not from summing what you see (P5)'));",
-            "",
             "    var host = fdk.el(branch, 'host', 'div', [fd_section, fd_scroll]);",
             "    root.appendChild(host);",
             "",
-            "    var state = { focus: null, book: null, folded: {}, rows: [], byPk: {}, asOf: '' };",
-            "    var grid = null, gridBranch = null;",
+            "    var owner = Object.freeze({ toString: function () { return 'risk ladder'; } });",
+            "    var feed = createLadderFeed({ branch: branch, host: host });",
             "",
-            "    // The columns, in the order a desk reads them: what it is, then the",
-            "    // greeks, then how much to trust the numbers.",
-            "    var COLUMNS = ['tenor', 'delta', 'vAtm', 'vRr', 'vBf', 'theta', 'fresh'];",
-            "    var LABELS = { tenor: 'Book \\u25b8 tenor', delta: '\\u0394', vAtm: 'vATM',",
-            "                   vRr: 'vRR', vBf: 'vBF', theta: '\\u0398', fresh: 'freshness' };",
-            "",
-            "    // RelationAdapterContract. Every invariant the row kinds imply is",
-            "    // enforced on THIS side — the grid needs to learn nothing about totals,",
-            "    // because each seam it exposes (the filter predicate, the cell's copy",
-            "    // value, these mutators) is already ours.",
-            "    var adapter = {",
-            "        pks:     function () { return state.rows.map(function (r) { return r.pk; }); },",
-            "        columns: function () { return COLUMNS; },",
-            "        get:     function (pk, col) {",
-            "            var row = state.byPk[pk];",
-            "            return row ? ladderCellValue(row, col, state.folded) : null;",
-            "        },",
-            "        // LIVE PATH. The grid hands us fn(pk, col, value) and batches what",
-            "        // we push. The feed is a poll of the book: rows whose data changed",
-            "        // are re-judged (cellValue) and every cell of them relayed — so",
-            "        // aggregates tick with the leaves, which is the P5 obligation a",
-            "        // feed that only ticked leaves would silently break. Row-set",
-            "        // changes are not a cell update and are not handled here.",
-            "        subscribe:   function (fn) {",
-            "            state.feed = setInterval(function () {",
-            "                fdk.load('/fx/book', { branch: branch, host: host, what: 'risk ladder' },",
-            "                    function (d) {",
-            "                        var fresh = ladderRows(d), changed = 0;",
-            "                        for (var i = 0; i < fresh.length; i++) {",
-            "                            var row = state.byPk[fresh[i].pk];",
-            "                            if (!row || JSON.stringify(row.data) === JSON.stringify(fresh[i].data)) continue;",
-            "                            row.data = fresh[i].data; changed++;",
-            "                            for (var c = 0; c < COLUMNS.length; c++) fn(row.pk, COLUMNS[c], ladderCellValue(row, COLUMNS[c], state.folded));",
-            "                        }",
-            "                        // The batch paints on requestAnimationFrame, which a hidden pane",
-            "                        // never gets — the caret learned this first. A tick is data,",
-            "                        // and data does not wait for the compositor.",
-            "                        if (changed && grid) grid.flushNow();",
-            "                    });",
-            "            }, 5000);",
-            "        },",
-            "        unsubscribe: function (fn) { if (state.feed) { clearInterval(state.feed); state.feed = null; } },",
-            "        // Read-only, and loudly: an aggregate is derived and a leaf belongs to",
-            "        // the book. A stub that returned silently would teach that a contract",
-            "        // is something to stub.",
-            "        update:      function (pk, col, v) { throw new Error('risk ladder is read-only: ' + pk + '/' + col); },",
-            "        deleteRows:  function (pks) { throw new Error('risk ladder is read-only: rows belong to the book'); }",
-            "    };",
-            "",
-            "    // FILTERS. \"Never filtered out\" needs one refinement to be right: an",
-            "    // aggregate is exempt from predicates over its MEMBERS' values, but it",
-            "    // is still subject to choosing a scope. Filtering to EURUSD must drop",
-            "    // the USDJPY subtotal — leaving it would show a total for rows that are",
-            "    // not there. So: scope decides whether an aggregate appears at all,",
-            "    // and value predicates never do.",
-            "    // ONE predicate. Focus and folding are both view state, and filterRows",
-            "    // holds a single raw filter — two calls would silently replace each",
-            "    // other rather than compose.",
-            "    function applyView() {",
-            "        if (!grid) return;",
-            "        grid.filterRows(function (pk) {",
-            "            var row = state.byPk[pk];",
-            "            if (!row) return false;",
-            "            // The grand total spans every scope, so it survives all three.",
-            "            if (row.scope === null) return true;",
-            "            // A book narrows to the PAIRS it trades — a membership test on a",
-            "            // desk fact, never a guess parsed out of the book's name. It does",
-            "            // not turn these into that book's numbers: the pair subtotals are",
-            "            // still the desk's, over the whole book (P5). Same relationship",
-            "            // the pair focus below already has to an instrument.",
-            "            if (state.book && state.book.pairs.indexOf(row.scope) < 0) return false;",
-            "            if (state.focus && row.scope !== state.focus) return false;",
-            "            // Folding hides the DETAIL and keeps the summary — that is the",
-            "            // point of folding a block rather than removing it.",
-            "            if (row.kind === 'leaf' && state.folded[row.scope]) return false;",
-            "            return true;",
-            "        });",
-            "    }",
-            "",
-            "    function toggleSection(scope) {",
-            "        if (!scope) return;",
-            "        state.folded[scope] = !state.folded[scope];",
-            "        applyView();",
-            "        // Repaint the caret through the grid's own direct-update path rather",
-            "        // than rebuilding: the row is unchanged, only its disclosure is.",
-            "        var row = state.byPk[scope];",
-            "        if (row && grid) {",
-            "            grid.updateCell(scope, 'tenor', ladderCellValue(row, 'tenor', state.folded));",
-            "            // updateCell batches on requestAnimationFrame. A fold is a direct",
-            "            // answer to a gesture, so it should not wait on the compositor —",
-            "            // and rAF does not run at all in a hidden tab, which would leave",
-            "            // the caret pointing the wrong way until the pane came forward.",
-            "            grid.flushNow();",
-            "        }",
-            "    }",
-            "",
-            "    // The chip strip is rebuilt whenever the pair changes, so it owns a",
-            "    // dissolvable sub-branch: dissolve() releases the elements AND their",
-            "    // names, which is what makes a re-render safe.",
-            "    var pairBranch = null;",
-            "",
-            "    // Enter folds the section under the cursor — the keyboard equivalent of",
-            "    // the double-click, so the ladder can be driven without a mouse. The grid",
-            "    // leaves Enter alone (its own keydown routes to the edit controller, inert",
-            "    // while editable is false) and it tells us where the cursor sits, so this",
-            "    // needs no cooperation from it.",
+            "    // VIEW STATE the widget keeps across rebuilds: the book scope (a set of",
+            "    // pairs, or null for all), the instrument focus (a pair, or null), and",
+            "    // what a group has of its own \\u2014 widths and folds.",
             "    //",
-            "    // Bound through setActive rather than to the grid's element: under RFC",
-            "    // 0048 the ENTERED PANE holds DOM focus, so a listener hung on our own",
-            "    // container would never see the key. Same contract the trade blotter's",
-            "    // arrow keys keep.",
-            "    var keyHandler = function (ev) {",
-            "        if (ev.key !== 'Enter' || !grid) return;",
-            "        var tag = ev.target && ev.target.tagName;",
-            "        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;",
-            "        var at = null;",
-            "        try { at = JSON.parse(grid.cursor()); } catch (e) { return; }",
-            "        if (!at || !at.pk) return;",
-            "        var row = state.byPk[at.pk];",
-            "        if (!row || row.kind !== 'section') return;",
-            "        toggleSection(row.scope);",
-            "        ev.preventDefault();",
-            "    };",
+            "    // The widths are SEEDED, never left to the tables. Column agreement is",
+            "    // the one thing separate tables cannot reach by themselves and the one",
+            "    // thing the group exists to supply \\u2014 but it applies only what it holds,",
+            "    // and with nothing held every member sizes its own columns by its own",
+            "    // content, a subtotal table one way and a detail table another. A first",
+            "    // snapshot is the host's to give (KT \\u00a79.7); after that it is whatever",
+            "    // the members accepted, read back on every resize.",
+            "    var state = { book: null, focus: null, folded: [],",
+            "                  widths: { tenor: 118, delta: 74, vAtm: 68, vRr: 64, vBf: 64, theta: 64, fresh: 80 } };",
+            "    var current = null;   // { group, relations, fences }",
             "",
-            "    function renderPairChip() {",
-            "        if (pairBranch) pairBranch.dissolve();",
-            "        pairBranch = branch.createBranch('pair-strip');",
-            "        pairBranch.activate(pairSlot);",
-            "        // Each narrowing gets its own chip and its own way out, because they",
-            "        // compose: a book can be selected in the tree and a pair focused from",
-            "        // an instrument, and one 'whole book' button would have to undo both.",
+            "    function pairsOnScreen() {",
+            "        var all = feed.pairs();",
+            "        if (!state.book) return all;",
+            "        return all.filter(function (p) { return state.book.pairs.indexOf(p) >= 0; });",
+            "    }",
+            "",
+            "    // THE GROUP IS A VALUE. Two branches, both dissolved at teardown: 'grid'",
+            "    // handed whole to the group; 'domain' divided here \\u2014 a part per relation",
+            "    // for its cells, a part per fence.",
+            "    function build() {",
+            "        var gridB = branch.createBranch('grid');",
+            "        var domainB = branch.createBranch('domain');",
+            "        domainB.activate(owner);",
+            "        var relations = [], fences = [], members = [];",
+            "        pairsOnScreen().forEach(function (pair) {",
+            "            var fence = createPairFence(pair, {",
+            "                branch: domainB.createBranch('fence-' + pair),",
+            "                tell:   function (m) { return current ? current.group.tell(m) : false; },",
+            "                folded: state.folded.indexOf(pair) >= 0",
+            "            });",
+            "            fences.push(fence);",
+            "            var detail = createLadderRelation(feed, { pair: pair, kind: 'detail',   branch: domainB.createBranch('cells-' + pair) });",
+            "            var sub    = createLadderRelation(feed, { pair: pair, kind: 'subtotal', branch: domainB.createBranch('cells-' + pair + '-sum') });",
+            "            relations.push(detail, sub);",
+            "            members.push({ id: pair,              fence: fence, grid: { relation: detail, label: pair } });",
+            "            members.push({ id: pair + '/\\u03a3',               grid: { relation: sub,    label: pair + ' subtotal' } });",
+            "        });",
+            "        var book = createLadderRelation(feed, { kind: 'book', branch: domainB.createBranch('cells-book') });",
+            "        relations.push(book);",
+            "        members.push({ id: 'book', grid: { relation: book, label: 'FXO book total' } });",
+            "        var stamp = createStampFence(feed, { branch: domainB.createBranch('fence-stamp') });",
+            "        fences.push(stamp);",
+            "        var group = new RelGridGroup({",
+            "            container: host, branch: gridB, members: members, fence: stamp,",
+            "            header: 'group', stickyHeader: true,",
+            "            columnWidths: state.widths,",
+            "            folded: state.folded,",
+            "            onColumnResized: function () { if (current) state.widths = current.group.columnWidths(); },",
+            "            onFolded: function () { if (current) state.folded = foldedIds(current.group); },",
+            "            label: 'Risk ladder'",
+            "        });",
+            "        current = { group: group, relations: relations, fences: fences };",
+            "    }",
+            "    function foldedIds(group) { return group.members().filter(function (id) { return group.folded(id); }); }",
+            "    function teardown() {",
+            "        var c = current;",
+            "        if (!c) return;",
+            "        state.widths = c.group.columnWidths();",
+            "        state.folded = foldedIds(c.group);",
+            "        current = null;",
+            "        c.group.destroy();",
+            "        c.fences.forEach(function (f) { f.dispose(); });",
+            "        c.relations.forEach(function (r) { r.dispose(); });",
+            "        branch.dissolveBranch('grid');",
+            "        branch.dissolveBranch('domain');",
+            "    }",
+            "    function rebuild() { teardown(); build(); renderScope(); }",
+            "",
+            "    // FOCUS is a fold, not a filter: every other pair collapses to its",
+            "    // caption, the book total stays, every fence still answers a press.",
+            "    function applyFocus() {",
+            "        if (!current) return;",
+            "        var g = current.group;",
+            "        if (!state.focus) { g.foldAll(false); return; }",
+            "        g.foldAll(true);",
+            "        g.fold(state.focus, false);",
+            "        g.fold(state.focus + '/\\u03a3', false);",
+            "        g.fold('book', false);",
+            "        g.activate(state.focus);",
+            "    }",
+            "",
+            "    var scopeBranch = null;",
+            "    function renderScope() {",
+            "        if (scopeBranch) scopeBranch.dissolve();",
+            "        scopeBranch = branch.createBranch('scope-strip');",
+            "        scopeBranch.activate(scopeSlot);",
             "        if (state.book) {",
-            "            pairSlot.appendChild(fdk.chip(pairBranch, 'book-chip', 'neutral',",
-            "                '\\ud83d\\udcc1 ' + state.book.label));",
-            "            var dropBook = fdk.el(pairBranch, 'clear-book', 'button', fd_btn_ghost, 'all books');",
-            "            dropBook.onclick = function () { state.book = null; renderPairChip(); applyView(); };",
-            "            pairSlot.appendChild(dropBook);",
+            "            scopeSlot.appendChild(fdk.chip(scopeBranch, 'book-chip', 'neutral', '\\ud83d\\udcc1 ' + state.book.label));",
+            "            var dropBook = fdk.el(scopeBranch, 'clear-book', 'button', fd_btn_ghost, 'all books');",
+            "            dropBook.onclick = function () { state.book = null; rebuild(); applyFocus(); };",
+            "            scopeSlot.appendChild(dropBook);",
             "        }",
             "        if (state.focus) {",
-            "            pairSlot.appendChild(fdk.chip(pairBranch, 'pair-chip', 'neutral', state.focus));",
-            "            var clear = fdk.el(pairBranch, 'clear', 'button', fd_btn_ghost, 'all pairs');",
-            "            clear.onclick = function () { state.focus = null; renderPairChip(); applyView(); };",
-            "            pairSlot.appendChild(clear);",
+            "            scopeSlot.appendChild(fdk.chip(scopeBranch, 'pair-chip', 'neutral', state.focus));",
+            "            var dropPair = fdk.el(scopeBranch, 'clear-pair', 'button', fd_btn_ghost, 'all pairs');",
+            "            dropPair.onclick = function () { state.focus = null; renderScope(); applyFocus(); };",
+            "            scopeSlot.appendChild(dropPair);",
             "        }",
             "        if (!state.book && !state.focus) {",
-            "            pairSlot.appendChild(fdk.chip(pairBranch, 'pair-chip', 'neutral', 'whole book'));",
+            "            scopeSlot.appendChild(fdk.chip(scopeBranch, 'pair-chip', 'neutral', 'whole book'));",
             "        }",
-            "        if (state.asOf) {",
-            "            pairSlot.appendChild(fdk.el(pairBranch, 'asof', 'span', [fd_caption, fd_muted],",
-            "                'as-of ' + state.asOf));",
-            "        }",
-            "    }",
-            "",
-            "    function build() {",
-            "        // The grid owns its cells' elements, so it gets a branch of its own",
-            "        // that is dissolved whole when the pair changes — the same discipline",
-            "        // every re-rendering region here follows.",
-            "        if (grid) { grid.destroy(); grid = null; }",
-            "        if (gridBranch) gridBranch.dissolve();",
-            "        gridBranch = branch.createBranch('grid');",
-            "        gridBranch.activate(host);",
-            "        renderPairChip();",
-            "        if (!state.rows.length) {",
-            "            host.appendChild(fdk.el(gridBranch, 'empty', 'div', [fd_caption, fd_muted],",
-            "                'no risk rows'));",
-            "            return;",
-            "        }",
-            "        grid = new RelationGrid({",
-            "            container:   host,",
-            "            branch:      gridBranch,",
-            "            adapter:     adapter,",
-            "            cellFactory: function (col, value, meta) {",
-            "                return ladderCell(col, value, { onToggleSection: toggleSection });",
-            "            },",
-            "            editable:    false,",
-            "            // Ctrl+C: the grid hands over TSV of the selection (aggregates' numbers",
-            "            // already blank, by the cell's own getValueToCopy) and touches no",
-            "            // clipboard. That is ours: write it, and say so where the eye is.",
-            "            onCopy:      function (tsv) {",
-            "                navigator.clipboard.writeText(tsv).then(",
-            "                    function ()  { copyNote.textContent = 'copied ' + tsv.split('\\n').length + ' rows'; },",
-            "                    function (e) { copyNote.textContent = 'copy failed: ' + (e && e.message ? e.message : e); });",
-            "            },",
-            "            header:      { show: true, sticky: true, includeInCopy: true, labels: LABELS }",
-            "        });",
-            "        applyView();",
-            "    }",
-            "",
-            "    function load() {",
-            "        fdk.load('/fx/book', { branch: branch, host: host, what: 'risk ladder' }, function (d) {",
-            "                state.asOf = d.slice ? 'slice ' + d.slice : '';",
-            "                state.rows = ladderRows(d);",
-            "                state.byPk = {};",
-            "                for (var i = 0; i < state.rows.length; i++) {",
-            "                    state.byPk[state.rows[i].pk] = state.rows[i];",
-            "                }",
-            "                build();",
-            "        });",
             "    }",
             "",
             "    var party = (workspaceCtx && workspaceCtx.deskParty) ? workspaceCtx.deskParty : null;",
@@ -321,50 +238,39 @@ public final class RiskLadderWidget
             "    if (party) {",
             "        actorId = fdk.actorId('trader/ladder', branch);",
             "        party.joinActor({",
-            "            id: actorId,",
-            "            parentSecretary: 'desk',",
+            "            id: actorId, parentSecretary: 'desk',",
             "            reactors: {",
             "                InstrumentChanged: function (msg) {",
             "                    var ins = msg.instrument || {};",
             "                    if (!ins.pair || ins.pair === state.focus) return;",
-            "                    // A pair selection FOCUSES the ladder rather than reloading",
-            "                    // it: the whole book stays loaded and the filter narrows the",
-            "                    // view, so the grand total keeps spanning what it always",
-            "                    // spanned and 'whole book' is one click back.",
             "                    state.focus = ins.pair;",
-            "                    renderPairChip();",
-            "                    applyView();",
+            "                    renderScope();",
+            "                    applyFocus();",
             "                },",
             "                PortfolioChanged: function (msg) {",
             "                    var pf = msg.portfolio || {};",
-            "                    // pairs is what a pair-shaped view can act on; leafIds is",
-            "                    // for position-shaped ones. No pairs, no opinion.",
             "                    if (!pf.pairs) return;",
+            "                    // The member list IS the portfolio: a new group over its pairs.",
             "                    state.book = { label: pf.label, pairs: pf.pairs };",
-            "                    renderPairChip();",
-            "                    applyView();",
+            "                    if (current) { rebuild(); applyFocus(); }",
             "                }",
             "            }",
             "        });",
             "        party.tellFrom(actorId, { kind: 'CurrentInstrumentRequested' });",
-            "        // Both, because a ladder opened after the selection was made should",
-            "        // still show it — the same courtesy the position list already pays.",
             "        party.tellFrom(actorId, { kind: 'CurrentPortfolioRequested' });",
             "    }",
             "",
-            "    load();",
+            "    feed.start(function () { build(); renderScope(); applyFocus(); });",
             "",
             "    return {",
             "        root: root,",
-            "        setActive: function (active) {",
-            "            if (active) document.addEventListener('keydown', keyHandler);",
-            "            else        document.removeEventListener('keydown', keyHandler);",
-            "        },",
+            "        setActive: function (active) {},",
             "        partyDeregister: function () {",
-            "            document.removeEventListener('keydown', keyHandler);",
-            "            if (grid) { grid.destroy(); }",
-            "            if (actorId && party) { party.leave(actorId); }",
+            "            feed.stop();",
+            "            teardown();",
+            "            if (party && actorId) { party.leave(actorId); actorId = null; }",
             "        }",
-            "    };");
+            "    };"
+        );
     }
 }

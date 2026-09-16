@@ -2,7 +2,6 @@ package hue.captains.singapura.js.homing.findash.core.css;
 
 import hue.captains.singapura.js.homing.core.CssClass;
 import hue.captains.singapura.js.homing.core.CssGroup;
-import hue.captains.singapura.js.homing.core.CssImportsFor;
 
 import java.util.List;
 
@@ -122,10 +121,5 @@ public record FdTextCss() implements CssGroup<FdTextCss> {
                 new fd_muted(),
                 new fd_num(),
                 new fd_mono());
-    }
-
-    @Override
-    public CssImportsFor<FdTextCss> cssImports() {
-        return new CssImportsFor<>(this, List.of());
     }
 }

@@ -22,11 +22,16 @@
              ships from 0.7.0 onwards. Set to LOCAL-SNAPSHOT to build against the
              framework working tree instead (run `mvn -o install` in homing-ssjs-core
              first) — needed when validating an unreleased core change downstream. -->
-        <homing.core.version>0.8.2</homing.core.version>
+        <homing.core.version>0.8.3</homing.core.version>
         <junit.version>5.11.3</junit.version>
         <!-- One Jackson for the whole tree; see the managed dependencies. -->
         <jackson.version>2.17.2</jackson.version>
         <jontology.version>0.0.1</jontology.version>
+        <!-- The Relation Grid reactor (RFC 0050 · Episode 2): a separate repo,
+             homing-rel-grid, under the homing.ssjs group id. The risk ladder's
+             group build runs on it; LOCAL-SNAPSHOT to build against its working
+             tree, as with the core above. -->
+        <relgrid.version>0.1.1</relgrid.version>
     </properties>
 
     <modules>
@@ -67,10 +72,12 @@
                 <artifactId>homing-conformance-studio</artifactId>
                 <version>${homing.core.version}</version>
             </dependency>
+            <!-- One dependency brings the reactor whole: rel-grid, and through
+                 it the channel, the protocol and the selection. -->
             <dependency>
-                <groupId>io.github.captainssingapura-hue.homing.js</groupId>
-                <artifactId>homing-relation-grid</artifactId>
-                <version>${homing.core.version}</version>
+                <groupId>io.github.captainssingapura-hue.homing.ssjs</groupId>
+                <artifactId>rel-grid-group</artifactId>
+                <version>${relgrid.version}</version>
             </dependency>
             <!-- The GraalJS fixtures the widget sweep runs on (KT.md §7e).
                  Test scope, same release train as everything above. -->

@@ -21,9 +21,11 @@
             <groupId>io.github.captainssingapura-hue.homing.js</groupId>
             <artifactId>homing-studio-starter</artifactId>
         </dependency>
+        <!-- RFC 0050 · Episode 2 — the Relation Grid reactor, for the risk
+             ladder. (Episode 1's homing-relation-grid is retired from here.) -->
         <dependency>
-            <groupId>io.github.captainssingapura-hue.homing.js</groupId>
-            <artifactId>homing-relation-grid</artifactId>
+            <groupId>io.github.captainssingapura-hue.homing.ssjs</groupId>
+            <artifactId>rel-grid-group</artifactId>
         </dependency>
         <dependency>
             <groupId>io.github.captainssingapura-hue.homing.findash</groupId>
